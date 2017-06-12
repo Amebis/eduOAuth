@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
     eduOAuth - An OAuth 2.0 Client for eduVPN (and beyond)
 
@@ -10,7 +10,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>44ea054c-0c39-4aac-9e40-253e919c1e2f</ProjectGuid>
+    <ProjectGuid>{44EA054C-0C39-4AAC-9E40-253E919C1E2F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>eduOAuth</RootNamespace>
@@ -24,6 +24,15 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccessToken.cs" />
+    <Compile Include="AccessTokenException.cs" />
+    <Compile Include="AuthorizationGrantException.cs" />
+    <Compile Include="AuthorizationGrant.cs" />
+    <Compile Include="BearerToken.cs" />
+    <Compile Include="InvalidStateException.cs" />
+    <Compile Include="InvalidTypeParameterException.cs" />
+    <Compile Include="MissingParameterException.cs" />
+    <Compile Include="ParameterException.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -31,6 +40,7 @@
     </Compile>
     <Compile Include="OAuth.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnsupportedTokenTypeException.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources.resx">
@@ -38,6 +48,12 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\eduJSON\eduJSON\eduJSON.csproj">
+      <Project>{8f4c3f22-1988-4077-9220-ed2512fc0248}</Project>
+      <Name>eduJSON</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
