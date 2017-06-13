@@ -26,73 +26,17 @@ namespace eduOAuth
         public AuthorizationGrant()
         {
             CodeChallengeAlgorithm = CodeChallengeAlgorithmType.S256;
-        }
 
-        /// <summary>
-        /// Launches user-default browser requesting client authorization code.
-        /// </summary>
-        /// <param name="authorization_endpoint">URI of the authorization endpoint</param>
-        /// <param name="redirect_endpoint">URI the browser should be redirect upon succesfull authorization. Client should setup a listener on this URI prior this method is called.</param>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.1"/>
-        /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.1"/>
-        /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.2"/>
-        /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.3"/>
-        public void Authorize(Uri authorization_endpoint, Uri redirect_endpoint)
-        {
             RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
             var random = new byte[32];
 
-            //// Create a redirect URI using an available port on the loopback address.
-            //var redirect_uri = "http://" + IPAddress.Loopback + ":" + GetRandomUnusedPort()  + "/callback";
-
-            //// Start a HttpListener call-back (ASAP, while the TCP port is still free).
-            //http = new HttpListener();
-            //http.Prefixes.Add(redirect_uri);
-            //http.Start();
-
-            // Prepare authorization endpoint URI.
-            var auth_uri_builder = new UriBuilder(authorization_endpoint);
-            auth_uri_builder.Query +=
-                (auth_uri_builder.Query.Length > 0 ? "&" : "?") + "response_type=code" +
-                "&client_id=" + Uri.EscapeDataString(ClientID) +
-                "&redirect_uri=" + Uri.EscapeDataString(redirect_endpoint.AbsoluteUri);
-
-            if (Scope.Count > 0)
-            {
-                // Add the client requested scope.
-                auth_uri_builder.Query += "&scope=" + Uri.EscapeDataString(String.Join(" ", Scope.ToArray()));
-            }
-
-            // Calculate a random state and add it.
+            // Calculate random state.
             rng.GetBytes(random);
             state = Base64URLEncodeNoPadding(random);
-            auth_uri_builder.Query += "&state=" + state;
 
-            if (CodeChallengeAlgorithm != CodeChallengeAlgorithmType.None)
-            {
-                // Calculate code verifier and add the code challenge (RFC 7636).
-                rng.GetBytes(random);
-                code_verifier = Base64URLEncodeNoPadding(random);
-
-                switch (CodeChallengeAlgorithm)
-                {
-                    case CodeChallengeAlgorithmType.Plain:
-                        auth_uri_builder.Query += "&code_challenge_method=plain&code_challenge=" + code_verifier;
-                        break;
-
-                    case CodeChallengeAlgorithmType.S256:
-                        {
-                            var sha256 = new SHA256Managed();
-                            auth_uri_builder.Query += "&code_challenge_method=S256&code_challenge=" + Base64URLEncodeNoPadding(sha256.ComputeHash(Encoding.ASCII.GetBytes(code_verifier)));
-                        }
-                        break;
-                }
-            }
-            else
-                code_verifier = null;
-
-            // Opens request in the browser.
-            System.Diagnostics.Process.Start(auth_uri_builder.Uri.ToString());
+            // Calculate code verifier.
+            rng.GetBytes(random);
+            code_verifier = Base64URLEncodeNoPadding(random);
         }
 
         /// <summary>
@@ -132,7 +76,7 @@ namespace eduOAuth
             string body =
                 "grant_type=authorization_code" +
                 "&code=" + Uri.EscapeDataString(authorization_code) +
-                "&redirect_uri=" + Uri.EscapeDataString(redirect_endpoint.AbsoluteUri) +
+                "&redirect_uri=" + Uri.EscapeDataString(redirect_endpoint.ToString()) +
                 "&client_id=" + Uri.EscapeDataString(ClientID);
             if (code_verifier != null)
                 body += "&code_verifier=" + code_verifier;
@@ -203,6 +147,17 @@ namespace eduOAuth
         //}
 
         /// <summary>
+        /// Authorization endpoint base URI
+        /// </summary>
+        public Uri AuthorizationEndpoint { get; set; }
+
+        /// <summary>
+        /// Redirection endpoint base URI
+        /// </summary>
+        /// <remarks>Client should setup a listener on this URI prior this method is called.</remarks>
+        public Uri RedirectEndpoint { get; set; }
+
+        /// <summary>
         /// Client ID
         /// </summary>
         /// <remarks>Should be populated before requesting authorization.</remarks>
@@ -246,6 +201,68 @@ namespace eduOAuth
         /// </summary>
         /// <remarks>Should be populated before requesting authorization. When empty <code>scope</code> parameter is not included in authorization request URI.</remarks>
         public List<string> Scope { get; set; }
+
+        /// <summary>
+        /// Authorization URI
+        /// </summary>
+        /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.1"/>
+        /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.1"/>
+        /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.2"/>
+        /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.3"/>
+        public Uri AuthorizationURI
+        {
+            get
+            {
+                //// Create a redirect URI using an available port on the loopback address.
+                //var redirect_uri = "http://" + IPAddress.Loopback + ":" + GetRandomUnusedPort()  + "/callback";
+
+                //// Start a HttpListener call-back (ASAP, while the TCP port is still free).
+                //http = new HttpListener();
+                //http.Prefixes.Add(redirect_uri);
+                //http.Start();
+
+                // Prepare authorization endpoint URI.
+                var auth_uri_builder = new UriBuilder(AuthorizationEndpoint);
+                auth_uri_builder.Query +=
+                    (auth_uri_builder.Query.Length > 0 ? "&" : "?") + "response_type=code" +
+                    "&client_id=" + Uri.EscapeDataString(ClientID) +
+                    "&redirect_uri=" + Uri.EscapeDataString(RedirectEndpoint.ToString());
+
+                if (Scope.Count > 0)
+                {
+                    // Add the client requested scope.
+                    auth_uri_builder.Query += "&scope=" + Uri.EscapeDataString(String.Join(" ", Scope.ToArray()));
+                }
+
+                // Add the random state.
+                auth_uri_builder.Query += "&state=" + state;
+
+                if (CodeChallengeAlgorithm != CodeChallengeAlgorithmType.None)
+                {
+                    // Add the code challenge (RFC 7636).
+                    switch (CodeChallengeAlgorithm)
+                    {
+                        case CodeChallengeAlgorithmType.Plain:
+                            auth_uri_builder.Query += "&code_challenge_method=plain&code_challenge=" + code_verifier;
+                            break;
+
+                        case CodeChallengeAlgorithmType.S256:
+                            {
+                                var sha256 = new SHA256Managed();
+                                auth_uri_builder.Query += "&code_challenge_method=S256&code_challenge=" + Base64URLEncodeNoPadding(sha256.ComputeHash(Encoding.ASCII.GetBytes(code_verifier)));
+                            }
+                            break;
+                    }
+                }
+                else
+                    code_verifier = null;
+
+                //// Opens request in the browser.
+                //System.Diagnostics.Process.Start(auth_uri_builder.Uri.ToString());
+
+                return auth_uri_builder.Uri;
+            }
+        }
 
         /// <summary>
         /// Random client state
