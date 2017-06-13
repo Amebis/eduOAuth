@@ -78,7 +78,7 @@ namespace eduOAuth
             if (obj.TryGetValue("error", out error))
             {
                 if (error.GetType() != typeof(string))
-                    throw new InvalidTypeParameterException("error", typeof(string), error.GetType());
+                    throw new InvalidParameterTypeException("error", typeof(string), error.GetType());
             }
             else
                 throw new MissingParameterException("error");
@@ -88,7 +88,7 @@ namespace eduOAuth
             if (obj.TryGetValue("error_description", out error_description))
             {
                 if (error_description.GetType() != typeof(string))
-                    throw new InvalidTypeParameterException("error_description", typeof(string), error_description.GetType());
+                    throw new InvalidParameterTypeException("error_description", typeof(string), error_description.GetType());
             }
 
             // Get error URI.
@@ -96,10 +96,59 @@ namespace eduOAuth
             if (obj.TryGetValue("error_uri", out error_uri))
             {
                 if (error_uri.GetType() != typeof(string))
-                    throw new InvalidTypeParameterException("error_uri", typeof(string), error_uri.GetType());
+                    throw new InvalidParameterTypeException("error_uri", typeof(string), error_uri.GetType());
             }
 
             return new AccessTokenException((string)error, (string)error_description, (string)error_uri);
+        }
+
+        /// <summary>
+        /// The error message
+        /// </summary>
+        public override string Message
+        {
+            get
+            {
+                string msg;
+                switch (ErrorCode)
+                {
+                    case ErrorCodeType.InvalidRequest:
+                        msg = Resources.ErrorAccessTokenInvalidRequest;
+                        break;
+
+                    case ErrorCodeType.InvalidClient:
+                        msg = Resources.ErrorAccessTokenInvalidClient;
+                        break;
+
+                    case ErrorCodeType.InvalidGrant:
+                        msg = Resources.ErrorAccessTokenInvalidGrant;
+                        break;
+
+                    case ErrorCodeType.UnauthorizedClient:
+                        msg = Resources.ErrorAccessTokenUnauthorizedClient;
+                        break;
+
+                    case ErrorCodeType.UnsupportedGrantType:
+                        msg = Resources.ErrorAccessTokenUnsupportedGrantType;
+                        break;
+
+                    case ErrorCodeType.InvalidScope:
+                        msg = Resources.ErrorAccessTokenInvalidScope;
+                        break;
+
+                    default:
+                        msg = null;
+                        break;
+                }
+
+                if (base.Message != null)
+                    msg = msg != null ? String.Format("{0}\n{1}", msg, base.Message) : base.Message;
+
+                if (ErrorUri != null)
+                    msg = msg != null ? String.Format("{0}\n{1}", msg, ErrorUri.ToString()) : ErrorUri.ToString();
+
+                return msg;
+            }
         }
 
         public enum ErrorCodeType
@@ -121,9 +170,9 @@ namespace eduOAuth
             /// <summary>
             /// Client authentication failed (e.g., unknown client, no
             /// client authentication included, or unsupported
-            /// authentication method).  The authorization server MAY
+            /// authentication method). The authorization server MAY
             /// return an HTTP 401 (Unauthorized) status code to indicate
-            /// which HTTP authentication schemes are supported.If the
+            /// which HTTP authentication schemes are supported. If the
             /// client attempted to authenticate via the "Authorization"
             /// request header field, the authorization server MUST
             /// respond with an HTTP 401 (Unauthorized) status code and
@@ -133,7 +182,7 @@ namespace eduOAuth
             InvalidClient,
 
             /// <summary>
-            /// The provided authorization grant(e.g., authorization
+            /// The provided authorization grant (e.g., authorization
             /// code, resource owner credentials) or refresh token is
             /// invalid, expired, revoked, does not match the redirection
             /// URI used in the authorization request, or was issued to

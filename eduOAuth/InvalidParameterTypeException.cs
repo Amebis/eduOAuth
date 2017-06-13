@@ -12,19 +12,19 @@ using System.Security.Permissions;
 namespace eduOAuth
 {
     /// <summary>
-    /// Parameter type is invalid
+    /// Unexpected parameter type (expected: {0}, received: {1}).
     /// </summary>
     [Serializable]
-    public class InvalidTypeParameterException : ParameterException
+    public class InvalidParameterTypeException : ParameterException
     {
-        public InvalidTypeParameterException(string parameter, Type expected_type, Type provided_type) :
-            base(parameter)
+        public InvalidParameterTypeException(string parameter, Type expected_type, Type provided_type) :
+            base(String.Format(Resources.ErrorInvalidParameterType, expected_type.ToString(), provided_type.ToString()), parameter)
         {
             ExpectedType = expected_type;
             ProvidedType = provided_type;
         }
 
-        protected InvalidTypeParameterException(SerializationInfo info, StreamingContext context)
+        protected InvalidParameterTypeException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
             ExpectedType = (Type)info.GetValue("ExpectedType", typeof(Type));

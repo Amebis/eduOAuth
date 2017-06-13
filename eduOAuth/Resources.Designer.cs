@@ -59,5 +59,158 @@ namespace eduOAuth {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Client authentication failed (e.g., unknown client, no client authentication included, or unsupported authentication method)..
+        /// </summary>
+        internal static string ErrorAccessTokenInvalidClient {
+            get {
+                return ResourceManager.GetString("ErrorAccessTokenInvalidClient", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client..
+        /// </summary>
+        internal static string ErrorAccessTokenInvalidGrant {
+            get {
+                return ResourceManager.GetString("ErrorAccessTokenInvalidGrant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request is missing a required parameter, includes an unsupported parameter value (other than grant type), repeats a parameter, includes multiple credentials, utilizes more than one mechanism for authenticating the client, or is otherwise malformed..
+        /// </summary>
+        internal static string ErrorAccessTokenInvalidRequest {
+            get {
+                return ResourceManager.GetString("ErrorAccessTokenInvalidRequest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The requested scope is invalid, unknown, malformed, or exceeds the scope granted by the resource owner..
+        /// </summary>
+        internal static string ErrorAccessTokenInvalidScope {
+            get {
+                return ResourceManager.GetString("ErrorAccessTokenInvalidScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The authenticated client is not authorized to use this authorization grant type..
+        /// </summary>
+        internal static string ErrorAccessTokenUnauthorizedClient {
+            get {
+                return ResourceManager.GetString("ErrorAccessTokenUnauthorizedClient", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The authorization grant type is not supported by the authorization server..
+        /// </summary>
+        internal static string ErrorAccessTokenUnsupportedGrantType {
+            get {
+                return ResourceManager.GetString("ErrorAccessTokenUnsupportedGrantType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The resource owner or authorization server denied the request..
+        /// </summary>
+        internal static string ErrorAuthorizationGrantAccessDenied {
+            get {
+                return ResourceManager.GetString("ErrorAuthorizationGrantAccessDenied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The request is missing a required parameter, includes an invalid parameter value, includes a parameter more than once, or is otherwise malformed..
+        /// </summary>
+        internal static string ErrorAuthorizationGrantInvalidRequest {
+            get {
+                return ResourceManager.GetString("ErrorAuthorizationGrantInvalidRequest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The requested scope is invalid, unknown, or malformed..
+        /// </summary>
+        internal static string ErrorAuthorizationGrantInvalidScope {
+            get {
+                return ResourceManager.GetString("ErrorAuthorizationGrantInvalidScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The authorization server encountered an unexpected condition that prevented it from fulfilling the request..
+        /// </summary>
+        internal static string ErrorAuthorizationGrantServerError {
+            get {
+                return ResourceManager.GetString("ErrorAuthorizationGrantServerError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The authorization server is currently unable to handle the request due to a temporary overloading or maintenance of the server..
+        /// </summary>
+        internal static string ErrorAuthorizationGrantTemporarilyUnavailable {
+            get {
+                return ResourceManager.GetString("ErrorAuthorizationGrantTemporarilyUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The client is not authorized to request an authorization code using this method..
+        /// </summary>
+        internal static string ErrorAuthorizationGrantUnauthorizedClient {
+            get {
+                return ResourceManager.GetString("ErrorAuthorizationGrantUnauthorizedClient", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The authorization server does not support obtaining an authorization code using this method..
+        /// </summary>
+        internal static string ErrorAuthorizationGrantUnsupportedResponseType {
+            get {
+                return ResourceManager.GetString("ErrorAuthorizationGrantUnsupportedResponseType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unexpected parameter type (expected: {0}, received: {1})..
+        /// </summary>
+        internal static string ErrorInvalidParameterType {
+            get {
+                return ResourceManager.GetString("ErrorInvalidParameterType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Response and request states are different..
+        /// </summary>
+        internal static string ErrorInvalidState {
+            get {
+                return ResourceManager.GetString("ErrorInvalidState", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A required parameter is missing..
+        /// </summary>
+        internal static string ErrorMissingParameter {
+            get {
+                return ResourceManager.GetString("ErrorMissingParameter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The received token type is not supported..
+        /// </summary>
+        internal static string ErrorUnsupportedTokenType {
+            get {
+                return ResourceManager.GetString("ErrorUnsupportedTokenType", resourceCulture);
+            }
+        }
     }
 }

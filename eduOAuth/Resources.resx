@@ -117,4 +117,55 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ErrorAccessTokenInvalidClient" xml:space="preserve">
+    <value>Client authentication failed (e.g., unknown client, no client authentication included, or unsupported authentication method).</value>
+  </data>
+  <data name="ErrorAccessTokenInvalidGrant" xml:space="preserve">
+    <value>The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.</value>
+  </data>
+  <data name="ErrorAccessTokenInvalidRequest" xml:space="preserve">
+    <value>The request is missing a required parameter, includes an unsupported parameter value (other than grant type), repeats a parameter, includes multiple credentials, utilizes more than one mechanism for authenticating the client, or is otherwise malformed.</value>
+  </data>
+  <data name="ErrorAccessTokenInvalidScope" xml:space="preserve">
+    <value>The requested scope is invalid, unknown, malformed, or exceeds the scope granted by the resource owner.</value>
+  </data>
+  <data name="ErrorAccessTokenUnauthorizedClient" xml:space="preserve">
+    <value>The authenticated client is not authorized to use this authorization grant type.</value>
+  </data>
+  <data name="ErrorAccessTokenUnsupportedGrantType" xml:space="preserve">
+    <value>The authorization grant type is not supported by the authorization server.</value>
+  </data>
+  <data name="ErrorAuthorizationGrantAccessDenied" xml:space="preserve">
+    <value>The resource owner or authorization server denied the request.</value>
+  </data>
+  <data name="ErrorAuthorizationGrantInvalidRequest" xml:space="preserve">
+    <value>The request is missing a required parameter, includes an invalid parameter value, includes a parameter more than once, or is otherwise malformed.</value>
+  </data>
+  <data name="ErrorAuthorizationGrantInvalidScope" xml:space="preserve">
+    <value>The requested scope is invalid, unknown, or malformed.</value>
+  </data>
+  <data name="ErrorAuthorizationGrantServerError" xml:space="preserve">
+    <value>The authorization server encountered an unexpected condition that prevented it from fulfilling the request.</value>
+  </data>
+  <data name="ErrorAuthorizationGrantTemporarilyUnavailable" xml:space="preserve">
+    <value>The authorization server is currently unable to handle the request due to a temporary overloading or maintenance of the server.</value>
+  </data>
+  <data name="ErrorAuthorizationGrantUnauthorizedClient" xml:space="preserve">
+    <value>The client is not authorized to request an authorization code using this method.</value>
+  </data>
+  <data name="ErrorAuthorizationGrantUnsupportedResponseType" xml:space="preserve">
+    <value>The authorization server does not support obtaining an authorization code using this method.</value>
+  </data>
+  <data name="ErrorInvalidParameterType" xml:space="preserve">
+    <value>Unexpected parameter type (expected: {0}, received: {1}).</value>
+  </data>
+  <data name="ErrorInvalidState" xml:space="preserve">
+    <value>Response and request states are different.</value>
+  </data>
+  <data name="ErrorMissingParameter" xml:space="preserve">
+    <value>A required parameter is missing.</value>
+  </data>
+  <data name="ErrorUnsupportedTokenType" xml:space="preserve">
+    <value>The received token type is not supported.</value>
+  </data>
 </root>

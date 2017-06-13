@@ -75,10 +75,63 @@ namespace eduOAuth
             info.AddValue("ErrorUri", ErrorUri);
         }
 
+        /// <summary>
+        /// The error message
+        /// </summary>
+        public override string Message
+        {
+            get
+            {
+                string msg;
+                switch (ErrorCode)
+                {
+                    case ErrorCodeType.InvalidRequest:
+                        msg = Resources.ErrorAuthorizationGrantInvalidRequest;
+                        break;
+
+                    case ErrorCodeType.UnauthorizedClient:
+                        msg = Resources.ErrorAuthorizationGrantUnauthorizedClient;
+                        break;
+
+                    case ErrorCodeType.AccessDenied:
+                        msg = Resources.ErrorAuthorizationGrantAccessDenied;
+                        break;
+
+                    case ErrorCodeType.UnsupportedResponseType:
+                        msg = Resources.ErrorAuthorizationGrantUnsupportedResponseType;
+                        break;
+
+                    case ErrorCodeType.InvalidScope:
+                        msg = Resources.ErrorAuthorizationGrantInvalidScope;
+                        break;
+
+                    case ErrorCodeType.ServerError:
+                        msg = Resources.ErrorAuthorizationGrantServerError;
+                        break;
+
+                    case ErrorCodeType.TemporarilyUnavailable:
+                        msg = Resources.ErrorAuthorizationGrantTemporarilyUnavailable;
+                        break;
+
+                    default:
+                        msg = null;
+                        break;
+                }
+
+                if (base.Message != null)
+                    msg = msg != null ? String.Format("{0}\n{1}", msg, base.Message) : base.Message;
+
+                if (ErrorUri != null)
+                    msg = msg != null ? String.Format("{0}\n{1}", msg, ErrorUri.ToString()) : ErrorUri.ToString();
+
+                return msg;
+            }
+        }
+
         public enum ErrorCodeType
         {
             /// <summary>
-            /// Unknown reason of failure
+            /// Unknown error.
             /// </summary>
             Unknown,
 

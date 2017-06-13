@@ -12,12 +12,13 @@ using System.Security.Permissions;
 namespace eduOAuth
 {
     /// <summary>
-    /// The received token type is not supported
+    /// The received token type is not supported.
     /// </summary>
     [Serializable]
     public class UnsupportedTokenTypeException : ApplicationException
     {
-        public UnsupportedTokenTypeException(string type)
+        public UnsupportedTokenTypeException(string type) :
+            base(Resources.ErrorUnsupportedTokenType)
         {
             Type = type;
         }
@@ -34,6 +35,11 @@ namespace eduOAuth
             base.GetObjectData(info, context);
             info.AddValue("Type", Type);
         }
+
+        /// <summary>
+        /// The error message
+        /// </summary>
+        public override string Message => String.Format("{0} - {1}", base.Message, Type);
 
         /// <summary>
         /// Token type received

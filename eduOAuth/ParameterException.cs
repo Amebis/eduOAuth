@@ -12,16 +12,13 @@ using System.Security.Permissions;
 namespace eduOAuth
 {
     /// <summary>
-    /// Unacceptable parameter.
+    /// Unacceptable or missing parameter.
     /// </summary>
     [Serializable]
     public class ParameterException : ApplicationException
     {
-        /// <summary>
-        /// Required parameter missing
-        /// </summary>
-        /// <param name="parameter">Parameter name</param>
-        public ParameterException(string parameter)
+        public ParameterException(string message, string parameter) :
+            base(message)
         {
             ParameterName = parameter;
         }
@@ -38,6 +35,11 @@ namespace eduOAuth
             base.GetObjectData(info, context);
             info.AddValue("ParameterName", ParameterName);
         }
+
+        /// <summary>
+        /// The error message
+        /// </summary>
+        public override string Message => ParameterName != null ? String.Format("{0} - {1}", base.Message, ParameterName) : base.Message;
 
         /// <summary>
         /// Parameter name

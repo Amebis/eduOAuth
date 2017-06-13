@@ -10,13 +10,13 @@ using System;
 namespace eduOAuth
 {
     /// <summary>
-    /// Parameter is missing.
+    /// A required parameter is missing.
     /// </summary>
     [Serializable]
     public class MissingParameterException : ParameterException
     {
         public MissingParameterException(string parameter) :
-            base(parameter)
+            base(Resources.ErrorMissingParameter, parameter)
         {
         }
     }

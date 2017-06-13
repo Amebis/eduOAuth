@@ -32,7 +32,7 @@ namespace eduOAuth
                     token.MakeReadOnly();
                 }
                 else
-                    throw new InvalidTypeParameterException("access_token", typeof(string), access_token.GetType());
+                    throw new InvalidParameterTypeException("access_token", typeof(string), access_token.GetType());
             }
             else
                 throw new MissingParameterException("access_token");
@@ -44,7 +44,7 @@ namespace eduOAuth
                 if (expires_in.GetType() == typeof(int))
                     Expires = DateTime.Now.AddSeconds((int)expires_in);
                 else
-                    throw new InvalidTypeParameterException("expires_in", typeof(int), expires_in.GetType());
+                    throw new InvalidParameterTypeException("expires_in", typeof(int), expires_in.GetType());
             }
 
             // Get refresh token
@@ -58,7 +58,7 @@ namespace eduOAuth
                         refresh.AppendChar(c);
                     refresh.MakeReadOnly();
                 } else
-                    throw new InvalidTypeParameterException("refresh_token", typeof(string), refresh_token.GetType());
+                    throw new InvalidParameterTypeException("refresh_token", typeof(string), refresh_token.GetType());
             }
 
             // Get scope
@@ -68,7 +68,7 @@ namespace eduOAuth
                 if (scope.GetType() == typeof(string))
                     Scope = ((string)scope).Split(null);
                 else
-                    throw new InvalidTypeParameterException("scope", typeof(string), scope.GetType());
+                    throw new InvalidParameterTypeException("scope", typeof(string), scope.GetType());
             }
         }
 
@@ -90,7 +90,7 @@ namespace eduOAuth
                         default: throw new UnsupportedTokenTypeException((string)token_type);
                     }
                 } else
-                    throw new InvalidTypeParameterException("token_type", typeof(string), token_type.GetType());
+                    throw new InvalidParameterTypeException("token_type", typeof(string), token_type.GetType());
             else
                 throw new MissingParameterException("token_type");
         }

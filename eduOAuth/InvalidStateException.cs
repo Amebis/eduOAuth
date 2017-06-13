@@ -10,14 +10,14 @@ using System;
 namespace eduOAuth
 {
     /// <summary>
-    /// Response state and request state are different.
+    /// Response and request states are different.
     /// </summary>
     [Serializable]
-    class InvalidStateException : ApplicationException
+    class InvalidStateException : ParameterException
     {
-        public InvalidStateException()
+        public InvalidStateException() :
+            base(Resources.ErrorInvalidState, null)
         {
-
         }
     }
 }

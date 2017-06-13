@@ -30,7 +30,7 @@
     <Compile Include="AuthorizationGrant.cs" />
     <Compile Include="BearerToken.cs" />
     <Compile Include="InvalidStateException.cs" />
-    <Compile Include="InvalidTypeParameterException.cs" />
+    <Compile Include="InvalidParameterTypeException.cs" />
     <Compile Include="MissingParameterException.cs" />
     <Compile Include="ParameterException.cs" />
     <Compile Include="Resources.Designer.cs">
@@ -50,7 +50,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\eduJSON\eduJSON\eduJSON.csproj">
+    <ProjectReference Include="..\..\eduJSON\eduJSON\eduJSON.csproj">
       <Project>{8f4c3f22-1988-4077-9220-ed2512fc0248}</Project>
       <Name>eduJSON</Name>
     </ProjectReference>
