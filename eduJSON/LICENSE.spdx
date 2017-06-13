@@ -1,0 +1,17 @@
+SPDXVersion: SPDX-2.1
+DataLicense: CC0-1.0
+PackageName: eduJSON
+DataFormat: SPDXRef-1
+PackageSupplier: Organization: The Commons Conservancy eduVPN Programme
+PackageHomePage: https://github.com/Amebis/eduJSON
+PackageLicenseDeclared: GPL-3.0+
+PackageCopyrightText: 2017, The Commons Conservancy eduVPN Programme
+PackageSummary: <text>A Lightweight JSON Parser for eduVPN (and beyond)</text>
+PackageComment: <text>The package includes the following libraries; see
+    Relationship information.</text>
+Created: 2017-06-06T09:00:00Z
+PackageDownloadLocation: git://github.com/Amebis/eduJSON
+PackageDownloadLocation: git+https://github.com/Amebis/eduJSON.git
+PackageDownloadLocation: git+ssh://github.com/Amebis/eduJSON.git
+Creator: Person: Simon Rozman (simon.rozman@amebis.si)
+Creator: Organization: Amebis
