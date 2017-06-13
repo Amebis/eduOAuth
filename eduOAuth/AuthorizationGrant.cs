@@ -42,7 +42,6 @@ namespace eduOAuth
         /// <summary>
         /// Parses authorization grant received and requests access token if successful.
         /// </summary>
-        /// <param name="redirect_endpoint">URI of the redirect endpoint used to receive access grant <paramref name="redirect_response"/></param>
         /// <param name="redirect_response">Parameters of the access grant</param>
         /// <param name="token_endpoint">URI of the token endpoint used to obtain access token from authorization grant</param>
         /// <returns></returns>
@@ -53,7 +52,7 @@ namespace eduOAuth
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.2"/>
         /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.5"/>
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
-        public AccessToken ProcessResponse(Uri redirect_endpoint, NameValueCollection redirect_response, Uri token_endpoint)
+        public AccessToken ProcessResponse(NameValueCollection redirect_response, Uri token_endpoint)
         {
             // Verify state parameter to be present and matching.
             var response_state = redirect_response["state"];
@@ -76,7 +75,7 @@ namespace eduOAuth
             string body =
                 "grant_type=authorization_code" +
                 "&code=" + Uri.EscapeDataString(authorization_code) +
-                "&redirect_uri=" + Uri.EscapeDataString(redirect_endpoint.ToString()) +
+                "&redirect_uri=" + Uri.EscapeDataString(RedirectEndpoint.ToString()) +
                 "&client_id=" + Uri.EscapeDataString(ClientID);
             if (code_verifier != null)
                 body += "&code_verifier=" + code_verifier;
