@@ -113,7 +113,7 @@ namespace eduOAuth
         {
             // Verify state parameter to be present and matching.
             var response_state = redirect_response["state"];
-            if (response_state != null)
+            if (response_state == null)
                 throw new MissingParameterException("state");
             if (response_state != state)
                 throw new InvalidStateException();
@@ -125,7 +125,7 @@ namespace eduOAuth
 
             // Verify authorization code to be present.
             var authorization_code = redirect_response["code"];
-            if (authorization_code != null)
+            if (authorization_code == null)
                 throw new MissingParameterException("code");
 
             // Prepare token request body.
