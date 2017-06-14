@@ -13,7 +13,7 @@ namespace eduOAuth
     /// Response and request states are different.
     /// </summary>
     [Serializable]
-    class InvalidStateException : ParameterException
+    class InvalidStateException : eduJSON.ParameterException
     {
         public InvalidStateException() :
             base(Resources.ErrorInvalidState, null)

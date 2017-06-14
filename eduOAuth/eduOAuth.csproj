@@ -30,9 +30,6 @@
     <Compile Include="AuthorizationGrant.cs" />
     <Compile Include="BearerToken.cs" />
     <Compile Include="InvalidStateException.cs" />
-    <Compile Include="InvalidParameterTypeException.cs" />
-    <Compile Include="MissingParameterException.cs" />
-    <Compile Include="ParameterException.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

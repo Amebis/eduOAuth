@@ -78,17 +78,17 @@ namespace eduOAuth
             if (obj.TryGetValue("error", out error))
             {
                 if (error.GetType() != typeof(string))
-                    throw new InvalidParameterTypeException("error", typeof(string), error.GetType());
+                    throw new eduJSON.InvalidParameterTypeException("error", typeof(string), error.GetType());
             }
             else
-                throw new MissingParameterException("error");
+                throw new eduJSON.MissingParameterException("error");
 
             // Get error description.
             object error_description;
             if (obj.TryGetValue("error_description", out error_description))
             {
                 if (error_description.GetType() != typeof(string))
-                    throw new InvalidParameterTypeException("error_description", typeof(string), error_description.GetType());
+                    throw new eduJSON.InvalidParameterTypeException("error_description", typeof(string), error_description.GetType());
             }
 
             // Get error URI.
@@ -96,7 +96,7 @@ namespace eduOAuth
             if (obj.TryGetValue("error_uri", out error_uri))
             {
                 if (error_uri.GetType() != typeof(string))
-                    throw new InvalidParameterTypeException("error_uri", typeof(string), error_uri.GetType());
+                    throw new eduJSON.InvalidParameterTypeException("error_uri", typeof(string), error_uri.GetType());
             }
 
             return new AccessTokenException((string)error, (string)error_description, (string)error_uri);

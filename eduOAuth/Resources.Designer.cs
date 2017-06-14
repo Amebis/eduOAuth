@@ -178,29 +178,11 @@ namespace eduOAuth {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unexpected parameter type (expected: {0}, received: {1})..
-        /// </summary>
-        internal static string ErrorInvalidParameterType {
-            get {
-                return ResourceManager.GetString("ErrorInvalidParameterType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Response and request states are different..
         /// </summary>
         internal static string ErrorInvalidState {
             get {
                 return ResourceManager.GetString("ErrorInvalidState", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to A required parameter is missing..
-        /// </summary>
-        internal static string ErrorMissingParameter {
-            get {
-                return ResourceManager.GetString("ErrorMissingParameter", resourceCulture);
             }
         }
         
