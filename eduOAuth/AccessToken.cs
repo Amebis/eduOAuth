@@ -21,55 +21,27 @@ namespace eduOAuth
         protected AccessToken(Dictionary<string, object> obj)
         {
             // Get access token.
-            object access_token;
-            if (obj.TryGetValue("access_token", out access_token))
-            {
-                if (access_token.GetType() == typeof(string))
-                {
-                    token = new SecureString();
-                    foreach (var c in (string)access_token)
-                        token.AppendChar(c);
-                    token.MakeReadOnly();
-                }
-                else
-                    throw new eduJSON.InvalidParameterTypeException("access_token", typeof(string), access_token.GetType());
-            }
-            else
-                throw new eduJSON.MissingParameterException("access_token");
+            token = new SecureString();
+            foreach (var c in eduJSON.Parser.GetValue<string>(obj, "access_token"))
+                token.AppendChar(c);
+            token.MakeReadOnly();
 
             // Get expiration date.
-            object expires_in;
-            if (obj.TryGetValue("expires_in", out expires_in))
-            {
-                if (expires_in.GetType() == typeof(int))
-                    Expires = DateTime.Now.AddSeconds((int)expires_in);
-                else
-                    throw new eduJSON.InvalidParameterTypeException("expires_in", typeof(int), expires_in.GetType());
-            }
+            if (eduJSON.Parser.GetValue(obj, "expires_in", out int expires_in))
+                Expires = DateTime.Now.AddSeconds(expires_in);
 
             // Get refresh token
-            object refresh_token;
-            if (obj.TryGetValue("refresh_token", out refresh_token))
+            if (eduJSON.Parser.GetValue(obj, "refresh_token", out string refresh_token))
             {
-                if (refresh_token.GetType() == typeof(string))
-                {
-                    refresh = new SecureString();
-                    foreach (var c in (string)refresh_token)
-                        refresh.AppendChar(c);
-                    refresh.MakeReadOnly();
-                } else
-                    throw new eduJSON.InvalidParameterTypeException("refresh_token", typeof(string), refresh_token.GetType());
+                refresh = new SecureString();
+                foreach (var c in refresh_token)
+                    refresh.AppendChar(c);
+                refresh.MakeReadOnly();
             }
 
             // Get scope
-            object scope;
-            if (obj.TryGetValue("scope", out scope))
-            {
-                if (scope.GetType() == typeof(string))
-                    Scope = ((string)scope).Split(null);
-                else
-                    throw new eduJSON.InvalidParameterTypeException("scope", typeof(string), scope.GetType());
-            }
+            if (eduJSON.Parser.GetValue(obj, "scope", out string scope))
+                Scope = scope.Split(null);
         }
 
         /// <summary>
@@ -80,19 +52,12 @@ namespace eduOAuth
         public static AccessToken Create(Dictionary<string, object> obj)
         {
             // Get token type.
-            object token_type;
-            if (obj.TryGetValue("token_type", out token_type))
-                if (token_type.GetType() == typeof(string))
-                {
-                    switch (((string)token_type).ToLowerInvariant())
-                    {
-                        case "bearer": return new BearerToken(obj);
-                        default: throw new UnsupportedTokenTypeException((string)token_type);
-                    }
-                } else
-                    throw new eduJSON.InvalidParameterTypeException("token_type", typeof(string), token_type.GetType());
-            else
-                throw new eduJSON.MissingParameterException("token_type");
+            var token_type = eduJSON.Parser.GetValue<string>(obj, "token_type");
+            switch (token_type.ToLowerInvariant())
+            {
+                case "bearer": return new BearerToken(obj);
+                default: throw new UnsupportedTokenTypeException(token_type);
+            }
         }
 
         /// <summary>

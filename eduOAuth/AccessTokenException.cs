@@ -73,33 +73,9 @@ namespace eduOAuth
 
         public static AccessTokenException Create(Dictionary<string, object> obj)
         {
-            // Get error type.
-            object error;
-            if (obj.TryGetValue("error", out error))
-            {
-                if (error.GetType() != typeof(string))
-                    throw new eduJSON.InvalidParameterTypeException("error", typeof(string), error.GetType());
-            }
-            else
-                throw new eduJSON.MissingParameterException("error");
-
-            // Get error description.
-            object error_description;
-            if (obj.TryGetValue("error_description", out error_description))
-            {
-                if (error_description.GetType() != typeof(string))
-                    throw new eduJSON.InvalidParameterTypeException("error_description", typeof(string), error_description.GetType());
-            }
-
-            // Get error URI.
-            object error_uri;
-            if (obj.TryGetValue("error_uri", out error_uri))
-            {
-                if (error_uri.GetType() != typeof(string))
-                    throw new eduJSON.InvalidParameterTypeException("error_uri", typeof(string), error_uri.GetType());
-            }
-
-            return new AccessTokenException((string)error, (string)error_description, (string)error_uri);
+            eduJSON.Parser.GetValue(obj, "error_description", out string error_description);
+            eduJSON.Parser.GetValue(obj, "error_uri", out string error_uri);
+            return new AccessTokenException(eduJSON.Parser.GetValue<string>(obj, "error"), error_description, error_uri);
         }
 
         /// <summary>

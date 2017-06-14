@@ -198,7 +198,7 @@ namespace eduOAuth
         /// <summary>
         /// List of scope identifiers client is requesting access
         /// </summary>
-        /// <remarks>Should be populated before requesting authorization. When empty <code>scope</code> parameter is not included in authorization request URI.</remarks>
+        /// <remarks>Should be populated before requesting authorization. When empty <c>scope</c> parameter is not included in authorization request URI.</remarks>
         public List<string> Scope { get; set; }
 
         /// <summary>
