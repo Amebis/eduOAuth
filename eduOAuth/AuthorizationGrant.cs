@@ -113,7 +113,12 @@ namespace eduOAuth
                     var response = (HttpWebResponse)ex.Response;
                     using (Stream stream = response.GetResponseStream())
                     using (StreamReader reader = new StreamReader(stream))
-                        throw AccessTokenException.Create((Dictionary<string, object>)eduJSON.Parser.Parse(reader.ReadToEnd()));
+                    {
+                        var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(reader.ReadToEnd());
+                        eduJSON.Parser.GetValue(obj, "error_description", out string error_description);
+                        eduJSON.Parser.GetValue(obj, "error_uri", out string error_uri);
+                        throw new AccessTokenException(eduJSON.Parser.GetValue<string>(obj, "error"), error_description, error_uri);
+                    }
                 }
                 else
                     throw;

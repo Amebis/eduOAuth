@@ -11,6 +11,8 @@ namespace eduOAuth
 {
     public class BearerToken : AccessToken
     {
+        #region Constructors
+
         /// <summary>
         /// Bearer access token (RFC 6750)
         /// </summary>
@@ -19,7 +21,8 @@ namespace eduOAuth
         public BearerToken(Dictionary<string, object> obj) :
             base(obj)
         {
-
         }
+
+        #endregion
     }
 }

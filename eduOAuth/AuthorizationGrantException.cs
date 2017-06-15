@@ -15,119 +15,15 @@ namespace eduOAuth
     /// <summary>
     /// OAuth authorization server returned an error.
     /// </summary>
+    /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2.1"/>
     [Serializable]
     class AuthorizationGrantException : ApplicationException
     {
-        public AuthorizationGrantException(string error, string error_description, string error_uri) :
-            base(error_description)
-        {
-            switch (error.ToLowerInvariant())
-            {
-                case "invalid_request":
-                    ErrorCode = ErrorCodeType.InvalidRequest;
-                    break;
-
-                case "unauthorized_client":
-                    ErrorCode = ErrorCodeType.UnauthorizedClient;
-                    break;
-
-                case "access_denied":
-                    ErrorCode = ErrorCodeType.AccessDenied;
-                    break;
-
-                case "unsupported_response_type":
-                    ErrorCode = ErrorCodeType.UnsupportedResponseType;
-                    break;
-
-                case "invalid_scope":
-                    ErrorCode = ErrorCodeType.InvalidScope;
-                    break;
-
-                case "server_error":
-                    ErrorCode = ErrorCodeType.ServerError;
-                    break;
-
-                case "temporarily_unavailable":
-                    ErrorCode = ErrorCodeType.TemporarilyUnavailable;
-                    break;
-
-                default:
-                    ErrorCode = ErrorCodeType.Unknown;
-                    break;
-            }
-
-            if (error_uri != null)
-                ErrorUri = new Uri(error_uri);
-        }
-
-        protected AuthorizationGrantException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            ErrorCode = (ErrorCodeType)info.GetValue("ErrorCode", typeof(ErrorCodeType));
-            ErrorUri = (Uri)info.GetValue("ErrorUri", typeof(Uri));
-        }
-
-        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("ErrorCode", ErrorCode);
-            info.AddValue("ErrorUri", ErrorUri);
-        }
+        #region Data Types
 
         /// <summary>
-        /// The error message
+        /// An error type
         /// </summary>
-        public override string Message
-        {
-            get
-            {
-                string msg;
-                switch (ErrorCode)
-                {
-                    case ErrorCodeType.InvalidRequest:
-                        msg = Resources.ErrorAuthorizationGrantInvalidRequest;
-                        break;
-
-                    case ErrorCodeType.UnauthorizedClient:
-                        msg = Resources.ErrorAuthorizationGrantUnauthorizedClient;
-                        break;
-
-                    case ErrorCodeType.AccessDenied:
-                        msg = Resources.ErrorAuthorizationGrantAccessDenied;
-                        break;
-
-                    case ErrorCodeType.UnsupportedResponseType:
-                        msg = Resources.ErrorAuthorizationGrantUnsupportedResponseType;
-                        break;
-
-                    case ErrorCodeType.InvalidScope:
-                        msg = Resources.ErrorAuthorizationGrantInvalidScope;
-                        break;
-
-                    case ErrorCodeType.ServerError:
-                        msg = Resources.ErrorAuthorizationGrantServerError;
-                        break;
-
-                    case ErrorCodeType.TemporarilyUnavailable:
-                        msg = Resources.ErrorAuthorizationGrantTemporarilyUnavailable;
-                        break;
-
-                    default:
-                        msg = null;
-                        break;
-                }
-
-                if (base.Message != null)
-                    msg = msg != null ? String.Format("{0}\n{1}", msg, base.Message) : base.Message;
-
-                if (ErrorUri != null)
-                    msg = msg != null ? String.Format("{0}\n{1}", msg, ErrorUri.ToString()) : ErrorUri.ToString();
-
-                return msg;
-            }
-        }
-
         public enum ErrorCodeType
         {
             /// <summary>
@@ -184,6 +80,63 @@ namespace eduOAuth
             TemporarilyUnavailable,
         }
 
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// The error message
+        /// </summary>
+        public override string Message
+        {
+            get
+            {
+                string msg;
+                switch (ErrorCode)
+                {
+                    case ErrorCodeType.InvalidRequest:
+                        msg = Resources.ErrorAuthorizationGrantInvalidRequest;
+                        break;
+
+                    case ErrorCodeType.UnauthorizedClient:
+                        msg = Resources.ErrorAuthorizationGrantUnauthorizedClient;
+                        break;
+
+                    case ErrorCodeType.AccessDenied:
+                        msg = Resources.ErrorAuthorizationGrantAccessDenied;
+                        break;
+
+                    case ErrorCodeType.UnsupportedResponseType:
+                        msg = Resources.ErrorAuthorizationGrantUnsupportedResponseType;
+                        break;
+
+                    case ErrorCodeType.InvalidScope:
+                        msg = Resources.ErrorAuthorizationGrantInvalidScope;
+                        break;
+
+                    case ErrorCodeType.ServerError:
+                        msg = Resources.ErrorAuthorizationGrantServerError;
+                        break;
+
+                    case ErrorCodeType.TemporarilyUnavailable:
+                        msg = Resources.ErrorAuthorizationGrantTemporarilyUnavailable;
+                        break;
+
+                    default:
+                        msg = null;
+                        break;
+                }
+
+                if (base.Message != null)
+                    msg = msg != null ? String.Format("{0}\n{1}", msg, base.Message) : base.Message;
+
+                if (ErrorUri != null)
+                    msg = msg != null ? String.Format("{0}\n{1}", msg, ErrorUri.ToString()) : ErrorUri.ToString();
+
+                return msg;
+            }
+        }
+
         /// <summary>
         /// Error code
         /// </summary>
@@ -193,5 +146,78 @@ namespace eduOAuth
         /// Error URI
         /// </summary>
         public Uri ErrorUri { get; }
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Creates an exception
+        /// </summary>
+        /// <param name="error">An RFC6749 error identifier</param>
+        /// <param name="error_description">Human-readable text providing additional information</param>
+        /// <param name="error_uri">A URI identifying a human-readable web page with information about the error.</param>
+        public AuthorizationGrantException(string error, string error_description, string error_uri) :
+            base(error_description)
+        {
+            switch (error.ToLowerInvariant())
+            {
+                case "invalid_request":
+                    ErrorCode = ErrorCodeType.InvalidRequest;
+                    break;
+
+                case "unauthorized_client":
+                    ErrorCode = ErrorCodeType.UnauthorizedClient;
+                    break;
+
+                case "access_denied":
+                    ErrorCode = ErrorCodeType.AccessDenied;
+                    break;
+
+                case "unsupported_response_type":
+                    ErrorCode = ErrorCodeType.UnsupportedResponseType;
+                    break;
+
+                case "invalid_scope":
+                    ErrorCode = ErrorCodeType.InvalidScope;
+                    break;
+
+                case "server_error":
+                    ErrorCode = ErrorCodeType.ServerError;
+                    break;
+
+                case "temporarily_unavailable":
+                    ErrorCode = ErrorCodeType.TemporarilyUnavailable;
+                    break;
+
+                default:
+                    ErrorCode = ErrorCodeType.Unknown;
+                    break;
+            }
+
+            if (error_uri != null)
+                ErrorUri = new Uri(error_uri);
+        }
+
+        #endregion
+
+        #region ISerializable Support
+
+        protected AuthorizationGrantException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            ErrorCode = (ErrorCodeType)info.GetValue("ErrorCode", typeof(ErrorCodeType));
+            ErrorUri = (Uri)info.GetValue("ErrorUri", typeof(Uri));
+        }
+
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("ErrorCode", ErrorCode);
+            info.AddValue("ErrorUri", ErrorUri);
+        }
+
+        #endregion
     }
 }

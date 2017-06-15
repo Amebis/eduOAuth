@@ -159,6 +159,10 @@
   <data name="ErrorInvalidState" xml:space="preserve">
     <value>Response and request states are different.</value>
   </data>
+  <data name="ErrorTokenType" xml:space="preserve">
+    <value>{0} (token type: {1})</value>
+    <comment>{0}=A sentence explaining an error, {1}=token type</comment>
+  </data>
   <data name="ErrorUnsupportedTokenType" xml:space="preserve">
     <value>The received token type is not supported.</value>
   </data>

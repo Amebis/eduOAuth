@@ -187,6 +187,15 @@ namespace eduOAuth {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} (token type: {1}).
+        /// </summary>
+        internal static string ErrorTokenType {
+            get {
+                return ResourceManager.GetString("ErrorTokenType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The received token type is not supported..
         /// </summary>
         internal static string ErrorUnsupportedTokenType {

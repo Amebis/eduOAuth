@@ -17,11 +17,45 @@ namespace eduOAuth
     [Serializable]
     public class UnsupportedTokenTypeException : ApplicationException
     {
+        #region Properties
+
+        /// <summary>
+        /// The error message
+        /// </summary>
+        public override string Message => String.Format(Resources.ErrorTokenType, base.Message, Type);
+
+        /// <summary>
+        /// Token type received
+        /// </summary>
+        public string Type { get; }
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Constructs an exception
+        /// </summary>
+        /// <param name="type">Token type</param>
         public UnsupportedTokenTypeException(string type) :
-            base(Resources.ErrorUnsupportedTokenType)
+            this(Resources.ErrorUnsupportedTokenType, type)
+        {
+        }
+
+        /// <summary>
+        /// Constructs an exception
+        /// </summary>
+        /// <param name="message">Exception message</param>
+        /// <param name="type">Token type</param>
+        public UnsupportedTokenTypeException(string message, string type) :
+            base(message)
         {
             Type = type;
         }
+
+        #endregion
+
+        #region ISerializable Support
 
         protected UnsupportedTokenTypeException(SerializationInfo info, StreamingContext context)
             : base(info, context)
@@ -36,14 +70,6 @@ namespace eduOAuth
             info.AddValue("Type", Type);
         }
 
-        /// <summary>
-        /// The error message
-        /// </summary>
-        public override string Message => String.Format("{0} - {1}", base.Message, Type);
-
-        /// <summary>
-        /// Token type received
-        /// </summary>
-        public string Type { get; }
+        #endregion
     }
 }

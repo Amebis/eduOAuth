@@ -15,118 +15,15 @@ namespace eduOAuth
     /// <summary>
     /// OAuth authorization server returned an error.
     /// </summary>
+    /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.2"/>
     [Serializable]
     class AccessTokenException : ApplicationException
     {
-        public AccessTokenException(string error, string error_description, string error_uri) :
-            base(error_description)
-        {
-            switch (((string)error).ToLowerInvariant())
-            {
-                case "invalid_request":
-                    ErrorCode = ErrorCodeType.InvalidRequest;
-                    break;
-
-                case "invalid_client":
-                    ErrorCode = ErrorCodeType.InvalidClient;
-                    break;
-
-                case "invalid_grant":
-                    ErrorCode = ErrorCodeType.InvalidGrant;
-                    break;
-
-                case "unauthorized_client":
-                    ErrorCode = ErrorCodeType.UnauthorizedClient;
-                    break;
-
-                case "unsupported_grant_type":
-                    ErrorCode = ErrorCodeType.UnsupportedGrantType;
-                    break;
-
-                case "invalid_scope":
-                    ErrorCode = ErrorCodeType.InvalidScope;
-                    break;
-
-                default:
-                    ErrorCode = ErrorCodeType.Unknown;
-                    break;
-            }
-
-            if (error_uri != null)
-                ErrorUri = new Uri(error_uri);
-        }
-
-        protected AccessTokenException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            ErrorCode = (ErrorCodeType)info.GetValue("ErrorCode", typeof(ErrorCodeType));
-            ErrorUri = (Uri)info.GetValue("ErrorUri", typeof(Uri));
-        }
-
-        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("ErrorCode", ErrorCode);
-            info.AddValue("ErrorUri", ErrorUri);
-        }
-
-        public static AccessTokenException Create(Dictionary<string, object> obj)
-        {
-            eduJSON.Parser.GetValue(obj, "error_description", out string error_description);
-            eduJSON.Parser.GetValue(obj, "error_uri", out string error_uri);
-            return new AccessTokenException(eduJSON.Parser.GetValue<string>(obj, "error"), error_description, error_uri);
-        }
+        #region Data Types
 
         /// <summary>
-        /// The error message
+        /// An error type
         /// </summary>
-        public override string Message
-        {
-            get
-            {
-                string msg;
-                switch (ErrorCode)
-                {
-                    case ErrorCodeType.InvalidRequest:
-                        msg = Resources.ErrorAccessTokenInvalidRequest;
-                        break;
-
-                    case ErrorCodeType.InvalidClient:
-                        msg = Resources.ErrorAccessTokenInvalidClient;
-                        break;
-
-                    case ErrorCodeType.InvalidGrant:
-                        msg = Resources.ErrorAccessTokenInvalidGrant;
-                        break;
-
-                    case ErrorCodeType.UnauthorizedClient:
-                        msg = Resources.ErrorAccessTokenUnauthorizedClient;
-                        break;
-
-                    case ErrorCodeType.UnsupportedGrantType:
-                        msg = Resources.ErrorAccessTokenUnsupportedGrantType;
-                        break;
-
-                    case ErrorCodeType.InvalidScope:
-                        msg = Resources.ErrorAccessTokenInvalidScope;
-                        break;
-
-                    default:
-                        msg = null;
-                        break;
-                }
-
-                if (base.Message != null)
-                    msg = msg != null ? String.Format("{0}\n{1}", msg, base.Message) : base.Message;
-
-                if (ErrorUri != null)
-                    msg = msg != null ? String.Format("{0}\n{1}", msg, ErrorUri.ToString()) : ErrorUri.ToString();
-
-                return msg;
-            }
-        }
-
         public enum ErrorCodeType
         {
             /// <summary>
@@ -185,6 +82,59 @@ namespace eduOAuth
             InvalidScope,
         }
 
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// The error message
+        /// </summary>
+        public override string Message
+        {
+            get
+            {
+                string msg;
+                switch (ErrorCode)
+                {
+                    case ErrorCodeType.InvalidRequest:
+                        msg = Resources.ErrorAccessTokenInvalidRequest;
+                        break;
+
+                    case ErrorCodeType.InvalidClient:
+                        msg = Resources.ErrorAccessTokenInvalidClient;
+                        break;
+
+                    case ErrorCodeType.InvalidGrant:
+                        msg = Resources.ErrorAccessTokenInvalidGrant;
+                        break;
+
+                    case ErrorCodeType.UnauthorizedClient:
+                        msg = Resources.ErrorAccessTokenUnauthorizedClient;
+                        break;
+
+                    case ErrorCodeType.UnsupportedGrantType:
+                        msg = Resources.ErrorAccessTokenUnsupportedGrantType;
+                        break;
+
+                    case ErrorCodeType.InvalidScope:
+                        msg = Resources.ErrorAccessTokenInvalidScope;
+                        break;
+
+                    default:
+                        msg = null;
+                        break;
+                }
+
+                if (base.Message != null)
+                    msg = msg != null ? String.Format("{0}\n{1}", msg, base.Message) : base.Message;
+
+                if (ErrorUri != null)
+                    msg = msg != null ? String.Format("{0}\n{1}", msg, ErrorUri.ToString()) : ErrorUri.ToString();
+
+                return msg;
+            }
+        }
+
         /// <summary>
         /// Error code
         /// </summary>
@@ -194,5 +144,74 @@ namespace eduOAuth
         /// Error URI
         /// </summary>
         public Uri ErrorUri { get; }
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Creates an exception
+        /// </summary>
+        /// <param name="error">An RFC6749 error identifier</param>
+        /// <param name="error_description">Human-readable text providing additional information</param>
+        /// <param name="error_uri">A URI identifying a human-readable web page with information about the error.</param>
+        public AccessTokenException(string error, string error_description, string error_uri) :
+            base(error_description)
+        {
+            switch (((string)error).ToLowerInvariant())
+            {
+                case "invalid_request":
+                    ErrorCode = ErrorCodeType.InvalidRequest;
+                    break;
+
+                case "invalid_client":
+                    ErrorCode = ErrorCodeType.InvalidClient;
+                    break;
+
+                case "invalid_grant":
+                    ErrorCode = ErrorCodeType.InvalidGrant;
+                    break;
+
+                case "unauthorized_client":
+                    ErrorCode = ErrorCodeType.UnauthorizedClient;
+                    break;
+
+                case "unsupported_grant_type":
+                    ErrorCode = ErrorCodeType.UnsupportedGrantType;
+                    break;
+
+                case "invalid_scope":
+                    ErrorCode = ErrorCodeType.InvalidScope;
+                    break;
+
+                default:
+                    ErrorCode = ErrorCodeType.Unknown;
+                    break;
+            }
+
+            if (error_uri != null)
+                ErrorUri = new Uri(error_uri);
+        }
+
+        #endregion
+
+        #region ISerializable Support
+
+        protected AccessTokenException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+            ErrorCode = (ErrorCodeType)info.GetValue("ErrorCode", typeof(ErrorCodeType));
+            ErrorUri = (Uri)info.GetValue("ErrorUri", typeof(Uri));
+        }
+
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue("ErrorCode", ErrorCode);
+            info.AddValue("ErrorUri", ErrorUri);
+        }
+
+        #endregion
     }
 }

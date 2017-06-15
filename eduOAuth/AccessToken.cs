@@ -13,6 +13,36 @@ namespace eduOAuth
 {
     public class AccessToken : IDisposable
     {
+        #region Fields
+
+        /// <summary>
+        /// Access token
+        /// </summary>
+        private SecureString token;
+
+        /// <summary>
+        /// Refresh token
+        /// </summary>
+        private SecureString refresh;
+
+        #endregion
+
+        #region Properties
+
+        /// <summary>
+        /// Access token expiration date; or <c>null</c> if token does not expire
+        /// </summary>
+        public DateTime? Expires { get; }
+
+        /// <summary>
+        /// List of access token scope identifiers
+        /// </summary>
+        public string[] Scope { get; }
+
+        #endregion
+
+        #region Constructors
+
         /// <summary>
         /// Initializes generic access token from data returned by authentication server.
         /// </summary>
@@ -44,6 +74,10 @@ namespace eduOAuth
                 Scope = scope.Split(null);
         }
 
+        #endregion
+
+        #region Methods
+
         /// <summary>
         /// Creates access token from data returned by authentication server.
         /// </summary>
@@ -60,25 +94,7 @@ namespace eduOAuth
             }
         }
 
-        /// <summary>
-        /// Access token
-        /// </summary>
-        private SecureString token;
-
-        /// <summary>
-        /// Access token expiration date; or <c>null</c> if token does not expire
-        /// </summary>
-        public DateTime? Expires { get; }
-
-        /// <summary>
-        /// List of access token scope identifiers
-        /// </summary>
-        public string[] Scope { get; }
-
-        /// <summary>
-        /// Refresh token
-        /// </summary>
-        private SecureString refresh;
+        #endregion
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls

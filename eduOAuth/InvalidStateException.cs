@@ -15,9 +15,25 @@ namespace eduOAuth
     [Serializable]
     class InvalidStateException : eduJSON.ParameterException
     {
+        #region Constructors
+
+        /// <summary>
+        /// Constructs an exception
+        /// </summary>
         public InvalidStateException() :
-            base(Resources.ErrorInvalidState, null)
+            this(Resources.ErrorInvalidState)
         {
         }
+
+        /// <summary>
+        /// Constructs an exception
+        /// </summary>
+        /// <param name="message">Exception message</param>
+        public InvalidStateException(string message) :
+            base(message, null)
+        {
+        }
+
+        #endregion
     }
 }
