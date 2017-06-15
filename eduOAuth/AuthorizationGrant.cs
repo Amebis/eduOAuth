@@ -14,6 +14,8 @@ using System.Net;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace eduOAuth
 {
@@ -181,6 +183,7 @@ namespace eduOAuth
         /// </summary>
         /// <param name="redirect_response">Parameters of the access grant</param>
         /// <param name="token_endpoint">URI of the token endpoint used to obtain access token from authorization grant</param>
+        /// <param name="ct">The token to monitor for cancellation requests.</param>
         /// <returns></returns>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2"/>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2.1"/>
@@ -189,7 +192,7 @@ namespace eduOAuth
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.2"/>
         /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.5"/>
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
-        public AccessToken ProcessResponse(NameValueCollection redirect_response, Uri token_endpoint)
+        public async Task<AccessToken> ProcessResponseAsync(NameValueCollection redirect_response, Uri token_endpoint, CancellationToken ct = default(CancellationToken))
         {
             // Verify state parameter to be present and matching.
             var response_state = redirect_response["state"];
@@ -231,34 +234,37 @@ namespace eduOAuth
             byte[] body_binary = Encoding.ASCII.GetBytes(body);
             request.ContentType = "application/x-www-form-urlencoded";
             request.ContentLength = body_binary.Length;
-            using (Stream stream = request.GetRequestStream())
-                stream.Write(body_binary, 0, body_binary.Length);
+            using (Stream stream_req = await request.GetRequestStreamAsync())
+            {
+                // Spawn sending.
+                var write_task = stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
 
-            try
-            {
-                // Read and parse the response.
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                using (Stream stream = response.GetResponseStream())
-                using (StreamReader reader = new StreamReader(stream))
-                    return AccessToken.Create((Dictionary<string, object>)eduJSON.Parser.Parse(reader.ReadToEnd()));
-            }
-            catch (WebException ex)
-            {
-                if (((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.BadRequest)
+                try
                 {
-                    // Parse server error.
-                    var response = (HttpWebResponse)ex.Response;
-                    using (Stream stream = response.GetResponseStream())
-                    using (StreamReader reader = new StreamReader(stream))
-                    {
-                        var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(reader.ReadToEnd());
-                        eduJSON.Parser.GetValue(obj, "error_description", out string error_description);
-                        eduJSON.Parser.GetValue(obj, "error_uri", out string error_uri);
-                        throw new AccessTokenException(eduJSON.Parser.GetValue<string>(obj, "error"), error_description, error_uri);
-                    }
+                    // Read and parse the response.
+                    using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
+                    using (Stream stream_res = response.GetResponseStream())
+                    using (StreamReader reader = new StreamReader(stream_res))
+                        return AccessToken.Create((Dictionary<string, object>)eduJSON.Parser.Parse(await reader.ReadToEndAsync(), ct));
                 }
-                else
-                    throw;
+                catch (WebException ex)
+                {
+                    var response = (HttpWebResponse)ex.Response;
+                    if (response.StatusCode == HttpStatusCode.BadRequest)
+                    {
+                        // Parse server error.
+                        using (Stream stream_res = response.GetResponseStream())
+                        using (StreamReader reader = new StreamReader(stream_res))
+                        {
+                            var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(await reader.ReadToEndAsync(), ct);
+                            eduJSON.Parser.GetValue(obj, "error_description", out string error_description);
+                            eduJSON.Parser.GetValue(obj, "error_uri", out string error_uri);
+                            throw new AccessTokenException(eduJSON.Parser.GetValue<string>(obj, "error"), error_description, error_uri);
+                        }
+                    }
+                    else
+                        throw;
+                }
             }
         }
 
@@ -268,7 +274,7 @@ namespace eduOAuth
         /// <param name="data">Data to encode</param>
         /// <returns></returns>
         /// <see cref="https://tools.ietf.org/html/rfc7636#appendix-A"/>
-        public static string Base64URLEncodeNoPadding(byte[] data)
+        protected static string Base64URLEncodeNoPadding(byte[] data)
         {
             string s = Convert.ToBase64String(data); // Regular Base64 encoder
             s = s.Split('=')[0]; // Remove any trailing '='s
