@@ -191,7 +191,7 @@ namespace eduOAuth
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.4"/>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.2"/>
         /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.5"/>
-        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
+        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "HttpWebResponse, Stream, and StreamReader tolerate multiple disposes.")]
         public async Task<AccessToken> ProcessResponseAsync(NameValueCollection redirect_response, Uri token_endpoint, CancellationToken ct = default(CancellationToken))
         {
             // Verify state parameter to be present and matching.
@@ -221,20 +221,22 @@ namespace eduOAuth
                 body += "&code_verifier=" + code_verifier;
 
             // Send the request.
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(token_endpoint);
+            var request = (HttpWebRequest)WebRequest.Create(token_endpoint);
             request.Method = "POST";
             if (ClientSecret != null)
             {
                 // Our client has credentials: requires authentication.
-                CredentialCache credential_cache = new CredentialCache();
-                credential_cache.Add(token_endpoint, "Basic", new NetworkCredential(ClientID, ClientSecret));
+                var credential_cache = new CredentialCache
+                {
+                    { token_endpoint, "Basic", new NetworkCredential(ClientID, ClientSecret) }
+                };
                 request.Credentials = credential_cache;
                 request.PreAuthenticate = true;
             }
-            byte[] body_binary = Encoding.ASCII.GetBytes(body);
+            var body_binary = Encoding.ASCII.GetBytes(body);
             request.ContentType = "application/x-www-form-urlencoded";
             request.ContentLength = body_binary.Length;
-            using (Stream stream_req = await request.GetRequestStreamAsync())
+            using (var stream_req = await request.GetRequestStreamAsync())
             {
                 // Spawn sending.
                 var write_task = stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
@@ -242,9 +244,9 @@ namespace eduOAuth
                 try
                 {
                     // Read and parse the response.
-                    using (HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
-                    using (Stream stream_res = response.GetResponseStream())
-                    using (StreamReader reader = new StreamReader(stream_res))
+                    using (var response = (HttpWebResponse)await request.GetResponseAsync())
+                    using (var stream_res = response.GetResponseStream())
+                    using (var reader = new StreamReader(stream_res))
                         return AccessToken.Create((Dictionary<string, object>)eduJSON.Parser.Parse(await reader.ReadToEndAsync(), ct));
                 }
                 catch (WebException ex)
@@ -253,8 +255,8 @@ namespace eduOAuth
                     if (response.StatusCode == HttpStatusCode.BadRequest)
                     {
                         // Parse server error.
-                        using (Stream stream_res = response.GetResponseStream())
-                        using (StreamReader reader = new StreamReader(stream_res))
+                        using (var stream_res = response.GetResponseStream())
+                        using (var reader = new StreamReader(stream_res))
                         {
                             var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(await reader.ReadToEndAsync(), ct);
                             eduJSON.Parser.GetValue(obj, "error_description", out string error_description);
@@ -276,7 +278,7 @@ namespace eduOAuth
         /// <see cref="https://tools.ietf.org/html/rfc7636#appendix-A"/>
         protected static string Base64URLEncodeNoPadding(byte[] data)
         {
-            string s = Convert.ToBase64String(data); // Regular Base64 encoder
+            var s = Convert.ToBase64String(data); // Regular Base64 encoder
             s = s.Split('=')[0]; // Remove any trailing '='s
             s = s.Replace('+', '-'); // 62nd char of encoding
             s = s.Replace('/', '_'); // 63rd char of encoding
