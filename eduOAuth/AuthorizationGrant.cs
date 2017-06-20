@@ -16,10 +16,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace eduOAuth
 {
-    class AuthorizationGrant
+    public class AuthorizationGrant
     {
         #region Data Types
 
@@ -109,20 +110,21 @@ namespace eduOAuth
             get
             {
                 // Prepare authorization endpoint URI.
-                var auth_uri_builder = new UriBuilder(AuthorizationEndpoint);
-                auth_uri_builder.Query +=
-                    (auth_uri_builder.Query.Length > 0 ? "&" : "?") + "response_type=code" +
-                    "&client_id=" + Uri.EscapeDataString(ClientID) +
-                    "&redirect_uri=" + Uri.EscapeDataString(RedirectEndpoint.ToString());
+                var uri_builder = new UriBuilder(AuthorizationEndpoint);
+                var query = HttpUtility.ParseQueryString(uri_builder.Query);
+
+                query["response_type"] = "code";
+                query["client_id"] = ClientID;
+                query["redirect_uri"] = RedirectEndpoint.ToString();
 
                 if (Scope.Count > 0)
                 {
                     // Add the client requested scope.
-                    auth_uri_builder.Query += "&scope=" + Uri.EscapeDataString(String.Join(" ", Scope.ToArray()));
+                    query["scope"] = String.Join(" ", Scope.ToArray());
                 }
 
                 // Add the random state.
-                auth_uri_builder.Query += "&state=" + state;
+                query["state"] = state;
 
                 if (CodeChallengeAlgorithm != CodeChallengeAlgorithmType.None)
                 {
@@ -130,24 +132,23 @@ namespace eduOAuth
                     switch (CodeChallengeAlgorithm)
                     {
                         case CodeChallengeAlgorithmType.Plain:
-                            auth_uri_builder.Query += "&code_challenge_method=plain&code_challenge=" + code_verifier;
+                            query["code_challenge_method"] = "plain";
+                            query["code_challenge"] = code_verifier;
                             break;
 
                         case CodeChallengeAlgorithmType.S256:
+                            query["code_challenge_method"] = "S256";
+
                             {
                                 var sha256 = new SHA256Managed();
-                                auth_uri_builder.Query += "&code_challenge_method=S256&code_challenge=" + Base64URLEncodeNoPadding(sha256.ComputeHash(Encoding.ASCII.GetBytes(code_verifier)));
+                                query["code_challenge"] = Base64URLEncodeNoPadding(sha256.ComputeHash(Encoding.ASCII.GetBytes(code_verifier)));
                             }
                             break;
                     }
                 }
-                else
-                    code_verifier = null;
 
-                //// Opens request in the browser.
-                //System.Diagnostics.Process.Start(auth_uri_builder.Uri.ToString());
-
-                return auth_uri_builder.Uri;
+                uri_builder.Query = query.ToString();
+                return uri_builder.Uri;
             }
         }
 
