@@ -237,6 +237,7 @@ namespace eduOAuth
             var body_binary = Encoding.ASCII.GetBytes(body);
             request.ContentType = "application/x-www-form-urlencoded";
             request.ContentLength = body_binary.Length;
+            request.Accept = "application/json";
             using (var stream_req = await request.GetRequestStreamAsync())
             {
                 // Spawn sending.
