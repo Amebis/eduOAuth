@@ -241,7 +241,7 @@ namespace eduOAuth
             using (var stream_req = await request.GetRequestStreamAsync())
             {
                 // Spawn sending.
-                var write_task = stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
+                await stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
 
                 try
                 {
