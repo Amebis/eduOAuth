@@ -95,31 +95,31 @@ namespace eduOAuth
                 switch (ErrorCode)
                 {
                     case ErrorCodeType.InvalidRequest:
-                        msg = Resources.ErrorAuthorizationGrantInvalidRequest;
+                        msg = Resources.Strings.ErrorAuthorizationGrantInvalidRequest;
                         break;
 
                     case ErrorCodeType.UnauthorizedClient:
-                        msg = Resources.ErrorAuthorizationGrantUnauthorizedClient;
+                        msg = Resources.Strings.ErrorAuthorizationGrantUnauthorizedClient;
                         break;
 
                     case ErrorCodeType.AccessDenied:
-                        msg = Resources.ErrorAuthorizationGrantAccessDenied;
+                        msg = Resources.Strings.ErrorAuthorizationGrantAccessDenied;
                         break;
 
                     case ErrorCodeType.UnsupportedResponseType:
-                        msg = Resources.ErrorAuthorizationGrantUnsupportedResponseType;
+                        msg = Resources.Strings.ErrorAuthorizationGrantUnsupportedResponseType;
                         break;
 
                     case ErrorCodeType.InvalidScope:
-                        msg = Resources.ErrorAuthorizationGrantInvalidScope;
+                        msg = Resources.Strings.ErrorAuthorizationGrantInvalidScope;
                         break;
 
                     case ErrorCodeType.ServerError:
-                        msg = Resources.ErrorAuthorizationGrantServerError;
+                        msg = Resources.Strings.ErrorAuthorizationGrantServerError;
                         break;
 
                     case ErrorCodeType.TemporarilyUnavailable:
-                        msg = Resources.ErrorAuthorizationGrantTemporarilyUnavailable;
+                        msg = Resources.Strings.ErrorAuthorizationGrantTemporarilyUnavailable;
                         break;
 
                     default:

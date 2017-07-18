@@ -21,7 +21,7 @@ namespace eduOAuth
         /// Constructs an exception
         /// </summary>
         public InvalidStateException() :
-            this(Resources.ErrorInvalidState)
+            this(Resources.Strings.ErrorInvalidState)
         {
         }
 

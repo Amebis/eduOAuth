@@ -22,7 +22,7 @@ namespace eduOAuth
         /// <summary>
         /// The error message
         /// </summary>
-        public override string Message => String.Format(Resources.ErrorTokenType, base.Message, Type);
+        public override string Message => String.Format(Resources.Strings.ErrorTokenType, base.Message, Type);
 
         /// <summary>
         /// Token type received
@@ -38,7 +38,7 @@ namespace eduOAuth
         /// </summary>
         /// <param name="type">Token type</param>
         public UnsupportedTokenTypeException(string type) :
-            this(Resources.ErrorUnsupportedTokenType, type)
+            this(Resources.Strings.ErrorUnsupportedTokenType, type)
         {
         }
 
