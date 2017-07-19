@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Security;
 
 namespace eduOAuth
@@ -18,12 +19,12 @@ namespace eduOAuth
         /// <summary>
         /// Access token
         /// </summary>
-        private SecureString token;
+        protected SecureString token;
 
         /// <summary>
         /// Refresh token
         /// </summary>
-        private SecureString refresh;
+        protected SecureString refresh;
 
         #endregion
 
@@ -92,6 +93,14 @@ namespace eduOAuth
                 case "bearer": return new BearerToken(obj);
                 default: throw new UnsupportedTokenTypeException(token_type);
             }
+        }
+
+        /// <summary>
+        /// Adds token to request
+        /// </summary>
+        /// <param name="req">Web request</param>
+        public virtual void AddToRequest(HttpWebRequest req)
+        {
         }
 
         #endregion

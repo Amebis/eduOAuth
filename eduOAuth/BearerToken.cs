@@ -6,6 +6,7 @@
 */
 
 using System.Collections.Generic;
+using System.Net;
 
 namespace eduOAuth
 {
@@ -21,6 +22,15 @@ namespace eduOAuth
         public BearerToken(Dictionary<string, object> obj) :
             base(obj)
         {
+        }
+
+        #endregion
+
+        #region Methods
+
+        public override void AddToRequest(HttpWebRequest req)
+        {
+            req.Headers.Add(string.Format("Authorization: Bearer {0}", new NetworkCredential("", token).Password));
         }
 
         #endregion
