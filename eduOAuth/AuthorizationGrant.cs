@@ -276,15 +276,28 @@ namespace eduOAuth
         /// Encodes binary data for RFC 7636 request.
         /// </summary>
         /// <param name="data">Data to encode</param>
-        /// <returns></returns>
+        /// <returns>Encoded string</returns>
         /// <see cref="https://tools.ietf.org/html/rfc7636#appendix-A"/>
-        protected static string Base64URLEncodeNoPadding(byte[] data)
+        public static string Base64URLEncodeNoPadding(byte[] data)
         {
             var s = Convert.ToBase64String(data); // Regular Base64 encoder
             s = s.Split('=')[0]; // Remove any trailing '='s
             s = s.Replace('+', '-'); // 62nd char of encoding
             s = s.Replace('/', '_'); // 63rd char of encoding
             return s;
+        }
+
+        /// <summary>
+        /// Decodes string for RFC 7636 request.
+        /// </summary>
+        /// <param name="data">String to decode</param>
+        /// <returns>Decoded data</returns>
+        public static byte[] Base64URLDecodeNoPadding(string data)
+        {
+            var s = data.Replace('_', '/'); // 63rd char of encoding
+            s = s.Replace('-', '+'); // 62nd char of encoding
+            s = s.PadRight(s.Length + ((4 - s.Length) & 0x3), '='); // Add trailing '='s
+            return Convert.FromBase64String(s); // Regular Base64 decoder
         }
 
         #endregion
