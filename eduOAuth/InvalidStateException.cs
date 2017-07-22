@@ -6,6 +6,7 @@
 */
 
 using System;
+using System.Runtime.Serialization;
 
 namespace eduOAuth
 {
@@ -13,7 +14,7 @@ namespace eduOAuth
     /// Response and request states are different.
     /// </summary>
     [Serializable]
-    class InvalidStateException : eduJSON.ParameterException
+    class InvalidStateException : eduJSON.ParameterException, ISerializable
     {
         #region Constructors
 
