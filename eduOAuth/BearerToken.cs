@@ -5,12 +5,19 @@
     SPDX-License-Identifier: GPL-3.0+
 */
 
+using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Runtime.Serialization;
+using System.Security.Permissions;
 
 namespace eduOAuth
 {
-    public class BearerToken : AccessToken
+    /// <summary>
+    /// Bearer access token
+    /// </summary>
+    [Serializable]
+    public class BearerToken : AccessToken, ISerializable
     {
         #region Constructors
 
@@ -31,6 +38,21 @@ namespace eduOAuth
         public override void AddToRequest(HttpWebRequest req)
         {
             req.Headers.Add(string.Format("Authorization: Bearer {0}", new NetworkCredential("", token).Password));
+        }
+
+        #endregion
+
+        #region ISerializable Support
+
+        protected BearerToken(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        {
+        }
+
+        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
         }
 
         #endregion

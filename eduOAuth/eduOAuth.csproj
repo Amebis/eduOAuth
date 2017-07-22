@@ -22,6 +22,7 @@
   <Import Project="$(SolutionDir)\Default.props" />
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Security" />
     <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
