@@ -7,12 +7,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Net;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Security;
 using System.Security.Cryptography;
 using System.Security.Permissions;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace eduOAuth
 {
@@ -92,27 +97,130 @@ namespace eduOAuth
         #region Methods
 
         /// <summary>
-        /// Creates access token from data returned by authentication server.
-        /// </summary>
-        /// <param name="obj">An object representing access token as returned by the authentication server</param>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.1"/>
-        public static AccessToken Create(Dictionary<string, object> obj)
-        {
-            // Get token type.
-            var token_type = eduJSON.Parser.GetValue<string>(obj, "token_type");
-            switch (token_type.ToLowerInvariant())
-            {
-                case "bearer": return new BearerToken(obj);
-                default: throw new UnsupportedTokenTypeException(token_type);
-            }
-        }
-
-        /// <summary>
         /// Adds token to request
         /// </summary>
         /// <param name="req">Web request</param>
         public virtual void AddToRequest(HttpWebRequest req)
         {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Serializes access token to Base64 encoded string
+        /// </summary>
+        /// <returns>Serialized and Base64 encoded representation of access token</returns>
+        public string ToBase64String()
+        {
+            using (var stream = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(stream, this);
+                return Convert.ToBase64String(stream.ToArray());
+            }
+        }
+
+        /// <summary>
+        /// Deserialize access token from Base64 encoded string
+        /// </summary>
+        /// <param name="base64">Serialized and Base64 encoded representation of access token</param>
+        /// <returns>Access token</returns>
+        public static AccessToken FromBase64String(string base64)
+        {
+            using (var stream = new MemoryStream(Convert.FromBase64String(base64)))
+            {
+                var formatter = new BinaryFormatter();
+                return (AccessToken)formatter.Deserialize(stream);
+            }
+        }
+
+        /// <summary>
+        /// Parses authorization server response and creates an access token from it.
+        /// </summary>
+        /// <param name="req">Authorization server request</param>
+        /// <param name="ct">The token to monitor for cancellation requests</param>
+        /// <returns>Asynchronous operation with expected access token</returns>
+        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "HttpWebResponse, Stream, and StreamReader tolerate multiple disposes.")]
+        public static async Task<AccessToken> FromAuthorizationServerResponseAsync(HttpWebRequest req, CancellationToken ct = default(CancellationToken))
+        {
+            try
+            {
+                // Read and parse the response.
+                using (var response = (HttpWebResponse)await req.GetResponseAsync())
+                using (var stream_res = response.GetResponseStream())
+                using (var reader = new StreamReader(stream_res))
+                {
+                    var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(await reader.ReadToEndAsync(), ct);
+
+                    // Get token type and create the token based on the type.
+                    var token_type = eduJSON.Parser.GetValue<string>(obj, "token_type");
+                    switch (token_type.ToLowerInvariant())
+                    {
+                        case "bearer": return new BearerToken(obj);
+                        default: throw new UnsupportedTokenTypeException(token_type);
+                    }
+                }
+            }
+            catch (WebException ex)
+            {
+                var response = (HttpWebResponse)ex.Response;
+                if (response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    // Parse server error.
+                    using (var stream_res = response.GetResponseStream())
+                    using (var reader = new StreamReader(stream_res))
+                    {
+                        var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(await reader.ReadToEndAsync(), ct);
+                        eduJSON.Parser.GetValue(obj, "error_description", out string error_description);
+                        eduJSON.Parser.GetValue(obj, "error_uri", out string error_uri);
+                        throw new AccessTokenException(eduJSON.Parser.GetValue<string>(obj, "error"), error_description, error_uri);
+                    }
+                }
+                else
+                    throw;
+            }
+        }
+
+        /// <summary>
+        /// Uses the refresh token to obtain a new access token. The new access token is requested using the same scope as initially granted to the access token.
+        /// </summary>
+        /// <param name="token_endpoint">URI of the token endpoint used to obtain access token from authorization grant</param>
+        /// <param name="client_cred">Client credentials (optional)</param>
+        /// <param name="ct">The token to monitor for cancellation requests</param>
+        /// <returns>Asynchronous operation with expected access token</returns>
+        /// <see cref="https://tools.ietf.org/html/rfc6749#section-6"/>
+        /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.1"/>
+        public async Task<AccessToken> RefreshTokenAsync(Uri token_endpoint, NetworkCredential client_cred = null, CancellationToken ct = default(CancellationToken))
+        {
+            // Prepare token request body.
+            // TODO: Verify confidentiality of Uri.EscapeDataString when handling security sensitive strings.
+            string body =
+                "grant_type=refresh_token" +
+                "&refresh_token=" + Uri.EscapeDataString(new NetworkCredential("", refresh).Password);
+
+            // Send the request.
+            var request = (HttpWebRequest)WebRequest.Create(token_endpoint);
+            request.Method = "POST";
+            if (client_cred != null)
+            {
+                // Our client has credentials: requires authentication.
+                request.Credentials = new CredentialCache
+                {
+                    { token_endpoint, "Basic", client_cred }
+                };
+                request.PreAuthenticate = true;
+            }
+            var body_binary = Encoding.ASCII.GetBytes(body);
+            request.ContentType = "application/x-www-form-urlencoded";
+            request.ContentLength = body_binary.Length;
+            request.Accept = "application/json";
+            using (var stream_req = await request.GetRequestStreamAsync())
+            {
+                // Send request body.
+                await stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
+
+                // Parse response.
+                return await FromAuthorizationServerResponseAsync(request, ct);
+            }
         }
 
         #endregion
@@ -122,6 +230,7 @@ namespace eduOAuth
         protected AccessToken(SerializationInfo info, StreamingContext context)
         {
             // Load access token.
+            // TODO: Verify confidentiality of Encoding.UTF8 when handling security sensitive strings.
             token =
                 (new NetworkCredential("",
                     Encoding.UTF8.GetString(
@@ -140,6 +249,7 @@ namespace eduOAuth
             if (_refresh != null)
             {
                 // Load refresh token.
+                // TODO: Verify confidentiality of Encoding.UTF8 when handling security sensitive strings.
                 refresh =
                     (new NetworkCredential("",
                         Encoding.UTF8.GetString(

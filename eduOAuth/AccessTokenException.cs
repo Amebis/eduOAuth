@@ -154,7 +154,7 @@ namespace eduOAuth
         /// </summary>
         /// <param name="error">An RFC6749 error identifier</param>
         /// <param name="error_description">Human-readable text providing additional information</param>
-        /// <param name="error_uri">A URI identifying a human-readable web page with information about the error.</param>
+        /// <param name="error_uri">A URI identifying a human-readable web page with information about the error</param>
         public AccessTokenException(string error, string error_description, string error_uri) :
             base(error_description)
         {

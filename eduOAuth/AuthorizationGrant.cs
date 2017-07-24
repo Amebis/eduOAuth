@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Net;
 using System.Security;
 using System.Security.Cryptography;
@@ -80,11 +79,6 @@ namespace eduOAuth
         /// </summary>
         /// <remarks>Should be populated before requesting authorization.</remarks>
         public string ClientID { get; set; }
-
-        /// <summary>
-        /// Client secret or <c>null</c> if client is not issued credentials.
-        /// </summary>
-        public SecureString ClientSecret { get; set; }
 
         /// <summary>
         /// Code challenge algorithm method
@@ -184,8 +178,9 @@ namespace eduOAuth
         /// </summary>
         /// <param name="redirect_response">Parameters of the access grant</param>
         /// <param name="token_endpoint">URI of the token endpoint used to obtain access token from authorization grant</param>
-        /// <param name="ct">The token to monitor for cancellation requests.</param>
-        /// <returns></returns>
+        /// <param name="client_secret">Client secret (optional)</param>
+        /// <param name="ct">The token to monitor for cancellation requests</param>
+        /// <returns>Asynchronous operation with expected access token</returns>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2"/>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2.1"/>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.3"/>
@@ -193,7 +188,7 @@ namespace eduOAuth
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.2"/>
         /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.5"/>
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "HttpWebResponse, Stream, and StreamReader tolerate multiple disposes.")]
-        public async Task<AccessToken> ProcessResponseAsync(NameValueCollection redirect_response, Uri token_endpoint, CancellationToken ct = default(CancellationToken))
+        public async Task<AccessToken> ProcessResponseAsync(NameValueCollection redirect_response, Uri token_endpoint, SecureString client_secret = null, CancellationToken ct = default(CancellationToken))
         {
             // Verify state parameter to be present and matching.
             var response_state = redirect_response["state"];
@@ -224,14 +219,13 @@ namespace eduOAuth
             // Send the request.
             var request = (HttpWebRequest)WebRequest.Create(token_endpoint);
             request.Method = "POST";
-            if (ClientSecret != null)
+            if (client_secret != null)
             {
                 // Our client has credentials: requires authentication.
-                var credential_cache = new CredentialCache
+                request.Credentials = new CredentialCache
                 {
-                    { token_endpoint, "Basic", new NetworkCredential(ClientID, ClientSecret) }
+                    { token_endpoint, "Basic", new NetworkCredential(ClientID, client_secret) }
                 };
-                request.Credentials = credential_cache;
                 request.PreAuthenticate = true;
             }
             var body_binary = Encoding.ASCII.GetBytes(body);
@@ -240,35 +234,11 @@ namespace eduOAuth
             request.Accept = "application/json";
             using (var stream_req = await request.GetRequestStreamAsync())
             {
-                // Spawn sending.
+                // Send request body.
                 await stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
 
-                try
-                {
-                    // Read and parse the response.
-                    using (var response = (HttpWebResponse)await request.GetResponseAsync())
-                    using (var stream_res = response.GetResponseStream())
-                    using (var reader = new StreamReader(stream_res))
-                        return AccessToken.Create((Dictionary<string, object>)eduJSON.Parser.Parse(await reader.ReadToEndAsync(), ct));
-                }
-                catch (WebException ex)
-                {
-                    var response = (HttpWebResponse)ex.Response;
-                    if (response.StatusCode == HttpStatusCode.BadRequest)
-                    {
-                        // Parse server error.
-                        using (var stream_res = response.GetResponseStream())
-                        using (var reader = new StreamReader(stream_res))
-                        {
-                            var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(await reader.ReadToEndAsync(), ct);
-                            eduJSON.Parser.GetValue(obj, "error_description", out string error_description);
-                            eduJSON.Parser.GetValue(obj, "error_uri", out string error_uri);
-                            throw new AccessTokenException(eduJSON.Parser.GetValue<string>(obj, "error"), error_description, error_uri);
-                        }
-                    }
-                    else
-                        throw;
-                }
+                // Parse response.
+                return await AccessToken.FromAuthorizationServerResponseAsync(request, ct);
             }
         }
 
