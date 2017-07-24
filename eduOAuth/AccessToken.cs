@@ -59,7 +59,8 @@ namespace eduOAuth
         /// <summary>
         /// List of access token scope identifiers
         /// </summary>
-        public string[] Scope { get; }
+        public string[] Scope { get => _scope; }
+        protected string[] _scope;
 
         #endregion
 
@@ -89,7 +90,7 @@ namespace eduOAuth
 
             // Get scope
             if (eduJSON.Parser.GetValue(obj, "scope", out string scope))
-                Scope = scope.Split(null);
+                _scope = scope.Split(null);
         }
 
         #endregion
@@ -137,10 +138,11 @@ namespace eduOAuth
         /// Parses authorization server response and creates an access token from it.
         /// </summary>
         /// <param name="req">Authorization server request</param>
+        /// <param name="scope">Expected scope</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Asynchronous operation with expected access token</returns>
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "HttpWebResponse, Stream, and StreamReader tolerate multiple disposes.")]
-        public static async Task<AccessToken> FromAuthorizationServerResponseAsync(HttpWebRequest req, CancellationToken ct = default(CancellationToken))
+        public static async Task<AccessToken> FromAuthorizationServerResponseAsync(HttpWebRequest req, string[] scope = null, CancellationToken ct = default(CancellationToken))
         {
             try
             {
@@ -153,11 +155,21 @@ namespace eduOAuth
 
                     // Get token type and create the token based on the type.
                     var token_type = eduJSON.Parser.GetValue<string>(obj, "token_type");
+                    AccessToken token = null;
                     switch (token_type.ToLowerInvariant())
                     {
-                        case "bearer": return new BearerToken(obj);
+                        case "bearer": token = new BearerToken(obj); break;
                         default: throw new UnsupportedTokenTypeException(token_type);
                     }
+
+                    if (token._scope == null && scope != null)
+                    {
+                        // The authorization server did not specify a token scope in response.
+                        // The scope is assumed the same as have been requested.
+                        token._scope = scope;
+                    }
+
+                    return token;
                 }
             }
             catch (WebException ex)
@@ -196,6 +208,8 @@ namespace eduOAuth
             string body =
                 "grant_type=refresh_token" +
                 "&refresh_token=" + Uri.EscapeDataString(new NetworkCredential("", refresh).Password);
+            if (_scope != null)
+                body += "&scope=" + Uri.EscapeDataString(String.Join(" ", _scope));
 
             // Send the request.
             var request = (HttpWebRequest)WebRequest.Create(token_endpoint);
@@ -218,8 +232,17 @@ namespace eduOAuth
                 // Send request body.
                 await stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
 
-                // Parse response.
-                return await FromAuthorizationServerResponseAsync(request, ct);
+                // Parse the response.
+                var token = await FromAuthorizationServerResponseAsync(request, _scope, ct);
+
+                if (token.refresh == null)
+                {
+                    // The authorization server does not cycle the refresh tokens.
+                    // The refresh token remains the same.
+                    token.refresh = refresh;
+                }
+
+                return token;
             }
         }
 
@@ -264,7 +287,7 @@ namespace eduOAuth
 
             // Load other fields and properties.
             Expires = (DateTime?)info.GetValue("Expires", typeof(DateTime?));
-            Scope = (string[])info.GetValue("Scope", typeof(string[]));
+            _scope = (string[])info.GetValue("Scope", typeof(string[]));
         }
 
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
@@ -291,7 +314,7 @@ namespace eduOAuth
 
             // Save other fields and properties.
             info.AddValue("Expires", Expires);
-            info.AddValue("Scope", Scope);
+            info.AddValue("Scope", _scope);
         }
 
         #endregion

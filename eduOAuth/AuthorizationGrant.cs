@@ -111,7 +111,7 @@ namespace eduOAuth
                 query["client_id"] = ClientID;
                 query["redirect_uri"] = RedirectEndpoint.ToString();
 
-                if (Scope.Count > 0)
+                if (Scope != null)
                 {
                     // Add the client requested scope.
                     query["scope"] = String.Join(" ", Scope.ToArray());
@@ -238,7 +238,7 @@ namespace eduOAuth
                 await stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
 
                 // Parse response.
-                return await AccessToken.FromAuthorizationServerResponseAsync(request, ct);
+                return await AccessToken.FromAuthorizationServerResponseAsync(request, Scope != null ? Scope.ToArray() : null, ct);
             }
         }
 
