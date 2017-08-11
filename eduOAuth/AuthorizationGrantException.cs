@@ -6,7 +6,6 @@
 */
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 
@@ -17,7 +16,7 @@ namespace eduOAuth
     /// </summary>
     /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2.1"/>
     [Serializable]
-    class AuthorizationGrantException : ApplicationException, ISerializable
+    public class AuthorizationGrantException : ApplicationException, ISerializable
     {
         #region Data Types
 
