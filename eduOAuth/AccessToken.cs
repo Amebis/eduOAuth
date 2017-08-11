@@ -45,7 +45,7 @@ namespace eduOAuth
         /// <summary>
         /// Refresh token
         /// </summary>
-        protected SecureString refresh;
+        private SecureString refresh;
 
         #endregion
 
@@ -60,7 +60,7 @@ namespace eduOAuth
         /// List of access token scope identifiers
         /// </summary>
         public string[] Scope { get => _scope; }
-        protected string[] _scope;
+        private string[] _scope;
 
         #endregion
 
