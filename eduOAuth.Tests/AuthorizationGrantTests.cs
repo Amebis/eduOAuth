@@ -1,9 +1,8 @@
-﻿using eduOAuth;
-/*
-eduOAuth - An OAuth 2.0 Client for eduVPN (and beyond)
+﻿/*
+    eduOAuth - OAuth 2.0 Library for eduVPN (and beyond)
 
-Copyright: 2017, The Commons Conservancy eduVPN Programme
-SPDX-License-Identifier: GPL-3.0+
+    Copyright: 2017, The Commons Conservancy eduVPN Programme
+    SPDX-License-Identifier: GPL-3.0+
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -1,5 +1,5 @@
 ﻿/*
-    eduOAuth - An OAuth 2.0 Client for eduVPN (and beyond)
+    eduOAuth - OAuth 2.0 Library for eduVPN (and beyond)
 
     Copyright: 2017, The Commons Conservancy eduVPN Programme
     SPDX-License-Identifier: GPL-3.0+
@@ -7,20 +7,15 @@
 
 using System.Reflection;
 using System.Resources;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("eduOAuth")]
-[assembly: AssemblyDescription("An OAuth 2.0 Client")]
-[assembly: AssemblyConfiguration("")]
+[assembly: AssemblyTitle("OAuth 2.0 Library")]
 [assembly: AssemblyCompany("Amebis")]
 [assembly: AssemblyProduct("eduOAuth")]
 [assembly: AssemblyCopyright("Copyright © Amebis 2017")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en-US")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
