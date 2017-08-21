@@ -1,8 +1,8 @@
 ﻿/*
-eduOAuth - An OAuth 2.0 Client for eduVPN (and beyond)
+    eduOAuth - An OAuth 2.0 Client for eduVPN (and beyond)
 
-Copyright: 2017, The Commons Conservancy eduVPN Programme
-SPDX-License-Identifier: GPL-3.0+
+    Copyright: 2017, The Commons Conservancy eduVPN Programme
+    SPDX-License-Identifier: GPL-3.0+
 */
 
 using System.Reflection;
@@ -40,4 +40,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyInformationalVersion("1.0.0")]
+[assembly: AssemblyInformationalVersion("1.0")]
