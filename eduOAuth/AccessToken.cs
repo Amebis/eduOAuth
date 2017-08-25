@@ -198,6 +198,30 @@ namespace eduOAuth
         /// <param name="token_endpoint">URI of the token endpoint used to obtain access token from authorization grant</param>
         /// <param name="client_cred">Client credentials (optional)</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
+        /// <returns>Access token</returns>
+        /// <see cref="https://tools.ietf.org/html/rfc6749#section-6"/>
+        /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.1"/>
+        public AccessToken RefreshToken(Uri token_endpoint, NetworkCredential client_cred = null, CancellationToken ct = default(CancellationToken))
+        {
+            var task = RefreshTokenAsync(token_endpoint, client_cred, ct);
+            try
+            {
+                task.Wait(ct);
+                return task.Result;
+            }
+            catch (AggregateException ex)
+            {
+                throw ex.InnerException;
+            }
+        }
+
+
+        /// <summary>
+        /// Uses the refresh token to obtain a new access token asynchronously. The new access token is requested using the same scope as initially granted to the access token.
+        /// </summary>
+        /// <param name="token_endpoint">URI of the token endpoint used to obtain access token from authorization grant</param>
+        /// <param name="client_cred">Client credentials (optional)</param>
+        /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Asynchronous operation with expected access token</returns>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-6"/>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.1"/>
