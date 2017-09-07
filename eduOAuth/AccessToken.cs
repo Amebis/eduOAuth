@@ -140,6 +140,27 @@ namespace eduOAuth
         /// <param name="req">Authorization server request</param>
         /// <param name="scope">Expected scope</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
+        /// <returns>Access token</returns>
+        public static AccessToken FromAuthorizationServerResponse(HttpWebRequest req, string[] scope = null, CancellationToken ct = default(CancellationToken))
+        {
+            var task = FromAuthorizationServerResponseAsync(req, scope, ct);
+            try
+            {
+                task.Wait(ct);
+                return task.Result;
+            }
+            catch (AggregateException ex)
+            {
+                throw ex.InnerException;
+            }
+        }
+
+        /// <summary>
+        /// Parses authorization server response and creates an access token from it asynchronously.
+        /// </summary>
+        /// <param name="req">Authorization server request</param>
+        /// <param name="scope">Expected scope</param>
+        /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Asynchronous operation with expected access token</returns>
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "HttpWebResponse, Stream, and StreamReader tolerate multiple disposes.")]
         public static async Task<AccessToken> FromAuthorizationServerResponseAsync(HttpWebRequest req, string[] scope = null, CancellationToken ct = default(CancellationToken))
@@ -214,7 +235,6 @@ namespace eduOAuth
                 throw ex.InnerException;
             }
         }
-
 
         /// <summary>
         /// Uses the refresh token to obtain a new access token asynchronously. The new access token is requested using the same scope as initially granted to the access token.
