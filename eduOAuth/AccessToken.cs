@@ -372,8 +372,11 @@ namespace eduOAuth
             {
                 if (disposing)
                 {
-                    token.Dispose();
-                    refresh.Dispose();
+                    if (token != null)
+                        token.Dispose();
+
+                    if (refresh != null)
+                        refresh.Dispose();
                 }
 
                 disposedValue = true;
