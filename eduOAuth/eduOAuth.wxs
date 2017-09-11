@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    eduOAuth - OAuth 2.0 Library for eduVPN (and beyond)
+
+    Copyright: 2017, The Commons Conservancy eduVPN Programme
+    SPDX-License-Identifier: GPL-3.0+
+-->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <!--
+            Components
+        -->
+        <DirectoryRef Id="INSTALLDIR">
+            <Component Id="eduOAuth.dll" Guid="{8B85976D-4CFC-4543-B583-06C75E92A6FD}">
+                <File Source="eduOAuth.dll"/>
+            </Component>
+        </DirectoryRef>
+        <DirectoryRef Id="RESOURCEDIRSL">
+            <Component Id="eduOAuth.resources.dll.sl" Guid="{DB53F78C-785A-4006-B0D0-F43EDC33654E}">
+                <File Id="eduOAuth.resources.dll.sl" Source="sl\eduOAuth.resources.dll"/>
+            </Component>
+        </DirectoryRef>
+
+
+        <!--
+            Component groups
+        -->
+        <ComponentGroup Id="eduOAuth.dll">
+            <ComponentGroupRef Id="eduJSON.dll"/>
+
+            <ComponentRef Id="eduOAuth.dll"/>
+            <ComponentRef Id="eduOAuth.resources.dll.sl"/>
+        </ComponentGroup>
+    </Fragment>
+</Wix>
