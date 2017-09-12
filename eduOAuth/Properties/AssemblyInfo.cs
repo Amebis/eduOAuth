@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("OAuth 2.0 Library")]
-[assembly: AssemblyCompany("SURFnet")]
+[assembly: AssemblyCompany("SURF")]
 [assembly: AssemblyProduct("eduOAuth")]
 [assembly: AssemblyCopyright("Copyright © The Commons Conservancy eduVPN Programme 2017")]
 [assembly: NeutralResourcesLanguage("en-US")]
