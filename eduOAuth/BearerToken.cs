@@ -35,6 +35,7 @@ namespace eduOAuth
 
         #region Methods
 
+        /// <inheritdoc/>
         public override void AddToRequest(HttpWebRequest req)
         {
             req.Headers.Add(string.Format("Authorization: Bearer {0}", new NetworkCredential("", token).Password));
@@ -49,6 +50,7 @@ namespace eduOAuth
         {
         }
 
+        /// <inheritdoc/>
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

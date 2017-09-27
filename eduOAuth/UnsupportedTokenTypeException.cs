@@ -63,6 +63,7 @@ namespace eduOAuth
             Type = (string)info.GetValue("Type", typeof(string));
         }
 
+        /// <inheritdoc/>
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

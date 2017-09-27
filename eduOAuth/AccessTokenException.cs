@@ -204,6 +204,7 @@ namespace eduOAuth
             ErrorUri = (Uri)info.GetValue("ErrorUri", typeof(Uri));
         }
 
+        /// <inheritdoc/>
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {
