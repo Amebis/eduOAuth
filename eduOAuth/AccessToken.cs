@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Security;
@@ -29,7 +30,7 @@ namespace eduOAuth
     {
         #region Fields
 
-        private byte[] _entropy =
+        private static byte[] _entropy =
         {
             0x83, 0xb3, 0x15, 0xa2, 0x81, 0x57, 0x01, 0x0d, 0x8c, 0x21, 0x04, 0xd9, 0x11, 0xb3, 0xa7, 0x32,
             0xba, 0xb9, 0x8c, 0x15, 0x7b, 0x64, 0x32, 0x2b, 0x2f, 0x5f, 0x0e, 0x0d, 0xe5, 0x0a, 0x91, 0xc4,
@@ -248,7 +249,6 @@ namespace eduOAuth
         public async Task<AccessToken> RefreshTokenAsync(Uri token_endpoint, NetworkCredential client_cred = null, CancellationToken ct = default(CancellationToken))
         {
             // Prepare token request body.
-            // TODO: Verify confidentiality of Uri.EscapeDataString when handling security sensitive strings.
             string body =
                 "grant_type=refresh_token" +
                 "&refresh_token=" + Uri.EscapeDataString(new NetworkCredential("", refresh).Password);
@@ -290,6 +290,73 @@ namespace eduOAuth
             }
         }
 
+        /// <summary>
+        /// Encrypts the data in a specified secure string and returns a byte array that contains the encrypted data
+        /// </summary>
+        /// <param name="userData">A secure string that contains data to encrypt</param>
+        /// <returns>A byte array representing the encrypted data</returns>
+        private static byte[] Protect(SecureString userData)
+        {
+            if (userData == null)
+                throw new ArgumentNullException(nameof(userData));
+
+            // Copy input to unmanaged string.
+            IntPtr input_exposed = Marshal.SecureStringToGlobalAllocUnicode(userData);
+            try
+            {
+                var data = new byte[userData.Length * sizeof(char)];
+                try
+                {
+                    // Copy data.
+                    for (int i = 0, n = data.Length; i < n; i++)
+                        data[i] = Marshal.ReadByte(input_exposed, i);
+
+                    // Encrypt!
+                    return ProtectedData.Protect(
+                        data,
+                        _entropy,
+                        DataProtectionScope.CurrentUser);
+                }
+                finally
+                {
+                    // Sanitize data.
+                    for (long i = 0, n = data.LongLength; i < n; i++)
+                        data[i] = 0;
+                }
+            }
+            finally
+            {
+                // Sanitize memory.
+                Marshal.ZeroFreeGlobalAllocUnicode(input_exposed);
+            }
+        }
+
+        /// <summary>
+        /// Decrypts the data in a specified byte array and returns a <c>SecureString</c> that contains the decrypted data
+        /// </summary>
+        /// <param name="encryptedData">A byte array containing data encrypted using the <c>System.Security.Cryptography.ProtectedData.Protect(System.Byte[],System.Byte[],System.Security.Cryptography.DataProtectionScope)</c> method.</param>
+        /// <returns>A <c>SafeString</c> representing the decrypted data</returns>
+        private static SecureString Unprotect(byte[] encryptedData)
+        {
+            // Decrypt data.
+            var data = ProtectedData.Unprotect(encryptedData, _entropy, DataProtectionScope.CurrentUser);
+            try
+            {
+                // Copy to SecureString.
+                var output = new SecureString();
+                for (long i = 0, n = data.LongLength; i < n; i += 2)
+                    output.AppendChar((char)(data[i] + (((char)data[i + 1]) << 8)));
+                output.MakeReadOnly();
+                return output;
+            }
+            finally
+            {
+                // Sanitize data.
+                for (long i = 0, n = data.LongLength; i < n; i++)
+                    data[i] = 0;
+            }
+        }
+
         #endregion
 
         #region ISerializable Support
@@ -297,15 +364,7 @@ namespace eduOAuth
         protected AccessToken(SerializationInfo info, StreamingContext context)
         {
             // Load access token.
-            // TODO: Verify confidentiality of Encoding.UTF8 when handling security sensitive strings.
-            token =
-                (new NetworkCredential("",
-                    Encoding.UTF8.GetString(
-                        ProtectedData.Unprotect(
-                            (byte[])info.GetValue("Token", typeof(byte[])),
-                            _entropy,
-                            DataProtectionScope.CurrentUser)))).SecurePassword;
-            token.MakeReadOnly();
+            token = Unprotect((byte[])info.GetValue("Token", typeof(byte[])));
 
             byte[] _refresh = null;
             try
@@ -316,15 +375,7 @@ namespace eduOAuth
             if (_refresh != null)
             {
                 // Load refresh token.
-                // TODO: Verify confidentiality of Encoding.UTF8 when handling security sensitive strings.
-                refresh =
-                    (new NetworkCredential("",
-                        Encoding.UTF8.GetString(
-                            ProtectedData.Unprotect(
-                                _refresh,
-                                _entropy,
-                                DataProtectionScope.CurrentUser)))).SecurePassword;
-                refresh.MakeReadOnly();
+                refresh = Unprotect(_refresh);
             }
             else
                 refresh = null;
@@ -338,22 +389,12 @@ namespace eduOAuth
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             // Save access token.
-            info.AddValue("Token",
-                ProtectedData.Protect(
-                    Encoding.UTF8.GetBytes(
-                        new NetworkCredential("", token).Password),
-                    _entropy,
-                    DataProtectionScope.CurrentUser));
+            info.AddValue("Token", Protect(token));
 
             if (refresh != null)
             {
                 // Save refresh token.
-                info.AddValue("Refresh",
-                    ProtectedData.Protect(
-                        Encoding.UTF8.GetBytes(
-                            new NetworkCredential("", refresh).Password),
-                        _entropy,
-                        DataProtectionScope.CurrentUser));
+                info.AddValue("Refresh", Protect(refresh));
             }
 
             // Save other fields and properties.
