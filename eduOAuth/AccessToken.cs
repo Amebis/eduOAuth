@@ -41,12 +41,12 @@ namespace eduOAuth
         /// <summary>
         /// Access token
         /// </summary>
-        protected SecureString token;
+        protected SecureString _token;
 
         /// <summary>
         /// Refresh token
         /// </summary>
-        private SecureString refresh;
+        private SecureString _refresh;
 
         #endregion
 
@@ -75,8 +75,8 @@ namespace eduOAuth
         protected AccessToken(Dictionary<string, object> obj)
         {
             // Get access token.
-            token = (new NetworkCredential("", eduJSON.Parser.GetValue<string>(obj, "access_token"))).SecurePassword;
-            token.MakeReadOnly();
+            _token = (new NetworkCredential("", eduJSON.Parser.GetValue<string>(obj, "access_token"))).SecurePassword;
+            _token.MakeReadOnly();
 
             // Get expiration date.
             if (eduJSON.Parser.GetValue(obj, "expires_in", out int expires_in))
@@ -85,8 +85,8 @@ namespace eduOAuth
             // Get refresh token
             if (eduJSON.Parser.GetValue(obj, "refresh_token", out string refresh_token))
             {
-                refresh = (new NetworkCredential("", refresh_token)).SecurePassword;
-                refresh.MakeReadOnly();
+                _refresh = (new NetworkCredential("", refresh_token)).SecurePassword;
+                _refresh.MakeReadOnly();
             }
 
             // Get scope
@@ -251,7 +251,7 @@ namespace eduOAuth
             // Prepare token request body.
             string body =
                 "grant_type=refresh_token" +
-                "&refresh_token=" + Uri.EscapeDataString(new NetworkCredential("", refresh).Password);
+                "&refresh_token=" + Uri.EscapeDataString(new NetworkCredential("", _refresh).Password);
             if (_scope != null)
                 body += "&scope=" + Uri.EscapeDataString(String.Join(" ", _scope));
 
@@ -279,11 +279,11 @@ namespace eduOAuth
                 // Parse the response.
                 var token = await FromAuthorizationServerResponseAsync(request, _scope, ct);
 
-                if (token.refresh == null)
+                if (token._refresh == null)
                 {
                     // The authorization server does not cycle the refresh tokens.
                     // The refresh token remains the same.
-                    token.refresh = refresh;
+                    token._refresh = _refresh;
                 }
 
                 return token;
@@ -364,21 +364,21 @@ namespace eduOAuth
         protected AccessToken(SerializationInfo info, StreamingContext context)
         {
             // Load access token.
-            token = Unprotect((byte[])info.GetValue("Token", typeof(byte[])));
+            _token = Unprotect((byte[])info.GetValue("Token", typeof(byte[])));
 
-            byte[] _refresh = null;
+            byte[] refresh = null;
             try
             {
-                _refresh = (byte[])info.GetValue("Refresh", typeof(byte[]));
+                refresh = (byte[])info.GetValue("Refresh", typeof(byte[]));
             }
             catch (SerializationException) { }
-            if (_refresh != null)
+            if (refresh != null)
             {
                 // Load refresh token.
-                refresh = Unprotect(_refresh);
+                _refresh = Unprotect(refresh);
             }
             else
-                refresh = null;
+                _refresh = null;
 
             // Load other fields and properties.
             Expires = (DateTime?)info.GetValue("Expires", typeof(DateTime?));
@@ -389,12 +389,12 @@ namespace eduOAuth
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             // Save access token.
-            info.AddValue("Token", Protect(token));
+            info.AddValue("Token", Protect(_token));
 
-            if (refresh != null)
+            if (_refresh != null)
             {
                 // Save refresh token.
-                info.AddValue("Refresh", Protect(refresh));
+                info.AddValue("Refresh", Protect(_refresh));
             }
 
             // Save other fields and properties.
@@ -413,11 +413,11 @@ namespace eduOAuth
             {
                 if (disposing)
                 {
-                    if (token != null)
-                        token.Dispose();
+                    if (_token != null)
+                        _token.Dispose();
 
-                    if (refresh != null)
-                        refresh.Dispose();
+                    if (_refresh != null)
+                        _refresh.Dispose();
                 }
 
                 disposedValue = true;

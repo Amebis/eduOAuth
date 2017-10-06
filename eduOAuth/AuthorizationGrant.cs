@@ -52,12 +52,12 @@ namespace eduOAuth
         /// <summary>
         /// Random client state
         /// </summary>
-        private string state;
+        private string _state;
 
         /// <summary>
         /// PKCE code verifier
         /// </summary>
-        private string code_verifier;
+        private string _code_verifier;
 
         #endregion
 
@@ -118,7 +118,7 @@ namespace eduOAuth
                 }
 
                 // Add the random state.
-                query["state"] = state;
+                query["state"] = _state;
 
                 if (CodeChallengeAlgorithm != CodeChallengeAlgorithmType.None)
                 {
@@ -127,7 +127,7 @@ namespace eduOAuth
                     {
                         case CodeChallengeAlgorithmType.Plain:
                             query["code_challenge_method"] = "plain";
-                            query["code_challenge"] = code_verifier;
+                            query["code_challenge"] = _code_verifier;
                             break;
 
                         case CodeChallengeAlgorithmType.S256:
@@ -135,7 +135,7 @@ namespace eduOAuth
 
                             {
                                 var sha256 = new SHA256Managed();
-                                query["code_challenge"] = Base64URLEncodeNoPadding(sha256.ComputeHash(Encoding.ASCII.GetBytes(code_verifier)));
+                                query["code_challenge"] = Base64URLEncodeNoPadding(sha256.ComputeHash(Encoding.ASCII.GetBytes(_code_verifier)));
                             }
                             break;
                     }
@@ -162,11 +162,11 @@ namespace eduOAuth
 
             // Calculate random state.
             rng.GetBytes(random);
-            state = Base64URLEncodeNoPadding(random);
+            _state = Base64URLEncodeNoPadding(random);
 
             // Calculate code verifier.
             rng.GetBytes(random);
-            code_verifier = Base64URLEncodeNoPadding(random);
+            _code_verifier = Base64URLEncodeNoPadding(random);
         }
 
         #endregion
@@ -194,7 +194,7 @@ namespace eduOAuth
             var response_state = redirect_response["state"];
             if (response_state == null)
                 throw new eduJSON.MissingParameterException("state");
-            if (response_state != state)
+            if (response_state != _state)
                 throw new InvalidStateException();
 
             // Did authorization server report an error?
@@ -213,8 +213,8 @@ namespace eduOAuth
                 "&code=" + Uri.EscapeDataString(authorization_code) +
                 "&redirect_uri=" + Uri.EscapeDataString(RedirectEndpoint.ToString()) +
                 "&client_id=" + Uri.EscapeDataString(ClientID);
-            if (code_verifier != null)
-                body += "&code_verifier=" + code_verifier;
+            if (_code_verifier != null)
+                body += "&code_verifier=" + _code_verifier;
 
             // Send the request.
             var request = (HttpWebRequest)WebRequest.Create(token_endpoint);
