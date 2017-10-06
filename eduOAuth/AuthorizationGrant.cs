@@ -19,7 +19,7 @@ using System.Web;
 
 namespace eduOAuth
 {
-    public class AuthorizationGrant
+    public class AuthorizationGrant : IDisposable
     {
         #region Data Types
 
@@ -50,14 +50,9 @@ namespace eduOAuth
         #region Fields
 
         /// <summary>
-        /// Random client state
-        /// </summary>
-        private string _state;
-
-        /// <summary>
         /// PKCE code verifier
         /// </summary>
-        private string _code_verifier;
+        private SecureString _code_verifier;
 
         #endregion
 
@@ -93,6 +88,12 @@ namespace eduOAuth
         public List<string> Scope { get; set; }
 
         /// <summary>
+        /// Random client state
+        /// </summary>
+        public SecureString State { get => _state; }
+        private SecureString _state;
+
+        /// <summary>
         /// Authorization URI
         /// </summary>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.1"/>
@@ -118,7 +119,7 @@ namespace eduOAuth
                 }
 
                 // Add the random state.
-                query["state"] = _state;
+                query["state"] = new NetworkCredential("", _state).Password;
 
                 if (CodeChallengeAlgorithm != CodeChallengeAlgorithmType.None)
                 {
@@ -127,7 +128,7 @@ namespace eduOAuth
                     {
                         case CodeChallengeAlgorithmType.Plain:
                             query["code_challenge_method"] = "plain";
-                            query["code_challenge"] = _code_verifier;
+                            query["code_challenge"] = new NetworkCredential("", _code_verifier).Password;
                             break;
 
                         case CodeChallengeAlgorithmType.S256:
@@ -135,7 +136,7 @@ namespace eduOAuth
 
                             {
                                 var sha256 = new SHA256Managed();
-                                query["code_challenge"] = Base64URLEncodeNoPadding(sha256.ComputeHash(Encoding.ASCII.GetBytes(_code_verifier)));
+                                query["code_challenge"] = Base64URLEncodeNoPadding(sha256.ComputeHash(Encoding.ASCII.GetBytes(new NetworkCredential("", _code_verifier).Password)));
                             }
                             break;
                     }
@@ -151,22 +152,53 @@ namespace eduOAuth
         #region Constructors
 
         /// <summary>
-        /// Initializes default authorization grant.
+        /// Initializes an authorization grant.
         /// </summary>
-        public AuthorizationGrant()
+        public AuthorizationGrant() :
+            this(new byte[0])
+        {
+        }
+
+        /// <summary>
+        /// Initializes an authorization grant.
+        /// </summary>
+        /// <param name="state_prefix">Data to prefix OAuth state with to allow disambiguation between multiple concurrent authorization requests</param>
+        public AuthorizationGrant(byte[] state_prefix)
         {
             CodeChallengeAlgorithm = CodeChallengeAlgorithmType.S256;
 
             RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
             var random = new byte[32];
+            try
+            {
+                // Calculate random state.
+                rng.GetBytes(random);
+                var state = new byte[state_prefix.LongLength + random.LongLength];
+                try
+                {
+                    Array.Copy(state_prefix, 0, state, 0, state_prefix.LongLength);
+                    Array.Copy(random, 0, state, state_prefix.LongLength, random.LongLength);
+                    _state = new NetworkCredential("", Base64URLEncodeNoPadding(state)).SecurePassword;
+                    _state.MakeReadOnly();
+                }
+                finally
+                {
+                    // Sanitize!
+                    for (long i = 0, n = state.LongLength; i < n; i++)
+                        state[i] = 0;
+                }
 
-            // Calculate random state.
-            rng.GetBytes(random);
-            _state = Base64URLEncodeNoPadding(random);
-
-            // Calculate code verifier.
-            rng.GetBytes(random);
-            _code_verifier = Base64URLEncodeNoPadding(random);
+                // Calculate code verifier.
+                rng.GetBytes(random);
+                _code_verifier = new NetworkCredential("", Base64URLEncodeNoPadding(random)).SecurePassword;
+                _code_verifier.MakeReadOnly();
+            }
+            finally
+            {
+                // Sanitize!
+                for (long i = 0, n = random.LongLength; i < n; i++)
+                    random[i] = 0;
+            }
         }
 
         #endregion
@@ -194,7 +226,7 @@ namespace eduOAuth
             var response_state = redirect_response["state"];
             if (response_state == null)
                 throw new eduJSON.MissingParameterException("state");
-            if (response_state != _state)
+            if (!new NetworkCredential("", response_state).SecurePassword.IsEqualTo(_state))
                 throw new InvalidStateException();
 
             // Did authorization server report an error?
@@ -214,7 +246,7 @@ namespace eduOAuth
                 "&redirect_uri=" + Uri.EscapeDataString(RedirectEndpoint.ToString()) +
                 "&client_id=" + Uri.EscapeDataString(ClientID);
             if (_code_verifier != null)
-                body += "&code_verifier=" + _code_verifier;
+                body += "&code_verifier=" + new NetworkCredential("", _code_verifier).Password;
 
             // Send the request.
             var request = (HttpWebRequest)WebRequest.Create(token_endpoint);
@@ -270,6 +302,34 @@ namespace eduOAuth
             return Convert.FromBase64String(s); // Regular Base64 decoder
         }
 
+        #endregion
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    if (_state != null)
+                        _state.Dispose();
+
+                    if (_code_verifier != null)
+                        _code_verifier.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+        }
         #endregion
     }
 }
