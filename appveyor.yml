@@ -1,4 +1,4 @@
-version: 1.0.3.{build}
+version: 1.0.4.{build}
 image: Visual Studio 2017
 before_build:
   - git clone -q --branch=master https://github.com/Amebis/eduJSON.git ..\eduJSON
