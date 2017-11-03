@@ -10,12 +10,12 @@
         <!--
             Components
         -->
-        <DirectoryRef Id="INSTALLDIR">
+        <DirectoryRef Id="BINDIR">
             <Component Id="eduOAuth.dll" Guid="{8B85976D-4CFC-4543-B583-06C75E92A6FD}">
                 <File Source="eduOAuth.dll"/>
             </Component>
         </DirectoryRef>
-        <DirectoryRef Id="RESOURCEDIRSL">
+        <DirectoryRef Id="RESDIRSL">
             <Component Id="eduOAuth.resources.dll.sl" Guid="{DB53F78C-785A-4006-B0D0-F43EDC33654E}">
                 <File Id="eduOAuth.resources.dll.sl" Source="sl\eduOAuth.resources.dll"/>
             </Component>
