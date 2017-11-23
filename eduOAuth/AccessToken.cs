@@ -102,7 +102,7 @@ namespace eduOAuth
         /// Adds token to request
         /// </summary>
         /// <param name="req">Web request</param>
-        public virtual void AddToRequest(HttpWebRequest req)
+        public virtual void AddToRequest(WebRequest req)
         {
             throw new NotImplementedException();
         }
