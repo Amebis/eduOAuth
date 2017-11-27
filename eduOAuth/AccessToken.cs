@@ -9,7 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -257,6 +259,10 @@ namespace eduOAuth
 
             // Send the request.
             var request = (HttpWebRequest)WebRequest.Create(token_endpoint);
+            var assembly = Assembly.GetExecutingAssembly();
+            var assembly_title_attribute = Attribute.GetCustomAttributes(assembly, typeof(AssemblyTitleAttribute)).SingleOrDefault() as AssemblyTitleAttribute;
+            var assembly_version = assembly?.GetName()?.Version;
+            request.UserAgent = assembly_title_attribute?.Title + "/" + assembly_version?.ToString();
             request.Method = "POST";
             if (client_cred != null)
             {

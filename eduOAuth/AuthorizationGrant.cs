@@ -9,7 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
@@ -250,6 +252,10 @@ namespace eduOAuth
 
             // Send the request.
             var request = (HttpWebRequest)WebRequest.Create(token_endpoint);
+            var assembly = Assembly.GetExecutingAssembly();
+            var assembly_title_attribute = Attribute.GetCustomAttributes(assembly, typeof(AssemblyTitleAttribute)).SingleOrDefault() as AssemblyTitleAttribute;
+            var assembly_version = assembly?.GetName()?.Version;
+            request.UserAgent = assembly_title_attribute?.Title + "/" + assembly_version?.ToString();
             request.Method = "POST";
             if (client_secret != null)
             {
