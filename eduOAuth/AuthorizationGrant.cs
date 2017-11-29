@@ -237,7 +237,7 @@ namespace eduOAuth
                 throw new AuthorizationGrantException(response_error, redirect_response["error_description"], redirect_response["error_uri"]);
 
             // Verify authorization code to be present.
-            var authorization_code = redirect_response["code"];
+            var authorization_code = redirect_response["code"]/*.Replace(' ', '+') <= IE11 sends URI unescaped causing + to get converted into space. The issue is avoided by switching to Base64URLEncodeNoPadding encoding.*/;
             if (authorization_code == null)
                 throw new eduJSON.MissingParameterException("code");
 
