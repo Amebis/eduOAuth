@@ -214,6 +214,34 @@ namespace eduOAuth
         /// <param name="token_endpoint">URI of the token endpoint used to obtain access token from authorization grant</param>
         /// <param name="client_secret">Client secret (optional)</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
+        /// <returns>Access token</returns>
+        /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2"/>
+        /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2.1"/>
+        /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.3"/>
+        /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.4"/>
+        /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.2"/>
+        /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.5"/>
+        public AccessToken ProcessResponse(NameValueCollection redirect_response, Uri token_endpoint, SecureString client_secret = null, CancellationToken ct = default(CancellationToken))
+        {
+            var task = ProcessResponseAsync(redirect_response, token_endpoint, client_secret, ct);
+            try
+            {
+                task.Wait(ct);
+                return task.Result;
+            }
+            catch (AggregateException ex)
+            {
+                throw ex.InnerException;
+            }
+        }
+
+        /// <summary>
+        /// Parses authorization grant received and requests access token if successful asynchronously.
+        /// </summary>
+        /// <param name="redirect_response">Parameters of the access grant</param>
+        /// <param name="token_endpoint">URI of the token endpoint used to obtain access token from authorization grant</param>
+        /// <param name="client_secret">Client secret (optional)</param>
+        /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Asynchronous operation with expected access token</returns>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2"/>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2.1"/>
