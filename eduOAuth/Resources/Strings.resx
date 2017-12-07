@@ -156,6 +156,12 @@
   <data name="ErrorAuthorizationGrantUnsupportedResponseType" xml:space="preserve">
     <value>The authorization server does not support obtaining an authorization code using this method.</value>
   </data>
+  <data name="ErrorHttp404" xml:space="preserve">
+    <value>Path {0} not found.</value>
+  </data>
+  <data name="ErrorHttp405" xml:space="preserve">
+    <value>Method {0} not supported.</value>
+  </data>
   <data name="ErrorInvalidState" xml:space="preserve">
     <value>Response and request states are different.</value>
   </data>
@@ -165,5 +171,17 @@
   </data>
   <data name="ErrorUnsupportedTokenType" xml:space="preserve">
     <value>The received token type is not supported.</value>
+  </data>
+  <data name="HtmlErrorDescription" xml:space="preserve">
+    <value>Please try again later or contact your helpdesk for support.</value>
+  </data>
+  <data name="HtmlErrorTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="HtmlFinishedDescription" xml:space="preserve">
+    <value>You can now close this tab.</value>
+  </data>
+  <data name="HtmlFinishedTitle" xml:space="preserve">
+    <value>eduVPN client succesfuly authorized.</value>
   </data>
 </root>

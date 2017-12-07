@@ -19,7 +19,7 @@ namespace eduOAuth.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Strings {
@@ -178,6 +178,24 @@ namespace eduOAuth.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Path {0} not found..
+        /// </summary>
+        internal static string ErrorHttp404 {
+            get {
+                return ResourceManager.GetString("ErrorHttp404", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Method {0} not supported..
+        /// </summary>
+        internal static string ErrorHttp405 {
+            get {
+                return ResourceManager.GetString("ErrorHttp405", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Response and request states are different..
         /// </summary>
         internal static string ErrorInvalidState {
@@ -201,6 +219,42 @@ namespace eduOAuth.Resources {
         internal static string ErrorUnsupportedTokenType {
             get {
                 return ResourceManager.GetString("ErrorUnsupportedTokenType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please try again later or contact your helpdesk for support..
+        /// </summary>
+        internal static string HtmlErrorDescription {
+            get {
+                return ResourceManager.GetString("HtmlErrorDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        internal static string HtmlErrorTitle {
+            get {
+                return ResourceManager.GetString("HtmlErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You can now close this tab..
+        /// </summary>
+        internal static string HtmlFinishedDescription {
+            get {
+                return ResourceManager.GetString("HtmlFinishedDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to eduVPN client succesfuly authorized..
+        /// </summary>
+        internal static string HtmlFinishedTitle {
+            get {
+                return ResourceManager.GetString("HtmlFinishedTitle", resourceCulture);
             }
         }
     }
