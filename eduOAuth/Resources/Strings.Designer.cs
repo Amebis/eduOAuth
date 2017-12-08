@@ -250,7 +250,7 @@ namespace eduOAuth.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to eduVPN client succesfuly authorized..
+        ///   Looks up a localized string similar to eduVPN client succesfully authorized..
         /// </summary>
         internal static string HtmlFinishedTitle {
             get {
