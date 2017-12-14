@@ -15,11 +15,13 @@
                 <File Source="eduOAuth.dll"/>
             </Component>
         </DirectoryRef>
+        <!--
         <DirectoryRef Id="RESDIRNL">
             <Component Id="eduOAuth.resources.dll.nl" Guid="{ED2AF7CA-BDA0-40B0-AE7E-55302E22D878}">
                 <File Id="eduOAuth.resources.dll.nl" Source="nl\eduOAuth.resources.dll"/>
             </Component>
         </DirectoryRef>
+        -->
         <DirectoryRef Id="RESDIRSL">
             <Component Id="eduOAuth.resources.dll.sl" Guid="{DB53F78C-785A-4006-B0D0-F43EDC33654E}">
                 <File Id="eduOAuth.resources.dll.sl" Source="sl\eduOAuth.resources.dll"/>
@@ -34,7 +36,7 @@
             <ComponentGroupRef Id="eduJSON.dll"/>
 
             <ComponentRef Id="eduOAuth.dll"/>
-            <ComponentRef Id="eduOAuth.resources.dll.nl"/>
+            <!--<ComponentRef Id="eduOAuth.resources.dll.nl"/>-->
             <ComponentRef Id="eduOAuth.resources.dll.sl"/>
         </ComponentGroup>
     </Fragment>
