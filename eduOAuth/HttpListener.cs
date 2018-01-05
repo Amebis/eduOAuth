@@ -170,7 +170,9 @@ namespace eduOAuth
                                                     Thread.CurrentThread.CurrentUICulture.Name,
                                                     HttpUtility.HtmlEncode(Resources.Strings.HtmlErrorTitle),
                                                     HttpUtility.HtmlEncode(ex.Message),
-                                                    HttpUtility.HtmlEncode(Resources.Strings.HtmlErrorDescription));
+                                                    HttpUtility.HtmlEncode(Resources.Strings.HtmlErrorDescription),
+                                                    HttpUtility.HtmlEncode(Resources.Strings.HtmlErrorDetails),
+                                                    HttpUtility.HtmlEncode(ex.ToString()));
                                             }
                                             catch { response = HttpUtility.HtmlEncode(ex.ToString()); }
                                             using (var writer = new StreamWriter(client.GetStream(), new UTF8Encoding(false)))

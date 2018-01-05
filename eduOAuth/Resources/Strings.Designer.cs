@@ -232,6 +232,15 @@ namespace eduOAuth.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Details....
+        /// </summary>
+        internal static string HtmlErrorDetails {
+            get {
+                return ResourceManager.GetString("HtmlErrorDetails", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error.
         /// </summary>
         internal static string HtmlErrorTitle {

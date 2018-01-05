@@ -175,6 +175,9 @@
   <data name="HtmlErrorDescription" xml:space="preserve">
     <value>Prosimo poskusite pozneje ali se obrnite na svojo tehnično pomoč.</value>
   </data>
+  <data name="HtmlErrorDetails" xml:space="preserve">
+    <value>Podrobnosti ...</value>
+  </data>
   <data name="HtmlErrorTitle" xml:space="preserve">
     <value>Napaka</value>
   </data>

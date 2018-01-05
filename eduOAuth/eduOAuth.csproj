@@ -72,6 +72,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\Html\favicon.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Html\script.js" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\Default.targets" />
 </Project>

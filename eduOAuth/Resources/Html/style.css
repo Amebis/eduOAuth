@@ -11,6 +11,12 @@ body {
     color: #000;
 }
 
+a {
+    text-decoration: none;
+    color: #ed6b06;
+    font-weight: bold;
+}
+
 #wrapper {
     border: none;
     vertical-align: middle;
@@ -48,6 +54,21 @@ h2 {
 p {
     text-align: center;
     margin: 2pt 0pt;
+}
+
+pre {
+    font-family: 'Lucida Console','Courier New', Courier, monospace;
+    font-size: 10pt;
+    color: #666;
+    text-align: left;
+    max-width: 600pt;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+#details {
+    visibility: hidden;
+    display: none;
 }
 
 body.finished {
