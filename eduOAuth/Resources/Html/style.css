@@ -15,7 +15,7 @@ body {
     border: none;
     vertical-align: middle;
     text-align: center;
-    width: 100%;
+    margin: auto;
 }
 
 #wrapper tr td {
