@@ -29,6 +29,7 @@ namespace eduOAuth
         {
             { ".css", "text/css" },
             { ".ico", "image/x-icon" },
+            { ".js" , "text/javascript" },
         };
 
         #endregion
@@ -136,6 +137,7 @@ namespace eduOAuth
                                                 break;
 
                                             case "/favicon.ico":
+                                            case "/script.js":
                                             case "/style.css":
                                                 {
                                                     // Send static content.
@@ -162,11 +164,15 @@ namespace eduOAuth
                                         using (var stream = assembly.GetManifestResourceStream("eduOAuth.Resources.Html.error.html"))
                                         using (var reader = new StreamReader(stream, true))
                                         {
-                                            var response = string.Format(reader.ReadToEnd(),
-                                                Thread.CurrentThread.CurrentUICulture.Name,
-                                                HttpUtility.HtmlEncode(Resources.Strings.HtmlErrorTitle),
-                                                HttpUtility.HtmlEncode(ex.Message),
-                                                HttpUtility.HtmlEncode(Resources.Strings.HtmlErrorDescription));
+                                            string response;
+                                            try {
+                                                response = string.Format(reader.ReadToEnd(),
+                                                    Thread.CurrentThread.CurrentUICulture.Name,
+                                                    HttpUtility.HtmlEncode(Resources.Strings.HtmlErrorTitle),
+                                                    HttpUtility.HtmlEncode(ex.Message),
+                                                    HttpUtility.HtmlEncode(Resources.Strings.HtmlErrorDescription));
+                                            }
+                                            catch { response = HttpUtility.HtmlEncode(ex.ToString()); }
                                             using (var writer = new StreamWriter(client.GetStream(), new UTF8Encoding(false)))
                                                 writer.Write(string.Format("HTTP/1.0 {0} Error\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: {1}\r\n\r\n{2}", status_code, response.Length, response));
                                         }
