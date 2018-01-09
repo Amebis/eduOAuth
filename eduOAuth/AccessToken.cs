@@ -99,6 +99,28 @@ namespace eduOAuth
 
         #region Methods
 
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            if (this == obj)
+                return true;
+            if (obj == null || GetType() != obj.GetType())
+                return false;
+
+            var other = obj as AccessToken;
+            if (!new NetworkCredential("", _token).Password.Equals(new NetworkCredential("", other._token).Password))
+                return false;
+
+            return true;
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            return
+                new NetworkCredential("", _token).Password.GetHashCode();
+        }
+
         /// <summary>
         /// Adds token to request
         /// </summary>
