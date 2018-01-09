@@ -24,7 +24,7 @@ namespace eduOAuth.Tests
                 RedirectEndpoint = new Uri("org.eduvpn.app:/api/callback"),
                 ClientID = "org.eduvpn.app",
                 CodeChallengeAlgorithm = AuthorizationGrant.CodeChallengeAlgorithmType.S256,
-                Scope = new List<string>() { "scope1", "scope2" },
+                Scope = new HashSet<string>() { "scope1", "scope2" },
             };
 
             var uri_builder = new UriBuilder(ag.AuthorizationURI);

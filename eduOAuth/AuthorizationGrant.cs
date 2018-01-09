@@ -87,7 +87,7 @@ namespace eduOAuth
         /// List of scope identifiers client is requesting access
         /// </summary>
         /// <remarks>Should be populated before requesting authorization. When empty <c>scope</c> parameter is not included in authorization request URI.</remarks>
-        public List<string> Scope { get; set; }
+        public HashSet<string> Scope { get; set; }
 
         /// <summary>
         /// Random client state
@@ -304,7 +304,7 @@ namespace eduOAuth
                 await stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
 
                 // Parse response.
-                return await AccessToken.FromAuthorizationServerResponseAsync(request, Scope != null ? Scope.ToArray() : null, ct);
+                return await AccessToken.FromAuthorizationServerResponseAsync(request, Scope, ct);
             }
         }
 

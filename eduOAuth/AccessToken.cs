@@ -62,8 +62,8 @@ namespace eduOAuth
         /// <summary>
         /// List of access token scope identifiers
         /// </summary>
-        public string[] Scope { get => _scope; }
-        private string[] _scope;
+        public HashSet<string> Scope { get => _scope; }
+        private HashSet<string> _scope;
 
         #endregion
 
@@ -83,16 +83,16 @@ namespace eduOAuth
             // Get expiration date.
             Expires = eduJSON.Parser.GetValue(obj, "expires_in", out int expires_in) ? DateTime.Now.AddSeconds(expires_in) : DateTime.MaxValue;
 
-            // Get refresh token
+            // Get refresh token.
             if (eduJSON.Parser.GetValue(obj, "refresh_token", out string refresh_token))
             {
                 _refresh = (new NetworkCredential("", refresh_token)).SecurePassword;
                 _refresh.MakeReadOnly();
             }
 
-            // Get scope
+            // Get scope.
             if (eduJSON.Parser.GetValue(obj, "scope", out string scope))
-                _scope = scope.Split(null);
+                _scope = new HashSet<string>(scope.Split(null));
         }
 
         #endregion
@@ -143,7 +143,7 @@ namespace eduOAuth
         /// <param name="scope">Expected scope</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Access token</returns>
-        public static AccessToken FromAuthorizationServerResponse(HttpWebRequest req, string[] scope = null, CancellationToken ct = default(CancellationToken))
+        public static AccessToken FromAuthorizationServerResponse(HttpWebRequest req, HashSet<string> scope = null, CancellationToken ct = default(CancellationToken))
         {
             var task = FromAuthorizationServerResponseAsync(req, scope, ct);
             try
@@ -165,7 +165,7 @@ namespace eduOAuth
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Asynchronous operation with expected access token</returns>
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "HttpWebResponse, Stream, and StreamReader tolerate multiple disposes.")]
-        public static async Task<AccessToken> FromAuthorizationServerResponseAsync(HttpWebRequest req, string[] scope = null, CancellationToken ct = default(CancellationToken))
+        public static async Task<AccessToken> FromAuthorizationServerResponseAsync(HttpWebRequest req, HashSet<string> scope = null, CancellationToken ct = default(CancellationToken))
         {
             try
             {
@@ -387,7 +387,7 @@ namespace eduOAuth
 
             // Load other fields and properties.
             Expires = (DateTime)info.GetValue("Expires", typeof(DateTime));
-            _scope = (string[])info.GetValue("Scope", typeof(string[]));
+            _scope = (HashSet<string>)info.GetValue("Scope", typeof(HashSet<string>));
         }
 
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
