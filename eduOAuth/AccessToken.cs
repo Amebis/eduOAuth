@@ -165,7 +165,7 @@ namespace eduOAuth
         /// <param name="scope">Expected scope</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Access token</returns>
-        public static AccessToken FromAuthorizationServerResponse(HttpWebRequest req, HashSet<string> scope = null, CancellationToken ct = default(CancellationToken))
+        public static AccessToken FromAuthorizationServerResponse(WebRequest req, HashSet<string> scope = null, CancellationToken ct = default(CancellationToken))
         {
             var task = FromAuthorizationServerResponseAsync(req, scope, ct);
             try
@@ -186,13 +186,13 @@ namespace eduOAuth
         /// <param name="scope">Expected scope</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Asynchronous operation with expected access token</returns>
-        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "HttpWebResponse, Stream, and StreamReader tolerate multiple disposes.")]
-        public static async Task<AccessToken> FromAuthorizationServerResponseAsync(HttpWebRequest req, HashSet<string> scope = null, CancellationToken ct = default(CancellationToken))
+        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "WebResponse, Stream, and StreamReader tolerate multiple disposes.")]
+        public static async Task<AccessToken> FromAuthorizationServerResponseAsync(WebRequest req, HashSet<string> scope = null, CancellationToken ct = default(CancellationToken))
         {
             try
             {
                 // Read and parse the response.
-                using (var response = (HttpWebResponse)await req.GetResponseAsync())
+                using (var response = await req.GetResponseAsync())
                 using (var stream_res = response.GetResponseStream())
                 using (var reader = new StreamReader(stream_res))
                 {
@@ -219,8 +219,7 @@ namespace eduOAuth
             }
             catch (WebException ex)
             {
-                var response = (HttpWebResponse)ex.Response;
-                if (response.StatusCode == HttpStatusCode.BadRequest)
+                if (ex.Response is HttpWebResponse response && response.StatusCode == HttpStatusCode.BadRequest)
                 {
                     // Parse server error.
                     using (var stream_res = response.GetResponseStream())
@@ -279,11 +278,7 @@ namespace eduOAuth
                 body += "&scope=" + Uri.EscapeDataString(String.Join(" ", _scope));
 
             // Send the request.
-            var request = (HttpWebRequest)WebRequest.Create(token_endpoint);
-            var assembly = Assembly.GetExecutingAssembly();
-            var assembly_title_attribute = Attribute.GetCustomAttributes(assembly, typeof(AssemblyTitleAttribute)).SingleOrDefault() as AssemblyTitleAttribute;
-            var assembly_version = assembly?.GetName()?.Version;
-            request.UserAgent = assembly_title_attribute?.Title + "/" + assembly_version?.ToString();
+            var request = WebRequest.Create(token_endpoint);
             request.Method = "POST";
             if (client_cred != null)
             {
@@ -297,7 +292,14 @@ namespace eduOAuth
             var body_binary = Encoding.ASCII.GetBytes(body);
             request.ContentType = "application/x-www-form-urlencoded";
             request.ContentLength = body_binary.Length;
-            request.Accept = "application/json";
+            if (request is HttpWebRequest request_web)
+            {
+                var assembly = Assembly.GetExecutingAssembly();
+                var assembly_title_attribute = Attribute.GetCustomAttributes(assembly, typeof(AssemblyTitleAttribute)).SingleOrDefault() as AssemblyTitleAttribute;
+                var assembly_version = assembly?.GetName()?.Version;
+                request_web.UserAgent = assembly_title_attribute?.Title + "/" + assembly_version?.ToString();
+                request_web.Accept = "application/json";
+            }
             using (var stream_req = await request.GetRequestStreamAsync())
             {
                 // Send request body.
