@@ -11,7 +11,6 @@ using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
@@ -211,7 +210,7 @@ namespace eduOAuth
         /// Parses authorization grant received and requests access token if successful.
         /// </summary>
         /// <param name="redirect_response">Parameters of the access grant</param>
-        /// <param name="token_endpoint">URI of the token endpoint used to obtain access token from authorization grant</param>
+        /// <param name="request">Web request of the token endpoint used to obtain access token from authorization grant</param>
         /// <param name="client_secret">Client secret (optional)</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Access token</returns>
@@ -221,9 +220,9 @@ namespace eduOAuth
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.4"/>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.2"/>
         /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.5"/>
-        public AccessToken ProcessResponse(NameValueCollection redirect_response, Uri token_endpoint, SecureString client_secret = null, CancellationToken ct = default(CancellationToken))
+        public AccessToken ProcessResponse(NameValueCollection redirect_response, WebRequest request, SecureString client_secret = null, CancellationToken ct = default(CancellationToken))
         {
-            var task = ProcessResponseAsync(redirect_response, token_endpoint, client_secret, ct);
+            var task = ProcessResponseAsync(redirect_response, request, client_secret, ct);
             try
             {
                 task.Wait(ct);
@@ -239,7 +238,7 @@ namespace eduOAuth
         /// Parses authorization grant received and requests access token if successful asynchronously.
         /// </summary>
         /// <param name="redirect_response">Parameters of the access grant</param>
-        /// <param name="token_endpoint">URI of the token endpoint used to obtain access token from authorization grant</param>
+        /// <param name="request">Web request of the token endpoint used to obtain access token from authorization grant</param>
         /// <param name="client_secret">Client secret (optional)</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Asynchronous operation with expected access token</returns>
@@ -250,7 +249,7 @@ namespace eduOAuth
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.2"/>
         /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.5"/>
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "HttpWebResponse, Stream, and StreamReader tolerate multiple disposes.")]
-        public async Task<AccessToken> ProcessResponseAsync(NameValueCollection redirect_response, Uri token_endpoint, SecureString client_secret = null, CancellationToken ct = default(CancellationToken))
+        public async Task<AccessToken> ProcessResponseAsync(NameValueCollection redirect_response, WebRequest request, SecureString client_secret = null, CancellationToken ct = default(CancellationToken))
         {
             // Verify state parameter to be present and matching.
             var response_state = redirect_response["state"];
@@ -279,25 +278,19 @@ namespace eduOAuth
                 body += "&code_verifier=" + new NetworkCredential("", _code_verifier).Password;
 
             // Send the request.
-            var request = (HttpWebRequest)WebRequest.Create(token_endpoint);
-            var assembly = Assembly.GetExecutingAssembly();
-            var assembly_title_attribute = Attribute.GetCustomAttributes(assembly, typeof(AssemblyTitleAttribute)).SingleOrDefault() as AssemblyTitleAttribute;
-            var assembly_version = assembly?.GetName()?.Version;
-            request.UserAgent = assembly_title_attribute?.Title + "/" + assembly_version?.ToString();
             request.Method = "POST";
             if (client_secret != null)
             {
                 // Our client has credentials: requires authentication.
                 request.Credentials = new CredentialCache
                 {
-                    { token_endpoint, "Basic", new NetworkCredential(ClientID, client_secret) }
+                    { request.RequestUri, "Basic", new NetworkCredential(ClientID, client_secret) }
                 };
                 request.PreAuthenticate = true;
             }
             var body_binary = Encoding.ASCII.GetBytes(body);
             request.ContentType = "application/x-www-form-urlencoded";
             request.ContentLength = body_binary.Length;
-            request.Accept = "application/json";
             using (var stream_req = await request.GetRequestStreamAsync())
                 await stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
 

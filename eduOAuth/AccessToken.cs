@@ -9,9 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -239,15 +237,15 @@ namespace eduOAuth
         /// <summary>
         /// Uses the refresh token to obtain a new access token. The new access token is requested using the same scope as initially granted to the access token.
         /// </summary>
-        /// <param name="token_endpoint">URI of the token endpoint used to obtain access token from authorization grant</param>
+        /// <param name="request">Web request of the token endpoint used to obtain access token from authorization grant</param>
         /// <param name="client_cred">Client credentials (optional)</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Access token</returns>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-6"/>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.1"/>
-        public AccessToken RefreshToken(Uri token_endpoint, NetworkCredential client_cred = null, CancellationToken ct = default(CancellationToken))
+        public AccessToken RefreshToken(WebRequest request, NetworkCredential client_cred = null, CancellationToken ct = default(CancellationToken))
         {
-            var task = RefreshTokenAsync(token_endpoint, client_cred, ct);
+            var task = RefreshTokenAsync(request, client_cred, ct);
             try
             {
                 task.Wait(ct);
@@ -262,13 +260,13 @@ namespace eduOAuth
         /// <summary>
         /// Uses the refresh token to obtain a new access token asynchronously. The new access token is requested using the same scope as initially granted to the access token.
         /// </summary>
-        /// <param name="token_endpoint">URI of the token endpoint used to obtain access token from authorization grant</param>
+        /// <param name="request">Web request of the token endpoint used to obtain access token from authorization grant</param>
         /// <param name="client_cred">Client credentials (optional)</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Asynchronous operation with expected access token</returns>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-6"/>
         /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.1"/>
-        public async Task<AccessToken> RefreshTokenAsync(Uri token_endpoint, NetworkCredential client_cred = null, CancellationToken ct = default(CancellationToken))
+        public async Task<AccessToken> RefreshTokenAsync(WebRequest request, NetworkCredential client_cred = null, CancellationToken ct = default(CancellationToken))
         {
             // Prepare token request body.
             string body =
@@ -278,28 +276,19 @@ namespace eduOAuth
                 body += "&scope=" + Uri.EscapeDataString(String.Join(" ", _scope));
 
             // Send the request.
-            var request = WebRequest.Create(token_endpoint);
             request.Method = "POST";
             if (client_cred != null)
             {
                 // Our client has credentials: requires authentication.
                 request.Credentials = new CredentialCache
                 {
-                    { token_endpoint, "Basic", client_cred }
+                    { request.RequestUri, "Basic", client_cred }
                 };
                 request.PreAuthenticate = true;
             }
             var body_binary = Encoding.ASCII.GetBytes(body);
             request.ContentType = "application/x-www-form-urlencoded";
             request.ContentLength = body_binary.Length;
-            if (request is HttpWebRequest request_web)
-            {
-                var assembly = Assembly.GetExecutingAssembly();
-                var assembly_title_attribute = Attribute.GetCustomAttributes(assembly, typeof(AssemblyTitleAttribute)).SingleOrDefault() as AssemblyTitleAttribute;
-                var assembly_version = assembly?.GetName()?.Version;
-                request_web.UserAgent = assembly_title_attribute?.Title + "/" + assembly_version?.ToString();
-                request_web.Accept = "application/json";
-            }
             using (var stream_req = await request.GetRequestStreamAsync())
                 await stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
 
