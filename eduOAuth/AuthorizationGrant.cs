@@ -299,13 +299,10 @@ namespace eduOAuth
             request.ContentLength = body_binary.Length;
             request.Accept = "application/json";
             using (var stream_req = await request.GetRequestStreamAsync())
-            {
-                // Send request body.
                 await stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
 
-                // Parse response.
-                return await AccessToken.FromAuthorizationServerResponseAsync(request, Scope, ct);
-            }
+            // Parse the response.
+            return await AccessToken.FromAuthorizationServerResponseAsync(request, Scope, ct);
         }
 
         /// <summary>

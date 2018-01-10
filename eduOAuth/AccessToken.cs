@@ -301,22 +301,18 @@ namespace eduOAuth
                 request_web.Accept = "application/json";
             }
             using (var stream_req = await request.GetRequestStreamAsync())
-            {
-                // Send request body.
                 await stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
 
-                // Parse the response.
-                var token = await FromAuthorizationServerResponseAsync(request, _scope, ct);
-
-                if (token._refresh == null)
-                {
-                    // The authorization server does not cycle the refresh tokens.
-                    // The refresh token remains the same.
-                    token._refresh = _refresh;
-                }
-
-                return token;
+            // Parse the response.
+            var token = await FromAuthorizationServerResponseAsync(request, _scope, ct);
+            if (token._refresh == null)
+            {
+                // The authorization server does not cycle the refresh tokens.
+                // The refresh token remains the same.
+                token._refresh = _refresh;
             }
+
+            return token;
         }
 
         /// <summary>
