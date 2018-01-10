@@ -14,7 +14,7 @@ namespace eduOAuth
     /// Response and request states are different.
     /// </summary>
     [Serializable]
-    class InvalidStateException : eduJSON.ParameterException, ISerializable
+    public class InvalidStateException : eduJSON.ParameterException, ISerializable
     {
         #region Constructors
 

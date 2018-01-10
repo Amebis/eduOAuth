@@ -16,7 +16,7 @@ namespace eduOAuth
     /// </summary>
     /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.2"/>
     [Serializable]
-    class AccessTokenException : ApplicationException, ISerializable
+    public class AccessTokenException : ApplicationException, ISerializable
     {
         #region Data Types
 
