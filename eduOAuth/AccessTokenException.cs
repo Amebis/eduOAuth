@@ -157,7 +157,7 @@ namespace eduOAuth
         public AccessTokenException(string error, string error_description, string error_uri) :
             base(error_description)
         {
-            switch (((string)error).ToLowerInvariant())
+            switch (error.ToLowerInvariant())
             {
                 case "invalid_request":
                     ErrorCode = ErrorCodeType.InvalidRequest;
