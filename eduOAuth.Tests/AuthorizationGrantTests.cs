@@ -6,8 +6,14 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace eduOAuth.Tests
@@ -16,7 +22,7 @@ namespace eduOAuth.Tests
     public class AuthorizationGrantTests
     {
         [TestMethod()]
-        public void AuthorizationURITest()
+        public void AuthorizationGrantTest()
         {
             var ag = new AuthorizationGrant()
             {
@@ -41,6 +47,64 @@ namespace eduOAuth.Tests
             Assert.IsTrue(AuthorizationGrant.Base64URLDecodeNoPadding(query["state"]).Length > 0);
             Assert.AreEqual("S256", query["code_challenge_method"]);
             Assert.IsTrue(AuthorizationGrant.Base64URLDecodeNoPadding(query["code_challenge"]).Length > 0);
+
+            var request = new Mock<HttpWebRequest>();
+            request.Setup(obj => obj.RequestUri).Returns(new Uri("https://demo.eduvpn.nl/portal/oauth.php/token"));
+            request.SetupSet(obj => obj.Method = "POST");
+            request.SetupProperty(obj => obj.Credentials);
+            request.SetupProperty(obj => obj.PreAuthenticate, false);
+            request.SetupSet(obj => obj.ContentType = "application/x-www-form-urlencoded");
+            request.SetupProperty(obj => obj.ContentLength);
+            var request_buffer = new byte[1048576];
+            request.Setup(obj => obj.GetRequestStreamAsync()).Returns(Task.FromResult((Stream)new MemoryStream(request_buffer, true)));
+            var response = new Mock<HttpWebResponse>();
+            response.Setup(obj => obj.GetResponseStream()).Returns(new MemoryStream(Encoding.UTF8.GetBytes(Global.AccessTokenJSON)));
+            request.Setup(obj => obj.GetResponseAsync()).Returns(Task.FromResult((WebResponse)response.Object));
+
+            AccessToken
+                token1 = new BearerToken(Global.AccessTokenObj),
+                token2 = ag.ProcessResponse(new NameValueCollection() { { "state", query["state"] }, { "code", "1234567890" } }, request.Object, new NetworkCredential("", "password").SecurePassword);
+            var request_param = HttpUtility.ParseQueryString(Encoding.ASCII.GetString(request_buffer, 0, (int)request.Object.ContentLength));
+            Assert.AreEqual("authorization_code", request_param["grant_type"]);
+            Assert.IsNotNull(request_param["code"]);
+            Assert.AreEqual(ag.RedirectEndpoint, request_param["redirect_uri"]);
+            Assert.AreEqual(ag.ClientID, request_param["client_id"]);
+            Assert.IsNotNull(request_param["code_verifier"]);
+            Assert.AreEqual(token1, token2);
+            Assert.IsTrue((token1.Expires - token2.Expires).TotalSeconds < 60);
+            Assert.IsTrue(token2.Scope != null);
+            Assert.IsTrue(token1.Scope.SetEquals(token2.Scope));
+
+            try
+            {
+                ag.ProcessResponse(new NameValueCollection() { { "code", "1234567890" } }, request.Object);
+                Assert.Fail("Missing \"state\" parameter tolerated");
+            }
+            catch (eduJSON.MissingParameterException) { }
+            try
+            {
+                ag.ProcessResponse(new NameValueCollection() { { "state", query["state"] } }, request.Object);
+                Assert.Fail("Missing \"code\" parameter tolerated");
+            }
+            catch (eduJSON.MissingParameterException) { }
+            try
+            {
+                ag.ProcessResponse(new NameValueCollection() { { "state", AuthorizationGrant.Base64URLEncodeNoPadding(new byte[] { 0x01, 0x02, 0x03 }) }, { "code", "1234567890" } }, request.Object);
+                Assert.Fail("Invalid \"state\" parameter tolerated");
+            }
+            catch (InvalidStateException) { }
+            try
+            {
+                ag.ProcessResponse(new NameValueCollection() { { "state", query["state"] }, { "error", "error" }, { "code", "1234567890" } }, request.Object);
+                Assert.Fail("Error tolerated");
+            }
+            catch (AuthorizationGrantException) { }
+            try
+            {
+                ag.ProcessResponse(new NameValueCollection() { { "state", query["state"] } }, request.Object);
+                Assert.Fail("Missing \"code\" parameter tolerated");
+            }
+            catch (eduJSON.MissingParameterException) { }
         }
 
         [TestMethod()]

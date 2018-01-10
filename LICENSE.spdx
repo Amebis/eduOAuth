@@ -15,3 +15,7 @@ PackageDownloadLocation: git+https://github.com/Amebis/eduOAuth.git
 PackageDownloadLocation: git+ssh://github.com/Amebis/eduOAuth.git
 Creator: Person: Simon Rozman (simon.rozman@amebis.si)
 Creator: Organization: Amebis
+Relationship: Moq - BSD License
+Relationship: Castle.Core - Apache License 2.0
+Relationship: System.Threading.Tasks.Extensions - MIT License
+Relationship: System.ValueTuple - MIT License
