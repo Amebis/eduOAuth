@@ -36,9 +36,9 @@ namespace eduOAuth
         #region Methods
 
         /// <inheritdoc/>
-        public override void AddToRequest(WebRequest req)
+        public override void AddToRequest(WebRequest request)
         {
-            req.Headers.Add(string.Format("Authorization: Bearer {0}", new NetworkCredential("", _token).Password));
+            request.Headers.Add(string.Format("Authorization: Bearer {0}", new NetworkCredential("", _token).Password));
         }
 
         #endregion

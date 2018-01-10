@@ -124,8 +124,8 @@ namespace eduOAuth
         /// <summary>
         /// Adds token to request
         /// </summary>
-        /// <param name="req">Web request</param>
-        public virtual void AddToRequest(WebRequest req)
+        /// <param name="request">Web request</param>
+        public virtual void AddToRequest(WebRequest request)
         {
             throw new NotImplementedException();
         }
@@ -161,13 +161,13 @@ namespace eduOAuth
         /// <summary>
         /// Parses authorization server response and creates an access token from it.
         /// </summary>
-        /// <param name="req">Authorization server request</param>
+        /// <param name="request">Authorization server request</param>
         /// <param name="scope">Expected scope</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Access token</returns>
-        public static AccessToken FromAuthorizationServerResponse(WebRequest req, HashSet<string> scope = null, CancellationToken ct = default(CancellationToken))
+        public static AccessToken FromAuthorizationServerResponse(WebRequest request, HashSet<string> scope = null, CancellationToken ct = default(CancellationToken))
         {
-            var task = FromAuthorizationServerResponseAsync(req, scope, ct);
+            var task = FromAuthorizationServerResponseAsync(request, scope, ct);
             try
             {
                 task.Wait(ct);
@@ -182,17 +182,17 @@ namespace eduOAuth
         /// <summary>
         /// Parses authorization server response and creates an access token from it asynchronously.
         /// </summary>
-        /// <param name="req">Authorization server request</param>
+        /// <param name="request">Authorization server request</param>
         /// <param name="scope">Expected scope</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Asynchronous operation with expected access token</returns>
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "WebResponse, Stream, and StreamReader tolerate multiple disposes.")]
-        public static async Task<AccessToken> FromAuthorizationServerResponseAsync(WebRequest req, HashSet<string> scope = null, CancellationToken ct = default(CancellationToken))
+        public static async Task<AccessToken> FromAuthorizationServerResponseAsync(WebRequest request, HashSet<string> scope = null, CancellationToken ct = default(CancellationToken))
         {
             try
             {
                 // Read and parse the response.
-                using (var response = await req.GetResponseAsync())
+                using (var response = await request.GetResponseAsync())
                 using (var stream_res = response.GetResponseStream())
                 using (var reader = new StreamReader(stream_res))
                 {
