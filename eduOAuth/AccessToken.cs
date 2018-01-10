@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
@@ -380,23 +381,19 @@ namespace eduOAuth
             // Load access token.
             _token = Unprotect((byte[])info.GetValue("Token", typeof(byte[])));
 
+            // Load refresh token.
             byte[] refresh = null;
-            try
-            {
-                refresh = (byte[])info.GetValue("Refresh", typeof(byte[]));
-            }
+            try { refresh = (byte[])info.GetValue("Refresh", typeof(byte[])); }
             catch (SerializationException) { }
-            if (refresh != null)
-            {
-                // Load refresh token.
-                _refresh = Unprotect(refresh);
-            }
-            else
-                _refresh = null;
+            _refresh = refresh != null ? Unprotect(refresh) : null;
 
             // Load other fields and properties.
             Expires = (DateTime)info.GetValue("Expires", typeof(DateTime));
-            _scope = (HashSet<string>)info.GetValue("Scope", typeof(HashSet<string>));
+
+            string[] scope = null;
+            try { scope = (string[])info.GetValue("Scope", typeof(string[])); }
+            catch (SerializationException) { }
+            _scope = scope != null ? new HashSet<string>(scope) : null;
         }
 
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
@@ -405,15 +402,14 @@ namespace eduOAuth
             // Save access token.
             info.AddValue("Token", Protect(_token));
 
+            // Save refresh token.
             if (_refresh != null)
-            {
-                // Save refresh token.
                 info.AddValue("Refresh", Protect(_refresh));
-            }
 
             // Save other fields and properties.
             info.AddValue("Expires", Expires);
-            info.AddValue("Scope", _scope);
+            if (_scope != null)
+                info.AddValue("Scope", _scope.ToArray());
         }
 
         #endregion
