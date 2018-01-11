@@ -184,5 +184,11 @@
   <data name="HtmlFinishedTitle" xml:space="preserve">
     <value>eduVPN client succesfully authorized.</value>
   </data>
-
+  <data name="HtmlErrorDetails" xml:space="preserve">
+    <value>Details...</value>
+  </data>
+  <data name="ErrorHttp400" xml:space="preserve">
+    <value>Invalid HTTP request: {0}</value>
+    <comment>{0}=line containing error</comment>
+  </data>
 </root>
