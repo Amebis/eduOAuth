@@ -117,7 +117,7 @@ namespace eduOAuth
                     }
 
                     var uri = new Uri(string.Format("http://{0}:{1}{2}", IPAddress.Loopback, ((IPEndPoint)LocalEndpoint).Port, request_line[1]));
-                    switch (uri.AbsolutePath)
+                    switch (uri.AbsolutePath.ToLowerInvariant())
                     {
                         case "/callback":
                             {
