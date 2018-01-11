@@ -178,6 +178,15 @@ namespace eduOAuth.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid HTTP request: {0}.
+        /// </summary>
+        internal static string ErrorHttp400 {
+            get {
+                return ResourceManager.GetString("ErrorHttp400", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Path {0} not found..
         /// </summary>
         internal static string ErrorHttp404 {

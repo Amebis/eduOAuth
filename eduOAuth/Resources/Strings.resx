@@ -156,6 +156,10 @@
   <data name="ErrorAuthorizationGrantUnsupportedResponseType" xml:space="preserve">
     <value>The authorization server does not support obtaining an authorization code using this method.</value>
   </data>
+  <data name="ErrorHttp400" xml:space="preserve">
+    <value>Invalid HTTP request: {0}</value>
+    <comment>{0}=line containing error</comment>
+  </data>
   <data name="ErrorHttp404" xml:space="preserve">
     <value>Path {0} not found.</value>
   </data>

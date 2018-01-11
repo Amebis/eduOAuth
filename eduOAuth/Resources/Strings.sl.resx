@@ -156,6 +156,10 @@
   <data name="ErrorAuthorizationGrantUnsupportedResponseType" xml:space="preserve">
     <value>Avtorizacijski strežnik ne omogoča pridobitve avtorizacijske kode z uporabo te metode.</value>
   </data>
+  <data name="ErrorHttp400" xml:space="preserve">
+    <value>Napačna zahteva HTTP: {0}</value>
+    <comment>{0}=line containing error</comment>
+  </data>
   <data name="ErrorHttp404" xml:space="preserve">
     <value>Pot {0} ni najdena.</value>
   </data>
