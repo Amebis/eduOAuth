@@ -14,7 +14,7 @@ namespace eduOAuth
     /// Response and request states are different.
     /// </summary>
     [Serializable]
-    public class InvalidStateException : eduJSON.ParameterException, ISerializable
+    public class InvalidStateException : eduJSON.ParameterException
     {
         #region Constructors
 
@@ -32,6 +32,15 @@ namespace eduOAuth
         /// <param name="message">Exception message</param>
         public InvalidStateException(string message) :
             base(message, null)
+        {
+        }
+
+        #endregion
+
+        #region ISerializable Support
+
+        protected InvalidStateException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
         {
         }
 

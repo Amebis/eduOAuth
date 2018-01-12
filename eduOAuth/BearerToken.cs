@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Runtime.Serialization;
-using System.Security.Permissions;
 
 namespace eduOAuth
 {
@@ -17,7 +16,7 @@ namespace eduOAuth
     /// Bearer access token
     /// </summary>
     [Serializable]
-    public class BearerToken : AccessToken, ISerializable
+    public class BearerToken : AccessToken
     {
         #region Constructors
 
@@ -48,13 +47,6 @@ namespace eduOAuth
         protected BearerToken(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
-        }
-
-        /// <inheritdoc/>
-        [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
         }
 
         #endregion

@@ -16,7 +16,7 @@ namespace eduOAuth
     /// </summary>
     /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2.1"/>
     [Serializable]
-    public class AuthorizationGrantException : ApplicationException, ISerializable
+    public class AuthorizationGrantException : Exception
     {
         #region Data Types
 

@@ -15,7 +15,7 @@ namespace eduOAuth
     /// The received token type is not supported.
     /// </summary>
     [Serializable]
-    public class UnsupportedTokenTypeException : ApplicationException, ISerializable
+    public class UnsupportedTokenTypeException : Exception
     {
         #region Properties
 
