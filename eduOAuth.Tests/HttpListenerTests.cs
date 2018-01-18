@@ -74,7 +74,9 @@ namespace eduOAuth.Tests
                     var request = (HttpWebRequest)WebRequest.Create(uri_base + "/nonexisting");
                     try
                     {
-                        request.GetResponse();
+                        using (request.GetResponse())
+                        {
+                        }
                         Assert.Fail("\"404\" tolerated");
                     }
                     catch (WebException ex)
