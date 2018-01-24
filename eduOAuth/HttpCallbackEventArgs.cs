@@ -10,7 +10,7 @@ using System;
 namespace eduOAuth
 {
     /// <summary>
-    /// <c>HttpCallback</c> event parameters
+    /// <see cref="HttpListener.HttpCallback"/> event parameters
     /// </summary>
     public class HttpCallbackEventArgs : EventArgs
     {

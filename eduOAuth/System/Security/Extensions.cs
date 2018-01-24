@@ -9,6 +9,9 @@ using System.Runtime.InteropServices;
 
 namespace System.Security
 {
+    /// <summary>
+    /// <see cref="Security"/> namespace extension methods
+    /// </summary>
     public static class Extensions
     {
         /// <summary>

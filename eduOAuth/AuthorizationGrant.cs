@@ -20,6 +20,9 @@ using System.Web;
 
 namespace eduOAuth
 {
+    /// <summary>
+    /// OAuth authorization grant
+    /// </summary>
     public class AuthorizationGrant : IDisposable
     {
         #region Data Types
@@ -27,7 +30,9 @@ namespace eduOAuth
         /// <summary>
         /// Code challenge algorithm method types
         /// </summary>
-        /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.2"/>
+        /// <remarks>
+        /// <a href="https://tools.ietf.org/html/rfc7636#section-4.2">RFC7636 Section 4.2</a>
+        /// </remarks>
         public enum CodeChallengeAlgorithmType
         {
             /// <summary>
@@ -79,13 +84,15 @@ namespace eduOAuth
         /// <summary>
         /// Code challenge algorithm method
         /// </summary>
-        /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.2"/>
+        /// <remarks>
+        /// <a href="https://tools.ietf.org/html/rfc7636#section-4.2">RFC7636 Section 4.2</a>
+        /// </remarks>
         public CodeChallengeAlgorithmType CodeChallengeAlgorithm { get; set; }
 
         /// <summary>
         /// List of scope identifiers client is requesting access
         /// </summary>
-        /// <remarks>Should be populated before requesting authorization. When empty <c>scope</c> parameter is not included in authorization request URI.</remarks>
+        /// <remarks>Should be populated before requesting authorization. When empty, <c>scope</c> parameter is not included in authorization request URI.</remarks>
         public HashSet<string> Scope { get; set; }
 
         /// <summary>
@@ -97,10 +104,12 @@ namespace eduOAuth
         /// <summary>
         /// Authorization URI
         /// </summary>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.1"/>
-        /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.1"/>
-        /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.2"/>
-        /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.3"/>
+        /// <remarks>
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-4.1.1">RFC6749 Section 4.1.1</a>,
+        /// <a href="https://tools.ietf.org/html/rfc7636#section-4.1">RFC7636 Section 4.1</a>,
+        /// <a href="https://tools.ietf.org/html/rfc7636#section-4.2">RFC7636 Section 4.2</a>,
+        /// <a href="https://tools.ietf.org/html/rfc7636#section-4.3">RFC7636 Section 4.3</a>
+        /// </remarks>
         public Uri AuthorizationURI
         {
             get
@@ -214,12 +223,15 @@ namespace eduOAuth
         /// <param name="client_secret">Client secret (optional)</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Access token</returns>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2"/>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2.1"/>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.3"/>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.4"/>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.2"/>
-        /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.5"/>
+        /// <remarks>
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC6749 Section 5.2</a>,
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2">RFC6749 Section 4.1.2</a>,
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC6749 Section 4.1.2.1</a>,
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-4.1.3">RFC6749 Section 4.1.3</a>,
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-4.1.4">RFC6749 Section 4.1.4</a>,
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC6749 Section 5.2</a>,
+        /// <a href="https://tools.ietf.org/html/rfc7636#section-4.5">RFC7636 Section 4.5</a>
+        /// </remarks>
         public AccessToken ProcessResponse(NameValueCollection redirect_response, WebRequest request, SecureString client_secret = null, CancellationToken ct = default(CancellationToken))
         {
             var task = ProcessResponseAsync(redirect_response, request, client_secret, ct);
@@ -242,12 +254,15 @@ namespace eduOAuth
         /// <param name="client_secret">Client secret (optional)</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Asynchronous operation with expected access token</returns>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2"/>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2.1"/>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.3"/>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.4"/>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.2"/>
-        /// <see cref="https://tools.ietf.org/html/rfc7636#section-4.5"/>
+        /// <remarks>
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC6749 Section 5.2</a>
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2">RFC6749 Section 4.1.2</a>,
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC6749 Section 4.1.2.1</a>,
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-4.1.3">RFC6749 Section 4.1.3</a>,
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-4.1.4">RFC6749 Section 4.1.4</a>,
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC6749 Section 5.2</a>,
+        /// <a href="https://tools.ietf.org/html/rfc7636#section-4.5">RFC7636 Section 4.5</a>
+        /// </remarks>
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "HttpWebResponse, Stream, and StreamReader tolerate multiple disposes.")]
         public async Task<AccessToken> ProcessResponseAsync(NameValueCollection redirect_response, WebRequest request, SecureString client_secret = null, CancellationToken ct = default(CancellationToken))
         {
@@ -303,7 +318,9 @@ namespace eduOAuth
         /// </summary>
         /// <param name="data">Data to encode</param>
         /// <returns>Encoded string</returns>
-        /// <see cref="https://tools.ietf.org/html/rfc7636#appendix-A"/>
+        /// <remarks>
+        /// <a href="https://tools.ietf.org/html/rfc7636#appendix-A">RFC7636 Appendix A</a>
+        /// </remarks>
         public static string Base64URLEncodeNoPadding(byte[] data)
         {
             var s = Convert.ToBase64String(data); // Regular Base64 encoder
@@ -329,8 +346,20 @@ namespace eduOAuth
         #endregion
 
         #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
+        /// <summary>
+        /// Flag to detect redundant <see cref="Dispose(bool)"/> calls.
+        /// </summary>
+        private bool disposedValue = false;
 
+        /// <summary>
+        /// Called to dispose the object.
+        /// </summary>
+        /// <param name="disposing">Dispose managed objects</param>
+        /// <remarks>
+        /// To release resources for inherited classes, override this method.
+        /// Call <c>base.Dispose(disposing)</c> within it to release parent class resources, and release child class resources if <paramref name="disposing"/> parameter is <c>true</c>.
+        /// This method can get called multiple times for the same object instance. When the child specific resources should be released only once, introduce a flag to detect redundant calls.
+        /// </remarks>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -348,7 +377,13 @@ namespace eduOAuth
             }
         }
 
-        // This code added to correctly implement the disposable pattern.
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting resources.
+        /// </summary>
+        /// <remarks>
+        /// This method calls <see cref="Dispose(bool)"/> with <c>disposing</c> parameter set to <c>true</c>.
+        /// To implement resource releasing override the <see cref="Dispose(bool)"/> method.
+        /// </remarks>
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.

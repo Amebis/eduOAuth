@@ -14,7 +14,9 @@ namespace eduOAuth
     /// <summary>
     /// OAuth authorization server returned an error.
     /// </summary>
-    /// <see cref="https://tools.ietf.org/html/rfc6749#section-4.1.2.1"/>
+    /// <remarks>
+    /// <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC6749 Section 4.1.2.1</a>
+    /// </remarks>
     [Serializable]
     public class AuthorizationGrantException : Exception
     {
@@ -83,9 +85,7 @@ namespace eduOAuth
 
         #region Properties
 
-        /// <summary>
-        /// The error message
-        /// </summary>
+        /// <inheritdoc/>
         public override string Message
         {
             get
@@ -202,6 +202,11 @@ namespace eduOAuth
 
         #region ISerializable Support
 
+        /// <summary>
+        /// Deserialize object.
+        /// </summary>
+        /// <param name="info">The <see cref="SerializationInfo"/> populated with data.</param>
+        /// <param name="context">The source of this deserialization.</param>
         protected AuthorizationGrantException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

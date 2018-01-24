@@ -19,9 +19,7 @@ namespace eduOAuth
     {
         #region Properties
 
-        /// <summary>
-        /// The error message
-        /// </summary>
+        /// <inheritdoc/>
         public override string Message => String.Format(Resources.Strings.ErrorTokenType, base.Message, Type);
 
         /// <summary>
@@ -57,6 +55,11 @@ namespace eduOAuth
 
         #region ISerializable Support
 
+        /// <summary>
+        /// Deserialize object.
+        /// </summary>
+        /// <param name="info">The <see cref="SerializationInfo"/> populated with data.</param>
+        /// <param name="context">The source of this deserialization.</param>
         protected UnsupportedTokenTypeException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

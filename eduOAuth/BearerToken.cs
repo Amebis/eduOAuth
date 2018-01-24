@@ -24,7 +24,9 @@ namespace eduOAuth
         /// Bearer access token (RFC 6750)
         /// </summary>
         /// <param name="obj">An object representing access token as returned by the authentication server</param>
-        /// <see cref="https://tools.ietf.org/html/rfc6750"/>
+        /// <remarks>
+        /// <a href="https://tools.ietf.org/html/rfc6750">RFC6750</a>
+        /// </remarks>
         public BearerToken(Dictionary<string, object> obj) :
             base(obj)
         {
@@ -44,6 +46,11 @@ namespace eduOAuth
 
         #region ISerializable Support
 
+        /// <summary>
+        /// Deserialize object.
+        /// </summary>
+        /// <param name="info">The <see cref="SerializationInfo"/> populated with data.</param>
+        /// <param name="context">The source of this deserialization.</param>
         protected BearerToken(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

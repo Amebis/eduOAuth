@@ -14,7 +14,9 @@ namespace eduOAuth
     /// <summary>
     /// OAuth authorization server returned an error.
     /// </summary>
-    /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.2"/>
+    /// <remarks>
+    /// <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC6749 Section 5.2</a>
+    /// </remarks>
     [Serializable]
     public class AccessTokenException : Exception
     {
@@ -85,9 +87,7 @@ namespace eduOAuth
 
         #region Properties
 
-        /// <summary>
-        /// The error message
-        /// </summary>
+        /// <inheritdoc/>
         public override string Message
         {
             get
@@ -196,6 +196,11 @@ namespace eduOAuth
 
         #region ISerializable Support
 
+        /// <summary>
+        /// Deserialize object.
+        /// </summary>
+        /// <param name="info">The <see cref="SerializationInfo"/> populated with data.</param>
+        /// <param name="context">The source of this deserialization.</param>
         protected AccessTokenException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {

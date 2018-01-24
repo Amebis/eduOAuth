@@ -19,6 +19,9 @@ using System.Web;
 
 namespace eduOAuth
 {
+    /// <summary>
+    /// HTTP listener (server)
+    /// </summary>
     public class HttpListener : TcpListener
     {
         #region Fields
@@ -81,7 +84,7 @@ namespace eduOAuth
         /// <summary>
         /// Process a single HTTP request
         /// </summary>
-        /// <param name="param">HTTP peer/client of type <c>System.Net.Sockets.TcpClient</c></param>
+        /// <param name="param">HTTP peer/client of type <see cref="System.Net.Sockets.TcpClient"/></param>
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "Stream tolerates multiple disposes.")]
         private void ProcessRequest(object param)
         {
@@ -251,9 +254,9 @@ namespace eduOAuth
         }
 
         /// <summary>
-        /// Raises <c>Callback</c> event
+        /// Raises <see cref="HttpCallback"/> event
         /// </summary>
-        /// <param name="sender">Event sender - a <c>System.Net.Sockets.TcpClient</c> object representing agent client</param>
+        /// <param name="sender">Event sender - a <see cref="TcpClient"/> object representing agent client</param>
         /// <param name="e">Event parameters</param>
         protected virtual void OnHttpCallback(object sender, HttpCallbackEventArgs e)
         {
@@ -263,7 +266,7 @@ namespace eduOAuth
         /// <summary>
         /// Raised when OAuth callback received
         /// </summary>
-        /// <remarks>Sender is the TCP client <c>System.Net.Sockets.TcpClient</c>.</remarks>
+        /// <remarks>Sender is the TCP client <see cref="System.Net.Sockets.TcpClient"/>.</remarks>
         public event EventHandler<HttpCallbackEventArgs> HttpCallback;
 
         #endregion

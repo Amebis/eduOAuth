@@ -54,7 +54,7 @@ namespace eduOAuth
         #region Properties
 
         /// <summary>
-        /// Access token expiration date; or <c>DateTime.MaxValue</c> if token does not expire
+        /// Access token expiration date; or <see cref="DateTime.MaxValue"/> if token does not expire
         /// </summary>
         public DateTime Expires { get; }
 
@@ -72,7 +72,9 @@ namespace eduOAuth
         /// Initializes generic access token from data returned by authentication server.
         /// </summary>
         /// <param name="obj">An object representing access token as returned by the authentication server</param>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.1"/>
+        /// <remarks>
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-5.1">RFC6749 Section 5.1</a>
+        /// </remarks>
         protected AccessToken(Dictionary<string, object> obj)
         {
             // Get access token.
@@ -242,8 +244,10 @@ namespace eduOAuth
         /// <param name="client_cred">Client credentials (optional)</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Access token</returns>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-6"/>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.1"/>
+        /// <remarks>
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-5.1">RFC6749 Section 5.1</a>,
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-6">RFC6749 Section 6</a>
+        /// </remarks>
         public AccessToken RefreshToken(WebRequest request, NetworkCredential client_cred = null, CancellationToken ct = default(CancellationToken))
         {
             var task = RefreshTokenAsync(request, client_cred, ct);
@@ -265,8 +269,10 @@ namespace eduOAuth
         /// <param name="client_cred">Client credentials (optional)</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Asynchronous operation with expected access token</returns>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-6"/>
-        /// <see cref="https://tools.ietf.org/html/rfc6749#section-5.1"/>
+        /// <remarks>
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-5.1">RFC6749 Section 5.1</a>
+        /// <a href="https://tools.ietf.org/html/rfc6749#section-6">RFC6749 Section 6</a>
+        /// </remarks>
         public async Task<AccessToken> RefreshTokenAsync(WebRequest request, NetworkCredential client_cred = null, CancellationToken ct = default(CancellationToken))
         {
             // Prepare token request body.
@@ -347,10 +353,10 @@ namespace eduOAuth
         }
 
         /// <summary>
-        /// Decrypts the data in a specified byte array and returns a <c>SecureString</c> that contains the decrypted data
+        /// Decrypts the data in a specified byte array and returns a <see cref="SecureString"/> that contains the decrypted data
         /// </summary>
         /// <param name="encryptedData">A byte array containing data encrypted using the <c>System.Security.Cryptography.ProtectedData.Protect(System.Byte[],System.Byte[],System.Security.Cryptography.DataProtectionScope)</c> method.</param>
-        /// <returns>A <c>SafeString</c> representing the decrypted data</returns>
+        /// <returns>A <see cref="SecureString"/> representing the decrypted data</returns>
         private static SecureString Unprotect(byte[] encryptedData)
         {
             // Decrypt data.
@@ -376,6 +382,11 @@ namespace eduOAuth
 
         #region ISerializable Support
 
+        /// <summary>
+        /// Deserialize object.
+        /// </summary>
+        /// <param name="info">The <see cref="SerializationInfo"/> populated with data.</param>
+        /// <param name="context">The source of this deserialization.</param>
         protected AccessToken(SerializationInfo info, StreamingContext context)
         {
             // Load access token.
@@ -396,6 +407,11 @@ namespace eduOAuth
             _scope = scope != null ? new HashSet<string>(scope) : null;
         }
 
+        /// <summary>
+        /// Populates a <see cref="SerializationInfo"/> with the data needed to serialize the target object.
+        /// </summary>
+        /// <param name="info">The <see cref="SerializationInfo"/> to populate with data.</param>
+        /// <param name="context">The destination for this serialization.</param>
         [SecurityPermission(SecurityAction.Demand, SerializationFormatter = true)]
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -415,8 +431,20 @@ namespace eduOAuth
         #endregion
 
         #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
+        /// <summary>
+        /// Flag to detect redundant <see cref="Dispose(bool)"/> calls.
+        /// </summary>
+        private bool disposedValue = false;
 
+        /// <summary>
+        /// Called to dispose the object.
+        /// </summary>
+        /// <param name="disposing">Dispose managed objects</param>
+        /// <remarks>
+        /// To release resources for inherited classes, override this method.
+        /// Call <c>base.Dispose(disposing)</c> within it to release parent class resources, and release child class resources if <paramref name="disposing"/> parameter is <c>true</c>.
+        /// This method can get called multiple times for the same object instance. When the child specific resources should be released only once, introduce a flag to detect redundant calls.
+        /// </remarks>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -434,7 +462,13 @@ namespace eduOAuth
             }
         }
 
-        // This code added to correctly implement the disposable pattern.
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting resources.
+        /// </summary>
+        /// <remarks>
+        /// This method calls <see cref="Dispose(bool)"/> with <c>disposing</c> parameter set to <c>true</c>.
+        /// To implement resource releasing override the <see cref="Dispose(bool)"/> method.
+        /// </remarks>
         public void Dispose()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
