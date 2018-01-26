@@ -6,6 +6,7 @@
 */
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Net;
@@ -31,7 +32,7 @@ namespace eduOAuth.Tests
             listener.Start();
             try
             {
-                uri_base = string.Format("http://{0}:{1}", IPAddress.Loopback, ((IPEndPoint)listener.LocalEndpoint).Port);
+                uri_base = String.Format("http://{0}:{1}", IPAddress.Loopback, ((IPEndPoint)listener.LocalEndpoint).Port);
 
                 {
                     var request = (HttpWebRequest)WebRequest.Create(uri_base + "/callback?test123");

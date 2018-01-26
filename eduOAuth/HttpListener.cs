@@ -120,18 +120,18 @@ namespace eduOAuth
                         {
                             // Parse start HTTP request line.
                             var line = reader.ReadLine();
-                            if (string.IsNullOrEmpty(line))
-                                throw new HttpException(400, string.Format(Resources.Strings.ErrorHttp400, line));
+                            if (String.IsNullOrEmpty(line))
+                                throw new HttpException(400, String.Format(Resources.Strings.ErrorHttp400, line));
                             request_line = line.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
                             if (request_line.Length < 3)
-                                throw new HttpException(400, string.Format(Resources.Strings.ErrorHttp400, line));
+                                throw new HttpException(400, String.Format(Resources.Strings.ErrorHttp400, line));
                             switch (request_line[0].ToUpperInvariant())
                             {
                                 case "GET":
                                 case "POST":
                                     break;
                                 default:
-                                    throw new HttpException(405, string.Format(Resources.Strings.ErrorHttp405, request_line[0]));
+                                    throw new HttpException(405, String.Format(Resources.Strings.ErrorHttp405, request_line[0]));
                             }
 
                             // Parse request headers.
@@ -140,13 +140,13 @@ namespace eduOAuth
                             for (; ; )
                             {
                                 line = reader.ReadLine();
-                                if (string.IsNullOrEmpty(line))
+                                if (String.IsNullOrEmpty(line))
                                     break;
                                 else if (field_name == null || line[0] != ' ' && line[0] != '\t')
                                 {
                                     var header = line.Split(header_separators, 2);
                                     if (header.Length < 2)
-                                        throw new HttpException(400, string.Format(Resources.Strings.ErrorHttp400, line));
+                                        throw new HttpException(400, String.Format(Resources.Strings.ErrorHttp400, line));
                                     field_name = header[0].Trim();
                                     if (request_headers[field_name] == null)
                                         request_headers.Add(field_name, header[1].Trim());
@@ -173,7 +173,7 @@ namespace eduOAuth
                             }
                         }
 
-                        var uri = new Uri(string.Format("http://{0}:{1}{2}", IPAddress.Loopback, ((IPEndPoint)LocalEndpoint).Port, request_line[1]));
+                        var uri = new Uri(String.Format("http://{0}:{1}{2}", IPAddress.Loopback, ((IPEndPoint)LocalEndpoint).Port, request_line[1]));
                         switch (uri.AbsolutePath.ToLowerInvariant())
                         {
                             case "/callback":
@@ -182,7 +182,7 @@ namespace eduOAuth
 
                                     // Redirect agent to the finished page. This clears the explicit OAuth callback URI from agent location, and prevents page refreshes to reload /callback with stale data.
                                     using (var writer = new StreamWriter(stream, new UTF8Encoding(false)))
-                                        writer.Write(string.Format("HTTP/1.0 301 Moved Permanently\r\nLocation: http://{0}:{1}/finished\r\n\r\n", IPAddress.Loopback, ((IPEndPoint)LocalEndpoint).Port));
+                                        writer.Write(String.Format("HTTP/1.0 301 Moved Permanently\r\nLocation: http://{0}:{1}/finished\r\n\r\n", IPAddress.Loopback, ((IPEndPoint)LocalEndpoint).Port));
                                 }
                                 break;
 
@@ -192,12 +192,12 @@ namespace eduOAuth
                                     using (var resource_stream = _assembly.GetManifestResourceStream("eduOAuth.Resources.Html.finished.html"))
                                     using (var reader = new StreamReader(resource_stream, true))
                                     {
-                                        var response = string.Format(reader.ReadToEnd(),
+                                        var response = String.Format(reader.ReadToEnd(),
                                             Thread.CurrentThread.CurrentUICulture.Name,
                                             HttpUtility.HtmlEncode(Resources.Strings.HtmlFinishedTitle),
                                             HttpUtility.HtmlEncode(Resources.Strings.HtmlFinishedDescription));
                                         using (var writer = new StreamWriter(stream, new UTF8Encoding(false)))
-                                            writer.Write(string.Format("HTTP/1.0 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: {0}\r\n\r\n{1}", response.Length, response));
+                                            writer.Write(String.Format("HTTP/1.0 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: {0}\r\n\r\n{1}", response.Length, response));
                                     }
                                 }
                                 break;
@@ -209,7 +209,7 @@ namespace eduOAuth
                                     // Send static content.
                                     using (var resource_stream = _assembly.GetManifestResourceStream("eduOAuth.Resources.Html" + uri.AbsolutePath.Replace('/', '.')))
                                     {
-                                        var response_headers = Encoding.ASCII.GetBytes(string.Format("HTTP/1.0 200 OK\r\nContent-Type: {0}\r\nContent-Length: {1}\r\n\r\n",
+                                        var response_headers = Encoding.ASCII.GetBytes(String.Format("HTTP/1.0 200 OK\r\nContent-Type: {0}\r\nContent-Length: {1}\r\n\r\n",
                                             _mime_types[Path.GetExtension(uri.LocalPath)],
                                             resource_stream.Length));
                                         stream.Write(response_headers, 0, response_headers.Length);
@@ -219,7 +219,7 @@ namespace eduOAuth
                                 break;
 
                             default:
-                                throw new HttpException(404, string.Format(Resources.Strings.ErrorHttp404, uri.AbsolutePath));
+                                throw new HttpException(404, String.Format(Resources.Strings.ErrorHttp404, uri.AbsolutePath));
                         }
                     }
                     catch (Exception ex)
@@ -232,7 +232,7 @@ namespace eduOAuth
                             string response;
                             try
                             {
-                                response = string.Format(reader.ReadToEnd(),
+                                response = String.Format(reader.ReadToEnd(),
                                     Thread.CurrentThread.CurrentUICulture.Name,
                                     HttpUtility.HtmlEncode(Resources.Strings.HtmlErrorTitle),
                                     HttpUtility.HtmlEncode(ex.Message),
@@ -244,7 +244,7 @@ namespace eduOAuth
                             try
                             {
                                 using (var writer = new StreamWriter(stream, new UTF8Encoding(false)))
-                                    writer.Write(string.Format("HTTP/1.0 {0} Error\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: {1}\r\n\r\n{2}", status_code, response.Length, response));
+                                    writer.Write(String.Format("HTTP/1.0 {0} Error\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: {1}\r\n\r\n{2}", status_code, response.Length, response));
                             }
                             catch { }
                         }
