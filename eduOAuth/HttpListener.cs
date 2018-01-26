@@ -264,9 +264,9 @@ namespace eduOAuth
         }
 
         /// <summary>
-        /// Raised when OAuth callback received
+        /// Occurs when OAuth callback received.
         /// </summary>
-        /// <remarks>Sender is the TCP client <see cref="System.Net.Sockets.TcpClient"/>.</remarks>
+        /// <remarks>Sender is the TCP client <see cref="TcpClient"/>.</remarks>
         public event EventHandler<HttpCallbackEventArgs> HttpCallback;
 
         #endregion
