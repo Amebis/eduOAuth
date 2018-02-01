@@ -182,7 +182,7 @@
     <value>You can now close this tab.</value>
   </data>
   <data name="HtmlFinishedTitle" xml:space="preserve">
-    <value>eduVPN client succesfully authorized.</value>
+    <value>The client succesfully authorized.</value>
   </data>
   <data name="HtmlErrorDetails" xml:space="preserve">
     <value>Details...</value>

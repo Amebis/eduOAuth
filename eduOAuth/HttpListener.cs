@@ -249,6 +249,7 @@ namespace eduOAuth
         /// </summary>
         /// <param name="sender">Event sender - a <see cref="TcpClient"/> object representing agent client</param>
         /// <param name="e">Event parameters</param>
+        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "Stream tolerates multiple disposes.")]
         protected virtual void OnHttpRequest(object sender, HttpRequestEventArgs e)
         {
             HttpRequest?.Invoke(sender, e);
