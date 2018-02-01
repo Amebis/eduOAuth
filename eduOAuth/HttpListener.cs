@@ -174,52 +174,27 @@ namespace eduOAuth
                         }
 
                         var uri = new Uri(String.Format("http://{0}:{1}{2}", IPAddress.Loopback, ((IPEndPoint)LocalEndpoint).Port, request_line[1]));
-                        switch (uri.AbsolutePath.ToLowerInvariant())
+                        if (uri.AbsolutePath.ToLowerInvariant() == "/callback")
                         {
-                            case "/callback":
-                                {
-                                    OnHttpCallback(client, new HttpCallbackEventArgs(uri));
+                            OnHttpCallback(client, new HttpCallbackEventArgs(uri));
 
-                                    // Redirect agent to the finished page. This clears the explicit OAuth callback URI from agent location, and prevents page refreshes to reload /callback with stale data.
-                                    using (var writer = new StreamWriter(stream, new UTF8Encoding(false)))
-                                        writer.Write(String.Format("HTTP/1.0 301 Moved Permanently\r\nLocation: http://{0}:{1}/finished\r\n\r\n", IPAddress.Loopback, ((IPEndPoint)LocalEndpoint).Port));
-                                }
-                                break;
-
-                            case "/finished":
-                                {
-                                    // Send response to the agent.
-                                    using (var resource_stream = _assembly.GetManifestResourceStream("eduOAuth.Resources.Html.finished.html"))
-                                    using (var reader = new StreamReader(resource_stream, true))
-                                    {
-                                        var response = String.Format(reader.ReadToEnd(),
-                                            Thread.CurrentThread.CurrentUICulture.Name,
-                                            HttpUtility.HtmlEncode(Resources.Strings.HtmlFinishedTitle),
-                                            HttpUtility.HtmlEncode(Resources.Strings.HtmlFinishedDescription));
-                                        using (var writer = new StreamWriter(stream, new UTF8Encoding(false)))
-                                            writer.Write(String.Format("HTTP/1.0 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: {0}\r\n\r\n{1}", response.Length, response));
-                                    }
-                                }
-                                break;
-
-                            case "/favicon.ico":
-                            case "/script.js":
-                            case "/style.css":
-                                {
-                                    // Send static content.
-                                    using (var resource_stream = _assembly.GetManifestResourceStream("eduOAuth.Resources.Html" + uri.AbsolutePath.Replace('/', '.')))
-                                    {
-                                        var response_headers = Encoding.ASCII.GetBytes(String.Format("HTTP/1.0 200 OK\r\nContent-Type: {0}\r\nContent-Length: {1}\r\n\r\n",
-                                            _mime_types[Path.GetExtension(uri.LocalPath)],
-                                            resource_stream.Length));
-                                        stream.Write(response_headers, 0, response_headers.Length);
-                                        resource_stream.CopyTo(stream);
-                                    }
-                                }
-                                break;
-
-                            default:
-                                throw new HttpException(404, String.Format(Resources.Strings.ErrorHttp404, uri.AbsolutePath));
+                            // Redirect agent to the finished page. This clears the explicit OAuth callback URI from agent location, and prevents page refreshes to reload /callback with stale data.
+                            using (var writer = new StreamWriter(stream, new UTF8Encoding(false)))
+                                writer.Write(String.Format("HTTP/1.0 301 Moved Permanently\r\nLocation: http://{0}:{1}/finished\r\n\r\n", IPAddress.Loopback, ((IPEndPoint)LocalEndpoint).Port));
+                        }
+                        else
+                        {
+                            var e = new HttpRequestEventArgs(uri);
+                            OnHttpRequest(client, e);
+                            using (e.Content)
+                            {
+                                // Send content.
+                                var response_headers = Encoding.ASCII.GetBytes(String.Format("HTTP/1.0 200 OK\r\nContent-Type: {0}\r\nContent-Length: {1}\r\n\r\n",
+                                    e.Type ?? "application/octet-stream",
+                                    e.Content.Length));
+                                stream.Write(response_headers, 0, response_headers.Length);
+                                e.Content.CopyTo(stream);
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -268,6 +243,51 @@ namespace eduOAuth
         /// </summary>
         /// <remarks>Sender is the TCP client <see cref="TcpClient"/>.</remarks>
         public event EventHandler<HttpCallbackEventArgs> HttpCallback;
+
+        /// <summary>
+        /// Raises <see cref="HttpRequest"/> event
+        /// </summary>
+        /// <param name="sender">Event sender - a <see cref="TcpClient"/> object representing agent client</param>
+        /// <param name="e">Event parameters</param>
+        protected virtual void OnHttpRequest(object sender, HttpRequestEventArgs e)
+        {
+            HttpRequest?.Invoke(sender, e);
+            if (e.Content != null)
+                return;
+
+            // The event handlers provided no data. Fall-back to default.
+            switch (e.Uri.AbsolutePath.ToLowerInvariant())
+            {
+                case "/finished":
+                    // Return response.
+                    using (var resource_stream = _assembly.GetManifestResourceStream("eduOAuth.Resources.Html.finished.html"))
+                    using (var reader = new StreamReader(resource_stream, true))
+                    {
+                        e.Type = "text/html; charset=UTF-8";
+                        e.Content = new MemoryStream(Encoding.UTF8.GetBytes(
+                            String.Format(reader.ReadToEnd(),
+                                Thread.CurrentThread.CurrentUICulture.Name,
+                                HttpUtility.HtmlEncode(Resources.Strings.HtmlFinishedTitle),
+                                HttpUtility.HtmlEncode(Resources.Strings.HtmlFinishedDescription))));
+                    }
+                    return;
+
+                case "/script.js":
+                case "/style.css":
+                    // Return static content.
+                    e.Type = _mime_types[Path.GetExtension(e.Uri.LocalPath)];
+                    e.Content = _assembly.GetManifestResourceStream("eduOAuth.Resources.Html" + e.Uri.AbsolutePath.Replace('/', '.'));
+                    return;
+            }
+
+            throw new HttpException(404, String.Format(Resources.Strings.ErrorHttp404, e.Uri.AbsolutePath));
+        }
+
+        /// <summary>
+        /// Occurs when browser requests data.
+        /// </summary>
+        /// <remarks>Sender is the TCP client <see cref="TcpClient"/>.</remarks>
+        public event EventHandler<HttpRequestEventArgs> HttpRequest;
 
         #endregion
     }

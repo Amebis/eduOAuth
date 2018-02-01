@@ -33,6 +33,7 @@
     <Compile Include="BearerToken.cs" />
     <Compile Include="HttpCallbackEventArgs.cs" />
     <Compile Include="HttpListener.cs" />
+    <Compile Include="HttpRequestEventArgs.cs" />
     <Compile Include="InvalidStateException.cs" />
     <Compile Include="Resources\Strings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -68,9 +69,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Html\style.css" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\Html\favicon.ico" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Html\script.js" />
