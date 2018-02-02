@@ -7,7 +7,6 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Text;
@@ -59,16 +58,15 @@ namespace eduOAuth.Tests
                 }
 
                 {
-                    var request = (HttpWebRequest)WebRequest.Create(uri_base + "/favicon.ico");
+                    var request = (HttpWebRequest)WebRequest.Create(uri_base + "/script.js");
                     using (var response = (HttpWebResponse)request.GetResponse())
-                    {
-                        Assert.AreEqual("image/x-icon", response.ContentType);
+                        Assert.AreEqual("text/javascript", response.ContentType);
+                }
 
-                        var stream = new MemoryStream();
-                        response.GetResponseStream().CopyTo(stream);
-                        stream.Seek(0, SeekOrigin.Begin);
-                        new Icon(stream, 32, 32);
-                    }
+                {
+                    var request = (HttpWebRequest)WebRequest.Create(uri_base + "/style.css");
+                    using (var response = (HttpWebResponse)request.GetResponse())
+                        Assert.AreEqual("text/css", response.ContentType);
                 }
 
                 {

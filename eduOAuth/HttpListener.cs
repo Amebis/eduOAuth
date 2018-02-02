@@ -37,7 +37,6 @@ namespace eduOAuth
         private static readonly Dictionary<string, string> _mime_types = new Dictionary<string, string>()
         {
             { ".css", "text/css" },
-            { ".ico", "image/x-icon" },
             { ".js" , "text/javascript" },
         };
 
