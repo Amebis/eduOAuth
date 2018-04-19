@@ -100,6 +100,8 @@ namespace eduOAuth
         /// Random client state
         /// </summary>
         public SecureString State { get => _state; }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private SecureString _state;
 
         /// <summary>

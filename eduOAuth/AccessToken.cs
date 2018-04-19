@@ -32,7 +32,8 @@ namespace eduOAuth
     {
         #region Fields
 
-        private static byte[] _entropy =
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private static readonly byte[] _entropy =
         {
             0x83, 0xb3, 0x15, 0xa2, 0x81, 0x57, 0x01, 0x0d, 0x8c, 0x21, 0x04, 0xd9, 0x11, 0xb3, 0xa7, 0x32,
             0xba, 0xb9, 0x8c, 0x15, 0x7b, 0x64, 0x32, 0x2b, 0x2f, 0x5f, 0x0e, 0x0d, 0xe5, 0x0a, 0x91, 0xc4,
@@ -63,6 +64,8 @@ namespace eduOAuth
         /// List of access token scope identifiers
         /// </summary>
         public HashSet<string> Scope { get => _scope; }
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private HashSet<string> _scope;
 
         #endregion
