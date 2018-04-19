@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
@@ -29,11 +30,13 @@ namespace eduOAuth
         /// <summary>
         /// Executing assembly
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private static readonly Assembly _assembly = Assembly.GetExecutingAssembly();
 
         /// <summary>
         /// Filename extension - MIME type dictionary
         /// </summary>
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private static readonly Dictionary<string, string> _mime_types = new Dictionary<string, string>()
         {
             { ".css", "text/css" },
