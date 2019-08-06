@@ -16,4 +16,5 @@ build:
 artifacts:
   - path: bin\$(configuration)\$(platform)\eduOAuth.dll
   - path: bin\$(configuration)\$(platform)\eduOAuth.pdb
+  - path: bin\$(configuration)\$(platform)\nl\eduOAuth.resources.dll
   - path: bin\$(configuration)\$(platform)\sl\eduOAuth.resources.dll
