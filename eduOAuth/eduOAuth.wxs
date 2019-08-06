@@ -25,6 +25,11 @@
                 <File Id="eduOAuth.resources.dll.sl" Source="sl\eduOAuth.resources.dll"/>
             </Component>
         </DirectoryRef>
+        <DirectoryRef Id="RESDIRUK">
+            <Component Id="eduOAuth.resources.dll.uk" Guid="{26E08429-AB68-47D7-87CF-2DE0BBD0C4D0}">
+                <File Id="eduOAuth.resources.dll.uk" Source="uk\eduOAuth.resources.dll"/>
+            </Component>
+        </DirectoryRef>
 
 
         <!--
@@ -36,6 +41,7 @@
             <ComponentRef Id="eduOAuth.dll"/>
             <ComponentRef Id="eduOAuth.resources.dll.nl"/>
             <ComponentRef Id="eduOAuth.resources.dll.sl"/>
+            <ComponentRef Id="eduOAuth.resources.dll.uk"/>
         </ComponentGroup>
     </Fragment>
 </Wix>
