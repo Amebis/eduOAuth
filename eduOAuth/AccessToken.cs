@@ -224,20 +224,25 @@ namespace eduOAuth
             }
             catch (WebException ex)
             {
-                if (ex.Response is HttpWebResponse response && response.StatusCode == HttpStatusCode.BadRequest)
+                if (ex.Response is HttpWebResponse response_http)
                 {
-                    // Parse server error.
-                    using (var stream_res = response.GetResponseStream())
-                    using (var reader = new StreamReader(stream_res))
+                    if (response_http.StatusCode == HttpStatusCode.BadRequest)
                     {
-                        var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(await reader.ReadToEndAsync(), ct);
-                        eduJSON.Parser.GetValue(obj, "error_description", out string error_description);
-                        eduJSON.Parser.GetValue(obj, "error_uri", out string error_uri);
-                        throw new AccessTokenException(eduJSON.Parser.GetValue<string>(obj, "error"), error_description, error_uri);
+                        // Parse server error.
+                        using (var stream_res = response_http.GetResponseStream())
+                        using (var reader = new StreamReader(stream_res))
+                        {
+                            var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(await reader.ReadToEndAsync(), ct);
+                            eduJSON.Parser.GetValue(obj, "error_description", out string error_description);
+                            eduJSON.Parser.GetValue(obj, "error_uri", out string error_uri);
+                            throw new AccessTokenException(eduJSON.Parser.GetValue<string>(obj, "error"), error_description, error_uri);
+                        }
                     }
+
+                    throw new WebExceptionEx(ex, ct);
                 }
-                else
-                    throw;
+
+                throw;
             }
         }
 
