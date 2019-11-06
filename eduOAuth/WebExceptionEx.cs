@@ -42,14 +42,18 @@ namespace eduOAuth
         {
             if (ex.Response is HttpWebResponse response_http)
             {
-                // Read the response from server and save it.
-                using (var stream_reader = new StreamReader(response_http.GetResponseStream(), Encoding.GetEncoding(response_http.CharacterSet)))
+                try
                 {
-                    var task = stream_reader.ReadToEndAsync();
-                    try { task.Wait(ct); }
-                    catch (AggregateException ex2) { throw ex2.InnerException; }
-                    ResponseText = task.Result;
+                    // Read the response from server and save it.
+                    using (var stream_reader = new StreamReader(response_http.GetResponseStream(), Encoding.GetEncoding(response_http.CharacterSet)))
+                    {
+                        var task = stream_reader.ReadToEndAsync();
+                        try { task.Wait(ct); }
+                        catch (AggregateException ex2) { throw ex2.InnerException; }
+                        ResponseText = task.Result;
+                    }
                 }
+                catch { }
             }
         }
 
