@@ -5,10 +5,10 @@
     SPDX-License-Identifier: GPL-3.0+
 */
 
+using eduEx.Async;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -20,7 +20,6 @@ using System.Security.Cryptography;
 using System.Security.Permissions;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace eduOAuth
 {
@@ -179,10 +178,7 @@ namespace eduOAuth
                 using (var stream_res = response.GetResponseStream())
                 using (var reader = new StreamReader(stream_res))
                 {
-                    var task = reader.ReadToEndAsync();
-                    try { task.Wait(ct); }
-                    catch (AggregateException ex) { throw ex.InnerException; }
-                    var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(task.Result, ct);
+                    var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(reader.ReadToEnd(ct), ct);
 
                     // Get token type and create the token based on the type.
                     var token_type = eduJSON.Parser.GetValue<string>(obj, "token_type");
@@ -213,10 +209,7 @@ namespace eduOAuth
                         using (var stream_res = response_http.GetResponseStream())
                         using (var reader = new StreamReader(stream_res))
                         {
-                            var task = reader.ReadToEndAsync();
-                            try { task.Wait(ct); }
-                            catch (AggregateException ex2) { throw ex2.InnerException; }
-                            var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(task.Result, ct);
+                            var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(reader.ReadToEnd(ct), ct);
                             eduJSON.Parser.GetValue(obj, "error_description", out string error_description);
                             eduJSON.Parser.GetValue(obj, "error_uri", out string error_uri);
                             throw new AccessTokenException(eduJSON.Parser.GetValue<string>(obj, "error"), error_description, error_uri);
@@ -265,11 +258,7 @@ namespace eduOAuth
             request.ContentType = "application/x-www-form-urlencoded";
             request.ContentLength = body_binary.Length;
             using (var stream_req = request.GetRequestStream())
-            {
-                var task = stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
-                try { task.Wait(ct); }
-                catch (AggregateException ex) { throw ex.InnerException; }
-            }
+                stream_req.Write(body_binary, 0, body_binary.Length, ct);
 
             // Parse the response.
             var token = FromAuthorizationServerResponse(request, _scope, ct);

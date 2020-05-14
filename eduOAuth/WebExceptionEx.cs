@@ -5,6 +5,7 @@
     SPDX-License-Identifier: GPL-3.0+
 */
 
+using eduEx.Async;
 using System;
 using System.IO;
 using System.Net;
@@ -46,12 +47,7 @@ namespace eduOAuth
                 {
                     // Read the response from server and save it.
                     using (var stream_reader = new StreamReader(response_http.GetResponseStream(), Encoding.GetEncoding(response_http.CharacterSet)))
-                    {
-                        var task = stream_reader.ReadToEndAsync();
-                        try { task.Wait(ct); }
-                        catch (AggregateException ex2) { throw ex2.InnerException; }
-                        ResponseText = task.Result;
-                    }
+                        ResponseText = stream_reader.ReadToEnd(ct);
                 }
                 catch { }
             }

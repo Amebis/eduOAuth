@@ -1,6 +1,7 @@
 version: 1.0.17.{build}
 image: Visual Studio 2019
 before_build:
+  - git clone -q --branch=master https://github.com/Amebis/eduEx.git ..\eduEx
   - git clone -q --branch=master https://github.com/Amebis/eduJSON.git ..\eduJSON
   - nuget restore -Verbosity quiet
 configuration:

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30104.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eduOAuth", "eduOAuth\eduOAuth.csproj", "{44EA054C-0C39-4AAC-9E40-253E919C1E2F}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eduJSON", "..\eduJSON\eduJSON\eduJSON.csproj", "{8F4C3F22-1988-4077-9220-ED2512FC0248}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eduOAuth.Tests", "eduOAuth.Tests\eduOAuth.Tests.csproj", "{76C596A7-D565-4000-95D5-C4ABC5B5EB32}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eduEx", "..\eduEx\eduEx\eduEx.csproj", "{0E2C74AC-C81C-4CC6-B88D-81192623A66D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,8 +61,23 @@ Global
 		{76C596A7-D565-4000-95D5-C4ABC5B5EB32}.Release|x64.ActiveCfg = Release|x64
 		{76C596A7-D565-4000-95D5-C4ABC5B5EB32}.Release|x86.ActiveCfg = Release|x86
 		{76C596A7-D565-4000-95D5-C4ABC5B5EB32}.Release|x86.Build.0 = Release|x86
+		{0E2C74AC-C81C-4CC6-B88D-81192623A66D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E2C74AC-C81C-4CC6-B88D-81192623A66D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E2C74AC-C81C-4CC6-B88D-81192623A66D}.Debug|x64.ActiveCfg = Debug|x64
+		{0E2C74AC-C81C-4CC6-B88D-81192623A66D}.Debug|x64.Build.0 = Debug|x64
+		{0E2C74AC-C81C-4CC6-B88D-81192623A66D}.Debug|x86.ActiveCfg = Debug|x86
+		{0E2C74AC-C81C-4CC6-B88D-81192623A66D}.Debug|x86.Build.0 = Debug|x86
+		{0E2C74AC-C81C-4CC6-B88D-81192623A66D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E2C74AC-C81C-4CC6-B88D-81192623A66D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E2C74AC-C81C-4CC6-B88D-81192623A66D}.Release|x64.ActiveCfg = Release|x64
+		{0E2C74AC-C81C-4CC6-B88D-81192623A66D}.Release|x64.Build.0 = Release|x64
+		{0E2C74AC-C81C-4CC6-B88D-81192623A66D}.Release|x86.ActiveCfg = Release|x86
+		{0E2C74AC-C81C-4CC6-B88D-81192623A66D}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4323281B-8D8C-42BA-A9CE-722D91E2D549}
 	EndGlobalSection
 EndGlobal

@@ -5,18 +5,17 @@
     SPDX-License-Identifier: GPL-3.0+
 */
 
+using eduEx.Async;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace eduOAuth
@@ -278,11 +277,7 @@ namespace eduOAuth
             request.ContentType = "application/x-www-form-urlencoded";
             request.ContentLength = body_binary.Length;
             using (var stream_req = request.GetRequestStream())
-            {
-                var task = stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
-                try { task.Wait(ct); }
-                catch (AggregateException ex) { throw ex.InnerException; }
-            }
+                stream_req.Write(body_binary, 0, body_binary.Length, ct);
 
             // Parse the response.
             return AccessToken.FromAuthorizationServerResponse(request, Scope, ct);

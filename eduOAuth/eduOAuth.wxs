@@ -41,6 +41,7 @@
             Component groups
         -->
         <ComponentGroup Id="eduOAuth.dll">
+            <ComponentGroupRef Id="eduEx.dll"/>
             <ComponentGroupRef Id="eduJSON.dll"/>
 
             <ComponentRef Id="eduOAuth.dll"/>
