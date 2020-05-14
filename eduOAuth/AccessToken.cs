@@ -170,7 +170,7 @@ namespace eduOAuth
         /// <param name="scope">Expected scope</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Access token</returns>
-        public static AccessToken FromAuthorizationServerResponse(WebRequest request, HashSet<string> scope = null, CancellationToken ct = default(CancellationToken))
+        public static AccessToken FromAuthorizationServerResponse(WebRequest request, HashSet<string> scope = null, CancellationToken ct = default)
         {
             var task = FromAuthorizationServerResponseAsync(request, scope, ct);
             try
@@ -192,7 +192,7 @@ namespace eduOAuth
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Asynchronous operation with expected access token</returns>
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "WebResponse, Stream, and StreamReader tolerate multiple disposes.")]
-        public static async Task<AccessToken> FromAuthorizationServerResponseAsync(WebRequest request, HashSet<string> scope = null, CancellationToken ct = default(CancellationToken))
+        public static async Task<AccessToken> FromAuthorizationServerResponseAsync(WebRequest request, HashSet<string> scope = null, CancellationToken ct = default)
         {
             try
             {
@@ -257,7 +257,7 @@ namespace eduOAuth
         /// <a href="https://tools.ietf.org/html/rfc6749#section-5.1">RFC6749 Section 5.1</a>,
         /// <a href="https://tools.ietf.org/html/rfc6749#section-6">RFC6749 Section 6</a>
         /// </remarks>
-        public AccessToken RefreshToken(WebRequest request, NetworkCredential client_cred = null, CancellationToken ct = default(CancellationToken))
+        public AccessToken RefreshToken(WebRequest request, NetworkCredential client_cred = null, CancellationToken ct = default)
         {
             var task = RefreshTokenAsync(request, client_cred, ct);
             try
@@ -282,7 +282,7 @@ namespace eduOAuth
         /// <a href="https://tools.ietf.org/html/rfc6749#section-5.1">RFC6749 Section 5.1</a>
         /// <a href="https://tools.ietf.org/html/rfc6749#section-6">RFC6749 Section 6</a>
         /// </remarks>
-        public async Task<AccessToken> RefreshTokenAsync(WebRequest request, NetworkCredential client_cred = null, CancellationToken ct = default(CancellationToken))
+        public async Task<AccessToken> RefreshTokenAsync(WebRequest request, NetworkCredential client_cred = null, CancellationToken ct = default)
         {
             // Prepare token request body.
             string body =

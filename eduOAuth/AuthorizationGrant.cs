@@ -235,7 +235,7 @@ namespace eduOAuth
         /// <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC6749 Section 5.2</a>,
         /// <a href="https://tools.ietf.org/html/rfc7636#section-4.5">RFC7636 Section 4.5</a>
         /// </remarks>
-        public AccessToken ProcessResponse(NameValueCollection redirect_response, WebRequest request, SecureString client_secret = null, CancellationToken ct = default(CancellationToken))
+        public AccessToken ProcessResponse(NameValueCollection redirect_response, WebRequest request, SecureString client_secret = null, CancellationToken ct = default)
         {
             var task = ProcessResponseAsync(redirect_response, request, client_secret, ct);
             try
@@ -267,7 +267,7 @@ namespace eduOAuth
         /// <a href="https://tools.ietf.org/html/rfc7636#section-4.5">RFC7636 Section 4.5</a>
         /// </remarks>
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "HttpWebResponse, Stream, and StreamReader tolerate multiple disposes.")]
-        public async Task<AccessToken> ProcessResponseAsync(NameValueCollection redirect_response, WebRequest request, SecureString client_secret = null, CancellationToken ct = default(CancellationToken))
+        public async Task<AccessToken> ProcessResponseAsync(NameValueCollection redirect_response, WebRequest request, SecureString client_secret = null, CancellationToken ct = default)
         {
             // Verify state parameter to be present and matching.
             var response_state = redirect_response["state"];

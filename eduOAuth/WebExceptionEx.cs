@@ -37,7 +37,7 @@ namespace eduOAuth
         /// </summary>
         /// <param name="ex">Original <see cref="WebException"/></param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
-        public WebExceptionEx(WebException ex, CancellationToken ct = default(CancellationToken)) :
+        public WebExceptionEx(WebException ex, CancellationToken ct = default) :
             base(ex.Message, ex.InnerException, ex.Status, ex.Response)
         {
             if (ex.Response is HttpWebResponse response_http)
