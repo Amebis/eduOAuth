@@ -45,8 +45,14 @@ namespace eduOAuth
             {
                 try
                 {
+                    // Determine response encoding.
+                    var charset = response_http.CharacterSet;
+                    var encoding = !String.IsNullOrEmpty(charset) ?
+                        Encoding.GetEncoding(charset) :
+                        Encoding.UTF8;
+
                     // Read the response from server and save it.
-                    using (var stream_reader = new StreamReader(response_http.GetResponseStream(), Encoding.GetEncoding(response_http.CharacterSet)))
+                    using (var stream_reader = new StreamReader(response_http.GetResponseStream(), encoding))
                         ResponseText = stream_reader.ReadToEnd(ct);
                 }
                 catch { }
