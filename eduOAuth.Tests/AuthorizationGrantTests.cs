@@ -56,10 +56,10 @@ namespace eduOAuth.Tests
             request.SetupSet(obj => obj.ContentType = "application/x-www-form-urlencoded");
             request.SetupProperty(obj => obj.ContentLength);
             var request_buffer = new byte[1048576];
-            request.Setup(obj => obj.GetRequestStreamAsync()).Returns(Task.FromResult((Stream)new MemoryStream(request_buffer, true)));
+            request.Setup(obj => obj.GetRequestStream()).Returns(new MemoryStream(request_buffer, true));
             var response = new Mock<HttpWebResponse>();
             response.Setup(obj => obj.GetResponseStream()).Returns(new MemoryStream(Encoding.UTF8.GetBytes(Global.AccessTokenJSON)));
-            request.Setup(obj => obj.GetResponseAsync()).Returns(Task.FromResult((WebResponse)response.Object));
+            request.Setup(obj => obj.GetResponse()).Returns(response.Object);
 
             AccessToken
                 token1 = new BearerToken(Global.AccessTokenObj),

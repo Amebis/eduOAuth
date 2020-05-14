@@ -172,36 +172,17 @@ namespace eduOAuth
         /// <returns>Access token</returns>
         public static AccessToken FromAuthorizationServerResponse(WebRequest request, HashSet<string> scope = null, CancellationToken ct = default)
         {
-            var task = FromAuthorizationServerResponseAsync(request, scope, ct);
-            try
-            {
-                task.Wait(ct);
-                return task.Result;
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
-        }
-
-        /// <summary>
-        /// Parses authorization server response and creates an access token from it asynchronously.
-        /// </summary>
-        /// <param name="request">Authorization server request</param>
-        /// <param name="scope">Expected scope</param>
-        /// <param name="ct">The token to monitor for cancellation requests</param>
-        /// <returns>Asynchronous operation with expected access token</returns>
-        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "WebResponse, Stream, and StreamReader tolerate multiple disposes.")]
-        public static async Task<AccessToken> FromAuthorizationServerResponseAsync(WebRequest request, HashSet<string> scope = null, CancellationToken ct = default)
-        {
             try
             {
                 // Read and parse the response.
-                using (var response = await request.GetResponseAsync())
+                using (var response = request.GetResponse())
                 using (var stream_res = response.GetResponseStream())
                 using (var reader = new StreamReader(stream_res))
                 {
-                    var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(await reader.ReadToEndAsync(), ct);
+                    var task = reader.ReadToEndAsync();
+                    try { task.Wait(ct); }
+                    catch (AggregateException ex) { throw ex.InnerException; }
+                    var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(task.Result, ct);
 
                     // Get token type and create the token based on the type.
                     var token_type = eduJSON.Parser.GetValue<string>(obj, "token_type");
@@ -232,7 +213,10 @@ namespace eduOAuth
                         using (var stream_res = response_http.GetResponseStream())
                         using (var reader = new StreamReader(stream_res))
                         {
-                            var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(await reader.ReadToEndAsync(), ct);
+                            var task = reader.ReadToEndAsync();
+                            try { task.Wait(ct); }
+                            catch (AggregateException ex2) { throw ex2.InnerException; }
+                            var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(task.Result, ct);
                             eduJSON.Parser.GetValue(obj, "error_description", out string error_description);
                             eduJSON.Parser.GetValue(obj, "error_uri", out string error_uri);
                             throw new AccessTokenException(eduJSON.Parser.GetValue<string>(obj, "error"), error_description, error_uri);
@@ -259,31 +243,6 @@ namespace eduOAuth
         /// </remarks>
         public AccessToken RefreshToken(WebRequest request, NetworkCredential client_cred = null, CancellationToken ct = default)
         {
-            var task = RefreshTokenAsync(request, client_cred, ct);
-            try
-            {
-                task.Wait(ct);
-                return task.Result;
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
-        }
-
-        /// <summary>
-        /// Uses the refresh token to obtain a new access token asynchronously. The new access token is requested using the same scope as initially granted to the access token.
-        /// </summary>
-        /// <param name="request">Web request of the token endpoint used to obtain access token from authorization grant</param>
-        /// <param name="client_cred">Client credentials (optional)</param>
-        /// <param name="ct">The token to monitor for cancellation requests</param>
-        /// <returns>Asynchronous operation with expected access token</returns>
-        /// <remarks>
-        /// <a href="https://tools.ietf.org/html/rfc6749#section-5.1">RFC6749 Section 5.1</a>
-        /// <a href="https://tools.ietf.org/html/rfc6749#section-6">RFC6749 Section 6</a>
-        /// </remarks>
-        public async Task<AccessToken> RefreshTokenAsync(WebRequest request, NetworkCredential client_cred = null, CancellationToken ct = default)
-        {
             // Prepare token request body.
             string body =
                 "grant_type=refresh_token" +
@@ -305,11 +264,15 @@ namespace eduOAuth
             var body_binary = Encoding.ASCII.GetBytes(body);
             request.ContentType = "application/x-www-form-urlencoded";
             request.ContentLength = body_binary.Length;
-            using (var stream_req = await request.GetRequestStreamAsync())
-                await stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
+            using (var stream_req = request.GetRequestStream())
+            {
+                var task = stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
+                try { task.Wait(ct); }
+                catch (AggregateException ex) { throw ex.InnerException; }
+            }
 
             // Parse the response.
-            var token = await FromAuthorizationServerResponseAsync(request, _scope, ct);
+            var token = FromAuthorizationServerResponse(request, _scope, ct);
             if (token._refresh == null)
             {
                 // The authorization server does not cycle the refresh tokens.

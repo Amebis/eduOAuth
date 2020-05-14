@@ -237,38 +237,6 @@ namespace eduOAuth
         /// </remarks>
         public AccessToken ProcessResponse(NameValueCollection redirect_response, WebRequest request, SecureString client_secret = null, CancellationToken ct = default)
         {
-            var task = ProcessResponseAsync(redirect_response, request, client_secret, ct);
-            try
-            {
-                task.Wait(ct);
-                return task.Result;
-            }
-            catch (AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
-        }
-
-        /// <summary>
-        /// Parses authorization grant received and requests access token if successful asynchronously.
-        /// </summary>
-        /// <param name="redirect_response">Parameters of the access grant</param>
-        /// <param name="request">Web request of the token endpoint used to obtain access token from authorization grant</param>
-        /// <param name="client_secret">Client secret (optional)</param>
-        /// <param name="ct">The token to monitor for cancellation requests</param>
-        /// <returns>Asynchronous operation with expected access token</returns>
-        /// <remarks>
-        /// <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC6749 Section 5.2</a>
-        /// <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2">RFC6749 Section 4.1.2</a>,
-        /// <a href="https://tools.ietf.org/html/rfc6749#section-4.1.2.1">RFC6749 Section 4.1.2.1</a>,
-        /// <a href="https://tools.ietf.org/html/rfc6749#section-4.1.3">RFC6749 Section 4.1.3</a>,
-        /// <a href="https://tools.ietf.org/html/rfc6749#section-4.1.4">RFC6749 Section 4.1.4</a>,
-        /// <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC6749 Section 5.2</a>,
-        /// <a href="https://tools.ietf.org/html/rfc7636#section-4.5">RFC7636 Section 4.5</a>
-        /// </remarks>
-        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "HttpWebResponse, Stream, and StreamReader tolerate multiple disposes.")]
-        public async Task<AccessToken> ProcessResponseAsync(NameValueCollection redirect_response, WebRequest request, SecureString client_secret = null, CancellationToken ct = default)
-        {
             // Verify state parameter to be present and matching.
             var response_state = redirect_response["state"];
             if (response_state == null)
@@ -309,11 +277,15 @@ namespace eduOAuth
             var body_binary = Encoding.ASCII.GetBytes(body);
             request.ContentType = "application/x-www-form-urlencoded";
             request.ContentLength = body_binary.Length;
-            using (var stream_req = await request.GetRequestStreamAsync())
-                await stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
+            using (var stream_req = request.GetRequestStream())
+            {
+                var task = stream_req.WriteAsync(body_binary, 0, body_binary.Length, ct);
+                try { task.Wait(ct); }
+                catch (AggregateException ex) { throw ex.InnerException; }
+            }
 
             // Parse the response.
-            return await AccessToken.FromAuthorizationServerResponseAsync(request, Scope, ct);
+            return AccessToken.FromAuthorizationServerResponse(request, Scope, ct);
         }
 
         /// <summary>
