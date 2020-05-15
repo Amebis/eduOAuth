@@ -42,7 +42,6 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="System\Security\Extensions.cs" />
     <Compile Include="UnsupportedTokenTypeException.cs" />
     <Compile Include="WebExceptionEx.cs" />
   </ItemGroup>
