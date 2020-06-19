@@ -118,10 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ErrorAccessTokenInvalidClient" xml:space="preserve">
-    <value>L'authentification du client a échoué (ex., client inconnu, aucune authentification du client incluse; ou méthode d'authentification non supportée).</value>
+    <value>L'authentification du client a échoué (ex: client inconnu, aucune authentification du client incluse ; ou méthode d'authentification non supportée).</value>
   </data>
   <data name="ErrorAccessTokenInvalidGrant" xml:space="preserve">
-    <value>L'attribution d'autorisation fourni (ex., le code d'autorisation, les données du propriétaire de la ressource) ou le jeton de rafraichissement n'est pas valide, a expiré, est révoqué, ne correspond pas à l'URI utilisé dans la demande d'autorisation, ou a été émis vers un autre client.</value>
+    <value>L'attribution d'autorisation fourni (ex : le code d'autorisation, les données du propriétaire de la ressource) ou le jeton de rafraichissement n'est pas valide, a expiré, est révoqué, ne correspond pas à l'URI utilisé dans la demande d'autorisation, ou a été émis vers un autre client.</value>
   </data>
   <data name="ErrorAccessTokenInvalidRequest" xml:space="preserve">
     <value>La requête ne contient pas un paramètre requis, inclut une valeur de paramètre non prise en charge (autre que le type d'attribution), répète un paramètre, inclut plusieurs informations d'identification, utilise plusieurs mécanismes pour authentifier le client, ou est mal formée.</value>
