@@ -209,8 +209,10 @@ namespace eduOAuth
                             string response;
                             try
                             {
+                                var ci = Thread.CurrentThread.CurrentUICulture;
                                 response = String.Format(reader.ReadToEnd(),
-                                    Thread.CurrentThread.CurrentUICulture.Name,
+                                    ci.Name,
+                                    ci.TextInfo.IsRightToLeft ? "rtl" : "ltr",
                                     HttpUtility.HtmlEncode(Resources.Strings.HtmlErrorTitle),
                                     HttpUtility.HtmlEncode(ex.Message),
                                     HttpUtility.HtmlEncode(Resources.Strings.HtmlErrorDescription),
@@ -263,13 +265,15 @@ namespace eduOAuth
             {
                 case "/finished":
                     // Return response.
+                    var ci = Thread.CurrentThread.CurrentUICulture;
                     using (var resource_stream = _assembly.GetManifestResourceStream("eduOAuth.Resources.Html.finished.html"))
                     using (var reader = new StreamReader(resource_stream, true))
                     {
                         e.Type = "text/html; charset=UTF-8";
                         e.Content = new MemoryStream(Encoding.UTF8.GetBytes(
                             String.Format(reader.ReadToEnd(),
-                                Thread.CurrentThread.CurrentUICulture.Name,
+                                ci.Name,
+                                ci.TextInfo.IsRightToLeft ? "rtl" : "ltr",
                                 HttpUtility.HtmlEncode(Resources.Strings.HtmlFinishedTitle),
                                 HttpUtility.HtmlEncode(Resources.Strings.HtmlFinishedDescription))));
                     }
