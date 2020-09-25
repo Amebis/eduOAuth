@@ -74,36 +74,11 @@ namespace eduOAuth.Tests
             Assert.IsTrue(token2.Scope != null);
             Assert.IsTrue(token1.Scope.SetEquals(token2.Scope));
 
-            try
-            {
-                ag.ProcessResponse(new NameValueCollection() { { "code", "1234567890" } }, request.Object);
-                Assert.Fail("Missing \"state\" parameter tolerated");
-            }
-            catch (eduJSON.MissingParameterException) { }
-            try
-            {
-                ag.ProcessResponse(new NameValueCollection() { { "state", query["state"] } }, request.Object);
-                Assert.Fail("Missing \"code\" parameter tolerated");
-            }
-            catch (eduJSON.MissingParameterException) { }
-            try
-            {
-                ag.ProcessResponse(new NameValueCollection() { { "state", AuthorizationGrant.Base64URLEncodeNoPadding(new byte[] { 0x01, 0x02, 0x03 }) }, { "code", "1234567890" } }, request.Object);
-                Assert.Fail("Invalid \"state\" parameter tolerated");
-            }
-            catch (InvalidStateException) { }
-            try
-            {
-                ag.ProcessResponse(new NameValueCollection() { { "state", query["state"] }, { "error", "error" }, { "code", "1234567890" } }, request.Object);
-                Assert.Fail("Error tolerated");
-            }
-            catch (AuthorizationGrantException) { }
-            try
-            {
-                ag.ProcessResponse(new NameValueCollection() { { "state", query["state"] } }, request.Object);
-                Assert.Fail("Missing \"code\" parameter tolerated");
-            }
-            catch (eduJSON.MissingParameterException) { }
+            Assert.ThrowsException<eduJSON.MissingParameterException>(() => ag.ProcessResponse(new NameValueCollection() { { "code", "1234567890" } }, request.Object));
+            Assert.ThrowsException<eduJSON.MissingParameterException>(() => ag.ProcessResponse(new NameValueCollection() { { "state", query["state"] } }, request.Object));
+            Assert.ThrowsException<InvalidStateException>(() => ag.ProcessResponse(new NameValueCollection() { { "state", AuthorizationGrant.Base64URLEncodeNoPadding(new byte[] { 0x01, 0x02, 0x03 }) }, { "code", "1234567890" } }, request.Object));
+            Assert.ThrowsException<AuthorizationGrantException>(() => ag.ProcessResponse(new NameValueCollection() { { "state", query["state"] }, { "error", "error" }, { "code", "1234567890" } }, request.Object));
+            Assert.ThrowsException<eduJSON.MissingParameterException>(() => ag.ProcessResponse(new NameValueCollection() { { "state", query["state"] } }, request.Object));
         }
 
         [TestMethod()]
