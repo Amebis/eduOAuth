@@ -67,10 +67,7 @@ namespace eduOAuth
         /// <summary>
         /// List of access token scope identifiers
         /// </summary>
-        public HashSet<string> Scope { get => _Scope; }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private HashSet<string> _Scope;
+        public HashSet<string> Scope { get; private set; }
 
         #endregion
 
@@ -101,7 +98,7 @@ namespace eduOAuth
 
             // Get scope.
             if (eduJSON.Parser.GetValue(obj, "scope", out string scope))
-                _Scope = new HashSet<string>(scope.Split(null));
+                Scope = new HashSet<string>(scope.Split(null));
         }
 
         #endregion
@@ -194,11 +191,11 @@ namespace eduOAuth
                         default: throw new UnsupportedTokenTypeException(tokenType);
                     }
 
-                    if (token._Scope == null && scope != null)
+                    if (token.Scope == null && scope != null)
                     {
                         // The authorization server did not specify a token scope in response.
                         // The scope is assumed the same as have been requested.
-                        token._Scope = scope;
+                        token.Scope = scope;
                     }
 
                     return token;
@@ -245,8 +242,8 @@ namespace eduOAuth
             string body =
                 "grant_type=refresh_token" +
                 "&refresh_token=" + Uri.EscapeDataString(new NetworkCredential("", Refresh).Password);
-            if (_Scope != null)
-                body += "&scope=" + Uri.EscapeDataString(String.Join(" ", _Scope));
+            if (Scope != null)
+                body += "&scope=" + Uri.EscapeDataString(String.Join(" ", Scope));
 
             // Send the request.
             request.Method = "POST";
@@ -266,7 +263,7 @@ namespace eduOAuth
                 requestStream.Write(binBody, 0, binBody.Length, ct);
 
             // Parse the response.
-            var token = FromAuthorizationServerResponse(request, _Scope, ct);
+            var token = FromAuthorizationServerResponse(request, Scope, ct);
             if (token.Refresh == null)
             {
                 // The authorization server does not cycle the refresh tokens.
@@ -370,7 +367,7 @@ namespace eduOAuth
             string[] scope = null;
             try { scope = (string[])info.GetValue("Scope", typeof(string[])); }
             catch (SerializationException) { }
-            _Scope = scope != null ? new HashSet<string>(scope) : null;
+            Scope = scope != null ? new HashSet<string>(scope) : null;
         }
 
         /// <summary>
@@ -390,8 +387,8 @@ namespace eduOAuth
 
             // Save other fields and properties.
             info.AddValue("Expires", Expires);
-            if (_Scope != null)
-                info.AddValue("Scope", _Scope.ToArray());
+            if (Scope != null)
+                info.AddValue("Scope", Scope.ToArray());
         }
 
         #endregion

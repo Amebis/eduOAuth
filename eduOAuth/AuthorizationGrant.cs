@@ -68,19 +68,19 @@ namespace eduOAuth
         /// <summary>
         /// Authorization endpoint base URI
         /// </summary>
-        public Uri AuthorizationEndpoint { get; set; }
+        public Uri AuthorizationEndpoint { get; private set; }
 
         /// <summary>
         /// Redirection endpoint base URI
         /// </summary>
         /// <remarks>Client should setup a listener on this URI prior this method is called.</remarks>
-        public Uri RedirectEndpoint { get; set; }
+        public Uri RedirectEndpoint { get; private set; }
 
         /// <summary>
         /// Client ID
         /// </summary>
         /// <remarks>Should be populated before requesting authorization.</remarks>
-        public string ClientID { get; set; }
+        public string ClientID { get; private set; }
 
         /// <summary>
         /// Code challenge algorithm method
@@ -88,21 +88,18 @@ namespace eduOAuth
         /// <remarks>
         /// <a href="https://tools.ietf.org/html/rfc7636#section-4.2">RFC7636 Section 4.2</a>
         /// </remarks>
-        public CodeChallengeAlgorithmType CodeChallengeAlgorithm { get; set; }
+        public CodeChallengeAlgorithmType CodeChallengeAlgorithm { get; private set; }
 
         /// <summary>
         /// List of scope identifiers client is requesting access
         /// </summary>
         /// <remarks>Should be populated before requesting authorization. When empty, <c>scope</c> parameter is not included in authorization request URI.</remarks>
-        public HashSet<string> Scope { get; set; }
+        public HashSet<string> Scope { get; private set; }
 
         /// <summary>
         /// Random client state
         /// </summary>
-        public SecureString State { get => _State; }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private SecureString _State;
+        public SecureString State { get; private set; }
 
         /// <summary>
         /// Authorization URI
@@ -132,7 +129,7 @@ namespace eduOAuth
                 }
 
                 // Add the random state.
-                query["state"] = new NetworkCredential("", _State).Password;
+                query["state"] = new NetworkCredential("", State).Password;
 
                 if (CodeChallengeAlgorithm != CodeChallengeAlgorithmType.None)
                 {
@@ -175,10 +172,28 @@ namespace eduOAuth
         /// <summary>
         /// Initializes an authorization grant.
         /// </summary>
-        /// <param name="statePrefix">Data to prefix OAuth state with to allow disambiguation between multiple concurrent authorization requests</param>
-        public AuthorizationGrant(byte[] statePrefix)
+        /// <param name="authorizationEndpoint">Authorization endpoint base URI</param>
+        /// <param name="redirectEndpoint">Redirection endpoint base URI</param>
+        /// <param name="clientID">Should be populated before requesting authorization.</param>
+        /// <param name="scope">Should be populated before requesting authorization. When empty, <c>scope</c> parameter is not included in authorization request URI.</param>
+        /// <param name="codeChallengeAlgorithm">Code challenge algorithm method</param>
+        public AuthorizationGrant(Uri authorizationEndpoint, Uri redirectEndpoint, string clientID, HashSet<string> scope, CodeChallengeAlgorithmType codeChallengeAlgorithm = CodeChallengeAlgorithmType.S256) :
+            this(new byte[0], codeChallengeAlgorithm)
         {
-            CodeChallengeAlgorithm = CodeChallengeAlgorithmType.S256;
+            AuthorizationEndpoint = authorizationEndpoint;
+            RedirectEndpoint = redirectEndpoint;
+            ClientID = clientID;
+            Scope = scope;
+        }
+
+        /// <summary>
+        /// Initializes an authorization grant.
+        /// </summary>
+        /// <param name="statePrefix">Data to prefix OAuth state with to allow disambiguation between multiple concurrent authorization requests</param>
+        /// <param name="codeChallengeAlgorithm">Code challenge algorithm method</param>
+        public AuthorizationGrant(byte[] statePrefix, CodeChallengeAlgorithmType codeChallengeAlgorithm = CodeChallengeAlgorithmType.S256)
+        {
+            CodeChallengeAlgorithm = codeChallengeAlgorithm;
 
             RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
             var random = new byte[32];
@@ -191,8 +206,8 @@ namespace eduOAuth
                 {
                     Array.Copy(statePrefix, 0, state, 0, statePrefix.LongLength);
                     Array.Copy(random, 0, state, statePrefix.LongLength, random.LongLength);
-                    _State = new NetworkCredential("", Base64URLEncodeNoPadding(state)).SecurePassword;
-                    _State.MakeReadOnly();
+                    State = new NetworkCredential("", Base64URLEncodeNoPadding(state)).SecurePassword;
+                    State.MakeReadOnly();
                 }
                 finally
                 {
@@ -241,7 +256,7 @@ namespace eduOAuth
             var responseState = redirectResponse["state"];
             if (responseState == null)
                 throw new eduJSON.MissingParameterException("state");
-            if (!new NetworkCredential("", responseState).SecurePassword.IsEqualTo(_State))
+            if (!new NetworkCredential("", responseState).SecurePassword.IsEqualTo(State))
                 throw new InvalidStateException();
 
             // Did authorization server report an error?
@@ -338,8 +353,8 @@ namespace eduOAuth
             {
                 if (disposing)
                 {
-                    if (_State != null)
-                        _State.Dispose();
+                    if (State != null)
+                        State.Dispose();
 
                     if (CodeVerifier != null)
                         CodeVerifier.Dispose();

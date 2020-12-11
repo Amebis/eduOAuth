@@ -23,14 +23,11 @@ namespace eduOAuth.Tests
         [TestMethod()]
         public void AuthorizationGrantTest()
         {
-            var ag = new AuthorizationGrant()
-            {
-                AuthorizationEndpoint = new Uri("https://test.eduvpn.org/?param=1"),
-                RedirectEndpoint = new Uri("org.eduvpn.app:/api/callback"),
-                ClientID = "org.eduvpn.app",
-                CodeChallengeAlgorithm = AuthorizationGrant.CodeChallengeAlgorithmType.S256,
-                Scope = new HashSet<string>() { "scope1", "scope2" },
-            };
+            var ag = new AuthorizationGrant(
+                new Uri("https://test.eduvpn.org/?param=1"),
+                new Uri("org.eduvpn.app:/api/callback"),
+                "org.eduvpn.app",
+                new HashSet<string>() { "scope1", "scope2" });
 
             var uriBuilder = new UriBuilder(ag.AuthorizationURI);
             Assert.AreEqual("https", uriBuilder.Scheme);
