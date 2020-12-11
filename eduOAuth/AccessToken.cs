@@ -60,6 +60,11 @@ namespace eduOAuth
         public DateTime Expires { get; }
 
         /// <summary>
+        /// <see cref="true"/> if token is refreshable; or <see cref="false"/> otherwise
+        /// </summary>
+        public bool IsRefreshable { get => Refresh != null; }
+
+        /// <summary>
         /// List of access token scope identifiers
         /// </summary>
         public HashSet<string> Scope { get => _Scope; }
