@@ -39,7 +39,7 @@ namespace eduOAuth
         /// <inheritdoc/>
         public override void AddToRequest(WebRequest request)
         {
-            request.Headers.Add(String.Format("Authorization: Bearer {0}", new NetworkCredential("", _token).Password));
+            request.Headers.Add(String.Format("Authorization: Bearer {0}", new NetworkCredential("", Token).Password));
         }
 
         #endregion

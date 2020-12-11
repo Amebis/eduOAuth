@@ -41,19 +41,19 @@ namespace eduOAuth
         public WebExceptionEx(WebException ex, CancellationToken ct = default) :
             base(ex.Message, ex.InnerException, ex.Status, ex.Response)
         {
-            if (ex.Response is HttpWebResponse response_http)
+            if (ex.Response is HttpWebResponse httpResponse)
             {
                 try
                 {
                     // Determine response encoding.
-                    var charset = response_http.CharacterSet;
+                    var charset = httpResponse.CharacterSet;
                     var encoding = !String.IsNullOrEmpty(charset) ?
                         Encoding.GetEncoding(charset) :
                         Encoding.UTF8;
 
                     // Read the response from server and save it.
-                    using (var stream_reader = new StreamReader(response_http.GetResponseStream(), encoding))
-                        ResponseText = stream_reader.ReadToEnd(ct);
+                    using (var streamReader = new StreamReader(httpResponse.GetResponseStream(), encoding))
+                        ResponseText = streamReader.ReadToEnd(ct);
                 }
                 catch { }
             }

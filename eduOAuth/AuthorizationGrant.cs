@@ -59,7 +59,7 @@ namespace eduOAuth
         /// <summary>
         /// PKCE code verifier
         /// </summary>
-        private SecureString _code_verifier;
+        private SecureString CodeVerifier;
 
         #endregion
 
@@ -99,10 +99,10 @@ namespace eduOAuth
         /// <summary>
         /// Random client state
         /// </summary>
-        public SecureString State { get => _state; }
+        public SecureString State { get => _State; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private SecureString _state;
+        private SecureString _State;
 
         /// <summary>
         /// Authorization URI
@@ -118,8 +118,8 @@ namespace eduOAuth
             get
             {
                 // Prepare authorization endpoint URI.
-                var uri_builder = new UriBuilder(AuthorizationEndpoint);
-                var query = HttpUtility.ParseQueryString(uri_builder.Query);
+                var uriBuilder = new UriBuilder(AuthorizationEndpoint);
+                var query = HttpUtility.ParseQueryString(uriBuilder.Query);
 
                 query["response_type"] = "code";
                 query["client_id"] = ClientID;
@@ -132,7 +132,7 @@ namespace eduOAuth
                 }
 
                 // Add the random state.
-                query["state"] = new NetworkCredential("", _state).Password;
+                query["state"] = new NetworkCredential("", _State).Password;
 
                 if (CodeChallengeAlgorithm != CodeChallengeAlgorithmType.None)
                 {
@@ -141,7 +141,7 @@ namespace eduOAuth
                     {
                         case CodeChallengeAlgorithmType.Plain:
                             query["code_challenge_method"] = "plain";
-                            query["code_challenge"] = new NetworkCredential("", _code_verifier).Password;
+                            query["code_challenge"] = new NetworkCredential("", CodeVerifier).Password;
                             break;
 
                         case CodeChallengeAlgorithmType.S256:
@@ -149,14 +149,14 @@ namespace eduOAuth
 
                             {
                                 var sha256 = new SHA256Managed();
-                                query["code_challenge"] = Base64URLEncodeNoPadding(sha256.ComputeHash(Encoding.ASCII.GetBytes(new NetworkCredential("", _code_verifier).Password)));
+                                query["code_challenge"] = Base64URLEncodeNoPadding(sha256.ComputeHash(Encoding.ASCII.GetBytes(new NetworkCredential("", CodeVerifier).Password)));
                             }
                             break;
                     }
                 }
 
-                uri_builder.Query = query.ToString();
-                return uri_builder.Uri;
+                uriBuilder.Query = query.ToString();
+                return uriBuilder.Uri;
             }
         }
 
@@ -175,8 +175,8 @@ namespace eduOAuth
         /// <summary>
         /// Initializes an authorization grant.
         /// </summary>
-        /// <param name="state_prefix">Data to prefix OAuth state with to allow disambiguation between multiple concurrent authorization requests</param>
-        public AuthorizationGrant(byte[] state_prefix)
+        /// <param name="statePrefix">Data to prefix OAuth state with to allow disambiguation between multiple concurrent authorization requests</param>
+        public AuthorizationGrant(byte[] statePrefix)
         {
             CodeChallengeAlgorithm = CodeChallengeAlgorithmType.S256;
 
@@ -186,13 +186,13 @@ namespace eduOAuth
             {
                 // Calculate random state.
                 rng.GetBytes(random);
-                var state = new byte[state_prefix.LongLength + random.LongLength];
+                var state = new byte[statePrefix.LongLength + random.LongLength];
                 try
                 {
-                    Array.Copy(state_prefix, 0, state, 0, state_prefix.LongLength);
-                    Array.Copy(random, 0, state, state_prefix.LongLength, random.LongLength);
-                    _state = new NetworkCredential("", Base64URLEncodeNoPadding(state)).SecurePassword;
-                    _state.MakeReadOnly();
+                    Array.Copy(statePrefix, 0, state, 0, statePrefix.LongLength);
+                    Array.Copy(random, 0, state, statePrefix.LongLength, random.LongLength);
+                    _State = new NetworkCredential("", Base64URLEncodeNoPadding(state)).SecurePassword;
+                    _State.MakeReadOnly();
                 }
                 finally
                 {
@@ -203,8 +203,8 @@ namespace eduOAuth
 
                 // Calculate code verifier.
                 rng.GetBytes(random);
-                _code_verifier = new NetworkCredential("", Base64URLEncodeNoPadding(random)).SecurePassword;
-                _code_verifier.MakeReadOnly();
+                CodeVerifier = new NetworkCredential("", Base64URLEncodeNoPadding(random)).SecurePassword;
+                CodeVerifier.MakeReadOnly();
             }
             finally
             {
@@ -221,9 +221,9 @@ namespace eduOAuth
         /// <summary>
         /// Parses authorization grant received and requests access token if successful.
         /// </summary>
-        /// <param name="redirect_response">Parameters of the access grant</param>
+        /// <param name="redirectResponse">Parameters of the access grant</param>
         /// <param name="request">Web request of the token endpoint used to obtain access token from authorization grant</param>
-        /// <param name="client_secret">Client secret (optional)</param>
+        /// <param name="clientSecret">Client secret (optional)</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Access token</returns>
         /// <remarks>
@@ -235,50 +235,50 @@ namespace eduOAuth
         /// <a href="https://tools.ietf.org/html/rfc6749#section-5.2">RFC6749 Section 5.2</a>,
         /// <a href="https://tools.ietf.org/html/rfc7636#section-4.5">RFC7636 Section 4.5</a>
         /// </remarks>
-        public AccessToken ProcessResponse(NameValueCollection redirect_response, WebRequest request, SecureString client_secret = null, CancellationToken ct = default)
+        public AccessToken ProcessResponse(NameValueCollection redirectResponse, WebRequest request, SecureString clientSecret = null, CancellationToken ct = default)
         {
             // Verify state parameter to be present and matching.
-            var response_state = redirect_response["state"];
-            if (response_state == null)
+            var responseState = redirectResponse["state"];
+            if (responseState == null)
                 throw new eduJSON.MissingParameterException("state");
-            if (!new NetworkCredential("", response_state).SecurePassword.IsEqualTo(_state))
+            if (!new NetworkCredential("", responseState).SecurePassword.IsEqualTo(_State))
                 throw new InvalidStateException();
 
             // Did authorization server report an error?
-            var response_error = redirect_response["error"];
-            if (response_error != null)
-                throw new AuthorizationGrantException(response_error, redirect_response["error_description"], redirect_response["error_uri"]);
+            var responseError = redirectResponse["error"];
+            if (responseError != null)
+                throw new AuthorizationGrantException(responseError, redirectResponse["error_description"], redirectResponse["error_uri"]);
 
             // Verify authorization code to be present.
-            var authorization_code = redirect_response["code"]/*.Replace(' ', '+') <= IE11 sends URI unescaped causing + to get converted into space. The issue is avoided by switching to Base64URLEncodeNoPadding encoding.*/;
-            if (authorization_code == null)
+            var authorizationCode = redirectResponse["code"]/*.Replace(' ', '+') <= IE11 sends URI unescaped causing + to get converted into space. The issue is avoided by switching to Base64URLEncodeNoPadding encoding.*/;
+            if (authorizationCode == null)
                 throw new eduJSON.MissingParameterException("code");
 
             // Prepare token request body.
             string body =
                 "grant_type=authorization_code" +
-                "&code=" + Uri.EscapeDataString(authorization_code) +
+                "&code=" + Uri.EscapeDataString(authorizationCode) +
                 "&redirect_uri=" + Uri.EscapeDataString(RedirectEndpoint.ToString()) +
                 "&client_id=" + Uri.EscapeDataString(ClientID);
-            if (_code_verifier != null)
-                body += "&code_verifier=" + new NetworkCredential("", _code_verifier).Password;
+            if (CodeVerifier != null)
+                body += "&code_verifier=" + new NetworkCredential("", CodeVerifier).Password;
 
             // Send the request.
             request.Method = "POST";
-            if (client_secret != null)
+            if (clientSecret != null)
             {
                 // Our client has credentials: requires authentication.
                 request.Credentials = new CredentialCache
                 {
-                    { request.RequestUri, "Basic", new NetworkCredential(ClientID, client_secret) }
+                    { request.RequestUri, "Basic", new NetworkCredential(ClientID, clientSecret) }
                 };
                 request.PreAuthenticate = true;
             }
-            var body_binary = Encoding.ASCII.GetBytes(body);
+            var binBody = Encoding.ASCII.GetBytes(body);
             request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = body_binary.Length;
-            using (var stream_req = request.GetRequestStream())
-                stream_req.Write(body_binary, 0, body_binary.Length, ct);
+            request.ContentLength = binBody.Length;
+            using (var requestStream = request.GetRequestStream())
+                requestStream.Write(binBody, 0, binBody.Length, ct);
 
             // Parse the response.
             return AccessToken.FromAuthorizationServerResponse(request, Scope, ct);
@@ -338,11 +338,11 @@ namespace eduOAuth
             {
                 if (disposing)
                 {
-                    if (_state != null)
-                        _state.Dispose();
+                    if (_State != null)
+                        _State.Dispose();
 
-                    if (_code_verifier != null)
-                        _code_verifier.Dispose();
+                    if (CodeVerifier != null)
+                        CodeVerifier.Dispose();
                 }
 
                 disposedValue = true;

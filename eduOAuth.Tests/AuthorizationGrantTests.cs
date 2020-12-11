@@ -32,12 +32,12 @@ namespace eduOAuth.Tests
                 Scope = new HashSet<string>() { "scope1", "scope2" },
             };
 
-            var uri_builder = new UriBuilder(ag.AuthorizationURI);
-            Assert.AreEqual("https", uri_builder.Scheme);
-            Assert.AreEqual("test.eduvpn.org", uri_builder.Host);
-            Assert.AreEqual("/", uri_builder.Path);
+            var uriBuilder = new UriBuilder(ag.AuthorizationURI);
+            Assert.AreEqual("https", uriBuilder.Scheme);
+            Assert.AreEqual("test.eduvpn.org", uriBuilder.Host);
+            Assert.AreEqual("/", uriBuilder.Path);
 
-            var query = HttpUtility.ParseQueryString(uri_builder.Query);
+            var query = HttpUtility.ParseQueryString(uriBuilder.Query);
             Assert.AreEqual("1", query["param"]);
             Assert.AreEqual("code", query["response_type"]);
             Assert.AreEqual("org.eduvpn.app", query["client_id"]);

@@ -32,7 +32,7 @@ namespace eduOAuth
         #region Fields
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private static readonly byte[] _entropy =
+        private static readonly byte[] Entropy =
         {
             0x83, 0xb3, 0x15, 0xa2, 0x81, 0x57, 0x01, 0x0d, 0x8c, 0x21, 0x04, 0xd9, 0x11, 0xb3, 0xa7, 0x32,
             0xba, 0xb9, 0x8c, 0x15, 0x7b, 0x64, 0x32, 0x2b, 0x2f, 0x5f, 0x0e, 0x0d, 0xe5, 0x0a, 0x91, 0xc4,
@@ -43,12 +43,12 @@ namespace eduOAuth
         /// <summary>
         /// Access token
         /// </summary>
-        protected SecureString _token;
+        protected SecureString Token;
 
         /// <summary>
         /// Refresh token
         /// </summary>
-        private SecureString _refresh;
+        private SecureString Refresh;
 
         #endregion
 
@@ -62,10 +62,10 @@ namespace eduOAuth
         /// <summary>
         /// List of access token scope identifiers
         /// </summary>
-        public HashSet<string> Scope { get => _scope; }
+        public HashSet<string> Scope { get => _Scope; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private HashSet<string> _scope;
+        private HashSet<string> _Scope;
 
         #endregion
 
@@ -81,22 +81,22 @@ namespace eduOAuth
         protected AccessToken(Dictionary<string, object> obj)
         {
             // Get access token.
-            _token = (new NetworkCredential("", eduJSON.Parser.GetValue<string>(obj, "access_token"))).SecurePassword;
-            _token.MakeReadOnly();
+            Token = (new NetworkCredential("", eduJSON.Parser.GetValue<string>(obj, "access_token"))).SecurePassword;
+            Token.MakeReadOnly();
 
             // Get expiration date.
-            Expires = eduJSON.Parser.GetValue(obj, "expires_in", out int expires_in) ? DateTime.Now.AddSeconds(expires_in) : DateTime.MaxValue;
+            Expires = eduJSON.Parser.GetValue(obj, "expires_in", out int expiresIn) ? DateTime.Now.AddSeconds(expiresIn) : DateTime.MaxValue;
 
             // Get refresh token.
-            if (eduJSON.Parser.GetValue(obj, "refresh_token", out string refresh_token))
+            if (eduJSON.Parser.GetValue(obj, "refresh_token", out string refreshToken))
             {
-                _refresh = (new NetworkCredential("", refresh_token)).SecurePassword;
-                _refresh.MakeReadOnly();
+                Refresh = (new NetworkCredential("", refreshToken)).SecurePassword;
+                Refresh.MakeReadOnly();
             }
 
             // Get scope.
             if (eduJSON.Parser.GetValue(obj, "scope", out string scope))
-                _scope = new HashSet<string>(scope.Split(null));
+                _Scope = new HashSet<string>(scope.Split(null));
         }
 
         #endregion
@@ -112,7 +112,7 @@ namespace eduOAuth
                 return false;
 
             var other = obj as AccessToken;
-            if (!new NetworkCredential("", _token).Password.Equals(new NetworkCredential("", other._token).Password))
+            if (!new NetworkCredential("", Token).Password.Equals(new NetworkCredential("", other.Token).Password))
                 return false;
 
             return true;
@@ -122,7 +122,7 @@ namespace eduOAuth
         public override int GetHashCode()
         {
             return
-                new NetworkCredential("", _token).Password.GetHashCode();
+                new NetworkCredential("", Token).Password.GetHashCode();
         }
 
         /// <summary>
@@ -175,25 +175,25 @@ namespace eduOAuth
             {
                 // Read and parse the response.
                 using (var response = request.GetResponse())
-                using (var stream_res = response.GetResponseStream())
-                using (var reader = new StreamReader(stream_res))
+                using (var responseStream = response.GetResponseStream())
+                using (var reader = new StreamReader(responseStream))
                 {
                     var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(reader.ReadToEnd(ct), ct);
 
                     // Get token type and create the token based on the type.
-                    var token_type = eduJSON.Parser.GetValue<string>(obj, "token_type");
+                    var tokenType = eduJSON.Parser.GetValue<string>(obj, "token_type");
                     AccessToken token = null;
-                    switch (token_type.ToLowerInvariant())
+                    switch (tokenType.ToLowerInvariant())
                     {
                         case "bearer": token = new BearerToken(obj); break;
-                        default: throw new UnsupportedTokenTypeException(token_type);
+                        default: throw new UnsupportedTokenTypeException(tokenType);
                     }
 
-                    if (token._scope == null && scope != null)
+                    if (token._Scope == null && scope != null)
                     {
                         // The authorization server did not specify a token scope in response.
                         // The scope is assumed the same as have been requested.
-                        token._scope = scope;
+                        token._Scope = scope;
                     }
 
                     return token;
@@ -201,18 +201,18 @@ namespace eduOAuth
             }
             catch (WebException ex)
             {
-                if (ex.Response is HttpWebResponse response_http)
+                if (ex.Response is HttpWebResponse httpResponse)
                 {
-                    if (response_http.StatusCode == HttpStatusCode.BadRequest)
+                    if (httpResponse.StatusCode == HttpStatusCode.BadRequest)
                     {
                         // Parse server error.
-                        using (var stream_res = response_http.GetResponseStream())
-                        using (var reader = new StreamReader(stream_res))
+                        using (var responseStream = httpResponse.GetResponseStream())
+                        using (var reader = new StreamReader(responseStream))
                         {
                             var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(reader.ReadToEnd(ct), ct);
-                            eduJSON.Parser.GetValue(obj, "error_description", out string error_description);
-                            eduJSON.Parser.GetValue(obj, "error_uri", out string error_uri);
-                            throw new AccessTokenException(eduJSON.Parser.GetValue<string>(obj, "error"), error_description, error_uri);
+                            eduJSON.Parser.GetValue(obj, "error_description", out string errorDescription);
+                            eduJSON.Parser.GetValue(obj, "error_uri", out string errorUri);
+                            throw new AccessTokenException(eduJSON.Parser.GetValue<string>(obj, "error"), errorDescription, errorUri);
                         }
                     }
 
@@ -227,46 +227,46 @@ namespace eduOAuth
         /// Uses the refresh token to obtain a new access token. The new access token is requested using the same scope as initially granted to the access token.
         /// </summary>
         /// <param name="request">Web request of the token endpoint used to obtain access token from authorization grant</param>
-        /// <param name="client_cred">Client credentials (optional)</param>
+        /// <param name="clientCred">Client credentials (optional)</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Access token</returns>
         /// <remarks>
         /// <a href="https://tools.ietf.org/html/rfc6749#section-5.1">RFC6749 Section 5.1</a>,
         /// <a href="https://tools.ietf.org/html/rfc6749#section-6">RFC6749 Section 6</a>
         /// </remarks>
-        public AccessToken RefreshToken(WebRequest request, NetworkCredential client_cred = null, CancellationToken ct = default)
+        public AccessToken RefreshToken(WebRequest request, NetworkCredential clientCred = null, CancellationToken ct = default)
         {
             // Prepare token request body.
             string body =
                 "grant_type=refresh_token" +
-                "&refresh_token=" + Uri.EscapeDataString(new NetworkCredential("", _refresh).Password);
-            if (_scope != null)
-                body += "&scope=" + Uri.EscapeDataString(String.Join(" ", _scope));
+                "&refresh_token=" + Uri.EscapeDataString(new NetworkCredential("", Refresh).Password);
+            if (_Scope != null)
+                body += "&scope=" + Uri.EscapeDataString(String.Join(" ", _Scope));
 
             // Send the request.
             request.Method = "POST";
-            if (client_cred != null)
+            if (clientCred != null)
             {
                 // Our client has credentials: requires authentication.
                 request.Credentials = new CredentialCache
                 {
-                    { request.RequestUri, "Basic", client_cred }
+                    { request.RequestUri, "Basic", clientCred }
                 };
                 request.PreAuthenticate = true;
             }
-            var body_binary = Encoding.ASCII.GetBytes(body);
+            var binBody = Encoding.ASCII.GetBytes(body);
             request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = body_binary.Length;
-            using (var stream_req = request.GetRequestStream())
-                stream_req.Write(body_binary, 0, body_binary.Length, ct);
+            request.ContentLength = binBody.Length;
+            using (var requestStream = request.GetRequestStream())
+                requestStream.Write(binBody, 0, binBody.Length, ct);
 
             // Parse the response.
-            var token = FromAuthorizationServerResponse(request, _scope, ct);
-            if (token._refresh == null)
+            var token = FromAuthorizationServerResponse(request, _Scope, ct);
+            if (token.Refresh == null)
             {
                 // The authorization server does not cycle the refresh tokens.
                 // The refresh token remains the same.
-                token._refresh = _refresh;
+                token.Refresh = Refresh;
             }
 
             return token;
@@ -283,7 +283,7 @@ namespace eduOAuth
                 throw new ArgumentNullException(nameof(userData));
 
             // Copy input to unmanaged string.
-            IntPtr input_exposed = Marshal.SecureStringToGlobalAllocUnicode(userData);
+            IntPtr exposedInput = Marshal.SecureStringToGlobalAllocUnicode(userData);
             try
             {
                 var data = new byte[userData.Length * sizeof(char)];
@@ -291,12 +291,12 @@ namespace eduOAuth
                 {
                     // Copy data.
                     for (int i = 0, n = data.Length; i < n; i++)
-                        data[i] = Marshal.ReadByte(input_exposed, i);
+                        data[i] = Marshal.ReadByte(exposedInput, i);
 
                     // Encrypt!
                     return ProtectedData.Protect(
                         data,
-                        _entropy,
+                        Entropy,
                         DataProtectionScope.CurrentUser);
                 }
                 finally
@@ -309,7 +309,7 @@ namespace eduOAuth
             finally
             {
                 // Sanitize memory.
-                Marshal.ZeroFreeGlobalAllocUnicode(input_exposed);
+                Marshal.ZeroFreeGlobalAllocUnicode(exposedInput);
             }
         }
 
@@ -321,7 +321,7 @@ namespace eduOAuth
         private static SecureString Unprotect(byte[] encryptedData)
         {
             // Decrypt data.
-            var data = ProtectedData.Unprotect(encryptedData, _entropy, DataProtectionScope.CurrentUser);
+            var data = ProtectedData.Unprotect(encryptedData, Entropy, DataProtectionScope.CurrentUser);
             try
             {
                 // Copy to SecureString.
@@ -351,13 +351,13 @@ namespace eduOAuth
         protected AccessToken(SerializationInfo info, StreamingContext context)
         {
             // Load access token.
-            _token = Unprotect((byte[])info.GetValue("Token", typeof(byte[])));
+            Token = Unprotect((byte[])info.GetValue("Token", typeof(byte[])));
 
             // Load refresh token.
             byte[] refresh = null;
             try { refresh = (byte[])info.GetValue("Refresh", typeof(byte[])); }
             catch (SerializationException) { }
-            _refresh = refresh != null ? Unprotect(refresh) : null;
+            Refresh = refresh != null ? Unprotect(refresh) : null;
 
             // Load other fields and properties.
             Expires = (DateTime)info.GetValue("Expires", typeof(DateTime));
@@ -365,7 +365,7 @@ namespace eduOAuth
             string[] scope = null;
             try { scope = (string[])info.GetValue("Scope", typeof(string[])); }
             catch (SerializationException) { }
-            _scope = scope != null ? new HashSet<string>(scope) : null;
+            _Scope = scope != null ? new HashSet<string>(scope) : null;
         }
 
         /// <summary>
@@ -377,16 +377,16 @@ namespace eduOAuth
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             // Save access token.
-            info.AddValue("Token", Protect(_token));
+            info.AddValue("Token", Protect(Token));
 
             // Save refresh token.
-            if (_refresh != null)
-                info.AddValue("Refresh", Protect(_refresh));
+            if (Refresh != null)
+                info.AddValue("Refresh", Protect(Refresh));
 
             // Save other fields and properties.
             info.AddValue("Expires", Expires);
-            if (_scope != null)
-                info.AddValue("Scope", _scope.ToArray());
+            if (_Scope != null)
+                info.AddValue("Scope", _Scope.ToArray());
         }
 
         #endregion
@@ -413,11 +413,11 @@ namespace eduOAuth
             {
                 if (disposing)
                 {
-                    if (_token != null)
-                        _token.Dispose();
+                    if (Token != null)
+                        Token.Dispose();
 
-                    if (_refresh != null)
-                        _refresh.Dispose();
+                    if (Refresh != null)
+                        Refresh.Dispose();
                 }
 
                 disposedValue = true;

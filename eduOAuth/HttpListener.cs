@@ -31,13 +31,13 @@ namespace eduOAuth
         /// Executing assembly
         /// </summary>
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private static readonly Assembly _assembly = Assembly.GetExecutingAssembly();
+        private static readonly Assembly ExecutingAssembly = Assembly.GetExecutingAssembly();
 
         /// <summary>
         /// Filename extension - MIME type dictionary
         /// </summary>
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private static readonly Dictionary<string, string> _mime_types = new Dictionary<string, string>()
+        private static readonly Dictionary<string, string> MimeTypes = new Dictionary<string, string>()
         {
             { ".css", "text/css" },
             { ".js" , "text/javascript" },
@@ -98,7 +98,7 @@ namespace eduOAuth
                     try
                     {
                         // Read HTTP request header.
-                        var header_stream = new MemoryStream(8192);
+                        var headerStream = new MemoryStream(8192);
                         var terminator = new byte[4];
                         var modulus = terminator.Length;
                         for (int i = 0; ; i = (i + 1) % modulus)
@@ -106,7 +106,7 @@ namespace eduOAuth
                             var data = stream.ReadByte();
                             if (data == -1)
                                 break;
-                            header_stream.WriteByte((byte)data);
+                            headerStream.WriteByte((byte)data);
                             terminator[i] = (byte)data;
                             if (terminator[(i + modulus - 3) % modulus] == '\r' &&
                                 terminator[(i + modulus - 2) % modulus] == '\n' &&
@@ -114,68 +114,68 @@ namespace eduOAuth
                                 terminator[(i + modulus - 0) % modulus] == '\n')
                                 break;
                         }
-                        header_stream.Seek(0, SeekOrigin.Begin);
+                        headerStream.Seek(0, SeekOrigin.Begin);
 
-                        string[] request_line = null;
-                        var request_headers = new NameValueCollection();
-                        using (var reader = new StreamReader(header_stream, Encoding.UTF8, false))
+                        string[] requestLine = null;
+                        var requestHeaders = new NameValueCollection();
+                        using (var reader = new StreamReader(headerStream, Encoding.UTF8, false))
                         {
                             // Parse start HTTP request line.
                             var line = reader.ReadLine();
                             if (String.IsNullOrEmpty(line))
                                 throw new HttpException(400, String.Format(Resources.Strings.ErrorHttp400, line));
-                            request_line = line.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
-                            if (request_line.Length < 3)
+                            requestLine = line.Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+                            if (requestLine.Length < 3)
                                 throw new HttpException(400, String.Format(Resources.Strings.ErrorHttp400, line));
-                            switch (request_line[0].ToUpperInvariant())
+                            switch (requestLine[0].ToUpperInvariant())
                             {
                                 case "GET":
                                 case "POST":
                                     break;
                                 default:
-                                    throw new HttpException(405, String.Format(Resources.Strings.ErrorHttp405, request_line[0]));
+                                    throw new HttpException(405, String.Format(Resources.Strings.ErrorHttp405, requestLine[0]));
                             }
 
                             // Parse request headers.
-                            var header_separators = new char[] { ':' };
-                            string field_name = null;
+                            var headerSeparators = new char[] { ':' };
+                            string fieldName = null;
                             for (; ; )
                             {
                                 line = reader.ReadLine();
                                 if (String.IsNullOrEmpty(line))
                                     break;
-                                else if (field_name == null || line[0] != ' ' && line[0] != '\t')
+                                else if (fieldName == null || line[0] != ' ' && line[0] != '\t')
                                 {
-                                    var header = line.Split(header_separators, 2);
+                                    var header = line.Split(headerSeparators, 2);
                                     if (header.Length < 2)
                                         throw new HttpException(400, String.Format(Resources.Strings.ErrorHttp400, line));
-                                    field_name = header[0].Trim();
-                                    if (request_headers[field_name] == null)
-                                        request_headers.Add(field_name, header[1].Trim());
+                                    fieldName = header[0].Trim();
+                                    if (requestHeaders[fieldName] == null)
+                                        requestHeaders.Add(fieldName, header[1].Trim());
                                     else
-                                        request_headers[field_name] += "," + header[1].Trim();
+                                        requestHeaders[fieldName] += "," + header[1].Trim();
                                 }
                                 else
-                                    request_headers[field_name] += " " + line.Trim();
+                                    requestHeaders[fieldName] += " " + line.Trim();
                             }
                         }
 
-                        var content_length_str = request_headers["Content-Length"];
-                        if (content_length_str != null && long.TryParse(content_length_str, out var content_length))
+                        var contentLengthStr = requestHeaders["Content-Length"];
+                        if (contentLengthStr != null && long.TryParse(contentLengthStr, out var contentLength))
                         {
                             // Read request content.
                             var buffer = new byte[client.ReceiveBufferSize];
-                            while (content_length > 0)
+                            while (contentLength > 0)
                             {
-                                var bytes_read = stream.Read(buffer, 0, buffer.Length);
-                                if (bytes_read == 0)
+                                var bytesRead = stream.Read(buffer, 0, buffer.Length);
+                                if (bytesRead == 0)
                                     break;
 
-                                content_length -= bytes_read;
+                                contentLength -= bytesRead;
                             }
                         }
 
-                        var uri = new Uri(String.Format("http://{0}:{1}{2}", IPAddress.Loopback, ((IPEndPoint)LocalEndpoint).Port, request_line[1]));
+                        var uri = new Uri(String.Format("http://{0}:{1}{2}", IPAddress.Loopback, ((IPEndPoint)LocalEndpoint).Port, requestLine[1]));
                         if (uri.AbsolutePath.ToLowerInvariant() == "/callback")
                         {
                             OnHttpCallback(client, new HttpCallbackEventArgs(uri));
@@ -191,10 +191,10 @@ namespace eduOAuth
                             using (e.Content)
                             {
                                 // Send content.
-                                var response_headers = Encoding.ASCII.GetBytes(String.Format("HTTP/1.0 200 OK\r\nContent-Type: {0}\r\nContent-Length: {1}\r\n\r\n",
+                                var responseHeaders = Encoding.ASCII.GetBytes(String.Format("HTTP/1.0 200 OK\r\nContent-Type: {0}\r\nContent-Length: {1}\r\n\r\n",
                                     e.Type ?? "application/octet-stream",
                                     e.Content.Length));
-                                stream.Write(response_headers, 0, response_headers.Length);
+                                stream.Write(responseHeaders, 0, responseHeaders.Length);
                                 e.Content.CopyTo(stream);
                             }
                         }
@@ -202,9 +202,9 @@ namespace eduOAuth
                     catch (Exception ex)
                     {
                         // Send response to the agent.
-                        var status_code = ex is HttpException ex_http ? ex_http.GetHttpCode() : 500;
-                        using (var resource_stream = _assembly.GetManifestResourceStream("eduOAuth.Resources.Html.error.html"))
-                        using (var reader = new StreamReader(resource_stream, true))
+                        var statusCode = ex is HttpException httpEx ? httpEx.GetHttpCode() : 500;
+                        using (var resourceStream = ExecutingAssembly.GetManifestResourceStream("eduOAuth.Resources.Html.error.html"))
+                        using (var reader = new StreamReader(resourceStream, true))
                         {
                             string response;
                             try
@@ -223,7 +223,7 @@ namespace eduOAuth
                             try
                             {
                                 using (var writer = new StreamWriter(stream, new UTF8Encoding(false)))
-                                    writer.Write(String.Format("HTTP/1.0 {0} Error\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: {1}\r\n\r\n{2}", status_code, response.Length, response));
+                                    writer.Write(String.Format("HTTP/1.0 {0} Error\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Length: {1}\r\n\r\n{2}", statusCode, response.Length, response));
                             }
                             catch { }
                         }
@@ -266,8 +266,8 @@ namespace eduOAuth
                 case "/finished":
                     // Return response.
                     var ci = Thread.CurrentThread.CurrentUICulture;
-                    using (var resource_stream = _assembly.GetManifestResourceStream("eduOAuth.Resources.Html.finished.html"))
-                    using (var reader = new StreamReader(resource_stream, true))
+                    using (var resourceStream = ExecutingAssembly.GetManifestResourceStream("eduOAuth.Resources.Html.finished.html"))
+                    using (var reader = new StreamReader(resourceStream, true))
                     {
                         e.Type = "text/html; charset=UTF-8";
                         e.Content = new MemoryStream(Encoding.UTF8.GetBytes(
@@ -282,8 +282,8 @@ namespace eduOAuth
                 case "/script.js":
                 case "/style.css":
                     // Return static content.
-                    e.Type = _mime_types[Path.GetExtension(e.Uri.LocalPath)];
-                    e.Content = _assembly.GetManifestResourceStream("eduOAuth.Resources.Html" + e.Uri.AbsolutePath.Replace('/', '.'));
+                    e.Type = MimeTypes[Path.GetExtension(e.Uri.LocalPath)];
+                    e.Content = ExecutingAssembly.GetManifestResourceStream("eduOAuth.Resources.Html" + e.Uri.AbsolutePath.Replace('/', '.'));
                     return;
             }
 
