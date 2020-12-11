@@ -29,7 +29,7 @@ namespace eduOAuth.Tests
                 "org.eduvpn.app",
                 new HashSet<string>() { "scope1", "scope2" });
 
-            var uriBuilder = new UriBuilder(ag.AuthorizationURI);
+            var uriBuilder = new UriBuilder(ag.AuthorizationUri);
             Assert.AreEqual("https", uriBuilder.Scheme);
             Assert.AreEqual("test.eduvpn.org", uriBuilder.Host);
             Assert.AreEqual("/", uriBuilder.Path);
@@ -40,9 +40,9 @@ namespace eduOAuth.Tests
             Assert.AreEqual("org.eduvpn.app", query["client_id"]);
             Assert.AreEqual("org.eduvpn.app:/api/callback", query["redirect_uri"]);
             CollectionAssert.AreEqual(new List<string>() { "scope1", "scope2" }, query["scope"].Split(null));
-            Assert.IsTrue(AuthorizationGrant.Base64URLDecodeNoPadding(query["state"]).Length > 0);
+            Assert.IsTrue(AuthorizationGrant.Base64UriDecodeNoPadding(query["state"]).Length > 0);
             Assert.AreEqual("S256", query["code_challenge_method"]);
-            Assert.IsTrue(AuthorizationGrant.Base64URLDecodeNoPadding(query["code_challenge"]).Length > 0);
+            Assert.IsTrue(AuthorizationGrant.Base64UriDecodeNoPadding(query["code_challenge"]).Length > 0);
 
             var request = new Mock<HttpWebRequest>();
             request.Setup(obj => obj.RequestUri).Returns(new Uri("https://demo.eduvpn.nl/portal/oauth.php/token"));
@@ -64,7 +64,7 @@ namespace eduOAuth.Tests
             Assert.AreEqual("authorization_code", request_param["grant_type"]);
             Assert.IsNotNull(request_param["code"]);
             Assert.AreEqual(ag.RedirectEndpoint, request_param["redirect_uri"]);
-            Assert.AreEqual(ag.ClientID, request_param["client_id"]);
+            Assert.AreEqual(ag.ClientId, request_param["client_id"]);
             Assert.IsNotNull(request_param["code_verifier"]);
             Assert.AreEqual(token1, token2);
             Assert.IsTrue((token1.Expires - token2.Expires).TotalSeconds < 60);
@@ -73,33 +73,33 @@ namespace eduOAuth.Tests
 
             Assert.ThrowsException<eduJSON.MissingParameterException>(() => ag.ProcessResponse(new NameValueCollection() { { "code", "1234567890" } }, request.Object));
             Assert.ThrowsException<eduJSON.MissingParameterException>(() => ag.ProcessResponse(new NameValueCollection() { { "state", query["state"] } }, request.Object));
-            Assert.ThrowsException<InvalidStateException>(() => ag.ProcessResponse(new NameValueCollection() { { "state", AuthorizationGrant.Base64URLEncodeNoPadding(new byte[] { 0x01, 0x02, 0x03 }) }, { "code", "1234567890" } }, request.Object));
+            Assert.ThrowsException<InvalidStateException>(() => ag.ProcessResponse(new NameValueCollection() { { "state", AuthorizationGrant.Base64UrlEncodeNoPadding(new byte[] { 0x01, 0x02, 0x03 }) }, { "code", "1234567890" } }, request.Object));
             Assert.ThrowsException<AuthorizationGrantException>(() => ag.ProcessResponse(new NameValueCollection() { { "state", query["state"] }, { "error", "error" }, { "code", "1234567890" } }, request.Object));
             Assert.ThrowsException<eduJSON.MissingParameterException>(() => ag.ProcessResponse(new NameValueCollection() { { "state", query["state"] } }, request.Object));
         }
 
         [TestMethod()]
-        public void Base64URLEncodeNoPaddingTest()
+        public void Base64UrlEncodeNoPaddingTest()
         {
-            Assert.AreEqual("ESM", AuthorizationGrant.Base64URLEncodeNoPadding(new byte[] { 0x11, 0x23 }));
-            Assert.AreEqual("HE3j", AuthorizationGrant.Base64URLEncodeNoPadding(new byte[] { 0x1c, 0x4d, 0xe3 }));
-            Assert.AreEqual("LqhVsL4", AuthorizationGrant.Base64URLEncodeNoPadding(new byte[] { 0x2e, 0xa8, 0x55, 0xb0, 0xbe }));
-            Assert.AreEqual("DEZGb5gDRyzWvS4oDmEwX8F-h8Lcdo6fdBgzsI_9-No", AuthorizationGrant.Base64URLEncodeNoPadding(new byte[] {
+            Assert.AreEqual("ESM", AuthorizationGrant.Base64UrlEncodeNoPadding(new byte[] { 0x11, 0x23 }));
+            Assert.AreEqual("HE3j", AuthorizationGrant.Base64UrlEncodeNoPadding(new byte[] { 0x1c, 0x4d, 0xe3 }));
+            Assert.AreEqual("LqhVsL4", AuthorizationGrant.Base64UrlEncodeNoPadding(new byte[] { 0x2e, 0xa8, 0x55, 0xb0, 0xbe }));
+            Assert.AreEqual("DEZGb5gDRyzWvS4oDmEwX8F-h8Lcdo6fdBgzsI_9-No", AuthorizationGrant.Base64UrlEncodeNoPadding(new byte[] {
                 0x0c, 0x46, 0x46, 0x6f, 0x98, 0x03, 0x47, 0x2c, 0xd6, 0xbd, 0x2e, 0x28, 0x0e, 0x61, 0x30, 0x5f,
                 0xc1, 0x7e, 0x87, 0xc2, 0xdc, 0x76, 0x8e, 0x9f, 0x74, 0x18, 0x33, 0xb0, 0x8f, 0xfd, 0xf8, 0xda,
             }));
         }
 
         [TestMethod()]
-        public void Base64URLDecodeNoPaddingTest()
+        public void Base64UriDecodeNoPaddingTest()
         {
-            CollectionAssert.AreEqual(new byte[] { 0x11, 0x23 }, AuthorizationGrant.Base64URLDecodeNoPadding("ESM"));
-            CollectionAssert.AreEqual(new byte[] { 0x1c, 0x4d, 0xe3 }, AuthorizationGrant.Base64URLDecodeNoPadding("HE3j"));
-            CollectionAssert.AreEqual(new byte[] { 0x2e, 0xa8, 0x55, 0xb0, 0xbe }, AuthorizationGrant.Base64URLDecodeNoPadding("LqhVsL4"));
+            CollectionAssert.AreEqual(new byte[] { 0x11, 0x23 }, AuthorizationGrant.Base64UriDecodeNoPadding("ESM"));
+            CollectionAssert.AreEqual(new byte[] { 0x1c, 0x4d, 0xe3 }, AuthorizationGrant.Base64UriDecodeNoPadding("HE3j"));
+            CollectionAssert.AreEqual(new byte[] { 0x2e, 0xa8, 0x55, 0xb0, 0xbe }, AuthorizationGrant.Base64UriDecodeNoPadding("LqhVsL4"));
             CollectionAssert.AreEqual(new byte[] {
                 0x0c, 0x46, 0x46, 0x6f, 0x98, 0x03, 0x47, 0x2c, 0xd6, 0xbd, 0x2e, 0x28, 0x0e, 0x61, 0x30, 0x5f,
                 0xc1, 0x7e, 0x87, 0xc2, 0xdc, 0x76, 0x8e, 0x9f, 0x74, 0x18, 0x33, 0xb0, 0x8f, 0xfd, 0xf8, 0xda,
-            }, AuthorizationGrant.Base64URLDecodeNoPadding("DEZGb5gDRyzWvS4oDmEwX8F-h8Lcdo6fdBgzsI_9-No"));
+            }, AuthorizationGrant.Base64UriDecodeNoPadding("DEZGb5gDRyzWvS4oDmEwX8F-h8Lcdo6fdBgzsI_9-No"));
         }
     }
 }

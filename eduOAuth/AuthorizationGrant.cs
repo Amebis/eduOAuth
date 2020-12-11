@@ -47,7 +47,7 @@ namespace eduOAuth
             Plain,
 
             /// <summary>
-            /// Code challenge = Base64URLEncodeNoPadding(SHA256(ASCII(Code verifier)))
+            /// Code challenge = Base64UrlEncodeNoPadding(SHA256(ASCII(Code verifier)))
             /// </summary>
             S256,
         }
@@ -77,10 +77,10 @@ namespace eduOAuth
         public Uri RedirectEndpoint { get; private set; }
 
         /// <summary>
-        /// Client ID
+        /// Client identifier
         /// </summary>
         /// <remarks>Should be populated before requesting authorization.</remarks>
-        public string ClientID { get; private set; }
+        public string ClientId { get; private set; }
 
         /// <summary>
         /// Code challenge algorithm method
@@ -110,7 +110,7 @@ namespace eduOAuth
         /// <a href="https://tools.ietf.org/html/rfc7636#section-4.2">RFC7636 Section 4.2</a>,
         /// <a href="https://tools.ietf.org/html/rfc7636#section-4.3">RFC7636 Section 4.3</a>
         /// </remarks>
-        public Uri AuthorizationURI
+        public Uri AuthorizationUri
         {
             get
             {
@@ -119,7 +119,7 @@ namespace eduOAuth
                 var query = HttpUtility.ParseQueryString(uriBuilder.Query);
 
                 query["response_type"] = "code";
-                query["client_id"] = ClientID;
+                query["client_id"] = ClientId;
                 query["redirect_uri"] = RedirectEndpoint.ToString();
 
                 if (Scope != null)
@@ -146,7 +146,7 @@ namespace eduOAuth
 
                             {
                                 var sha256 = new SHA256Managed();
-                                query["code_challenge"] = Base64URLEncodeNoPadding(sha256.ComputeHash(Encoding.ASCII.GetBytes(new NetworkCredential("", CodeVerifier).Password)));
+                                query["code_challenge"] = Base64UrlEncodeNoPadding(sha256.ComputeHash(Encoding.ASCII.GetBytes(new NetworkCredential("", CodeVerifier).Password)));
                             }
                             break;
                     }
@@ -174,15 +174,15 @@ namespace eduOAuth
         /// </summary>
         /// <param name="authorizationEndpoint">Authorization endpoint base URI</param>
         /// <param name="redirectEndpoint">Redirection endpoint base URI</param>
-        /// <param name="clientID">Should be populated before requesting authorization.</param>
+        /// <param name="clientId">Should be populated before requesting authorization.</param>
         /// <param name="scope">Should be populated before requesting authorization. When empty, <c>scope</c> parameter is not included in authorization request URI.</param>
         /// <param name="codeChallengeAlgorithm">Code challenge algorithm method</param>
-        public AuthorizationGrant(Uri authorizationEndpoint, Uri redirectEndpoint, string clientID, HashSet<string> scope, CodeChallengeAlgorithmType codeChallengeAlgorithm = CodeChallengeAlgorithmType.S256) :
+        public AuthorizationGrant(Uri authorizationEndpoint, Uri redirectEndpoint, string clientId, HashSet<string> scope, CodeChallengeAlgorithmType codeChallengeAlgorithm = CodeChallengeAlgorithmType.S256) :
             this(new byte[0], codeChallengeAlgorithm)
         {
             AuthorizationEndpoint = authorizationEndpoint;
             RedirectEndpoint = redirectEndpoint;
-            ClientID = clientID;
+            ClientId = clientId;
             Scope = scope;
         }
 
@@ -206,7 +206,7 @@ namespace eduOAuth
                 {
                     Array.Copy(statePrefix, 0, state, 0, statePrefix.LongLength);
                     Array.Copy(random, 0, state, statePrefix.LongLength, random.LongLength);
-                    State = new NetworkCredential("", Base64URLEncodeNoPadding(state)).SecurePassword;
+                    State = new NetworkCredential("", Base64UrlEncodeNoPadding(state)).SecurePassword;
                     State.MakeReadOnly();
                 }
                 finally
@@ -218,7 +218,7 @@ namespace eduOAuth
 
                 // Calculate code verifier.
                 rng.GetBytes(random);
-                CodeVerifier = new NetworkCredential("", Base64URLEncodeNoPadding(random)).SecurePassword;
+                CodeVerifier = new NetworkCredential("", Base64UrlEncodeNoPadding(random)).SecurePassword;
                 CodeVerifier.MakeReadOnly();
             }
             finally
@@ -265,7 +265,7 @@ namespace eduOAuth
                 throw new AuthorizationGrantException(responseError, redirectResponse["error_description"], redirectResponse["error_uri"]);
 
             // Verify authorization code to be present.
-            var authorizationCode = redirectResponse["code"]/*.Replace(' ', '+') <= IE11 sends URI unescaped causing + to get converted into space. The issue is avoided by switching to Base64URLEncodeNoPadding encoding.*/;
+            var authorizationCode = redirectResponse["code"]/*.Replace(' ', '+') <= IE11 sends URI unescaped causing + to get converted into space. The issue is avoided by switching to Base64UrlEncodeNoPadding encoding.*/;
             if (authorizationCode == null)
                 throw new eduJSON.MissingParameterException("code");
 
@@ -274,7 +274,7 @@ namespace eduOAuth
                 "grant_type=authorization_code" +
                 "&code=" + Uri.EscapeDataString(authorizationCode) +
                 "&redirect_uri=" + Uri.EscapeDataString(RedirectEndpoint.ToString()) +
-                "&client_id=" + Uri.EscapeDataString(ClientID);
+                "&client_id=" + Uri.EscapeDataString(ClientId);
             if (CodeVerifier != null)
                 body += "&code_verifier=" + new NetworkCredential("", CodeVerifier).Password;
 
@@ -285,7 +285,7 @@ namespace eduOAuth
                 // Our client has credentials: requires authentication.
                 request.Credentials = new CredentialCache
                 {
-                    { request.RequestUri, "Basic", new NetworkCredential(ClientID, clientSecret) }
+                    { request.RequestUri, "Basic", new NetworkCredential(ClientId, clientSecret) }
                 };
                 request.PreAuthenticate = true;
             }
@@ -307,7 +307,7 @@ namespace eduOAuth
         /// <remarks>
         /// <a href="https://tools.ietf.org/html/rfc7636#appendix-A">RFC7636 Appendix A</a>
         /// </remarks>
-        public static string Base64URLEncodeNoPadding(byte[] data)
+        public static string Base64UrlEncodeNoPadding(byte[] data)
         {
             var s = Convert.ToBase64String(data); // Regular Base64 encoder
             s = s.Split('=')[0]; // Remove any trailing '='s
@@ -321,7 +321,7 @@ namespace eduOAuth
         /// </summary>
         /// <param name="data">String to decode</param>
         /// <returns>Decoded data</returns>
-        public static byte[] Base64URLDecodeNoPadding(string data)
+        public static byte[] Base64UriDecodeNoPadding(string data)
         {
             var s = data.Replace('_', '/'); // 63rd char of encoding
             s = s.Replace('-', '+'); // 62nd char of encoding

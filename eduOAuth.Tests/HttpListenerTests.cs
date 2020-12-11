@@ -19,31 +19,31 @@ namespace eduOAuth.Tests
         [TestMethod()]
         public void HttpListenerTest()
         {
-            string uri_base = null;
-            bool callback_called = false;
+            string uriBase = null;
+            bool callbackCalled = false;
             var listener = new HttpListener(IPAddress.Loopback, 0);
             listener.HttpCallback += (object sender, HttpCallbackEventArgs e) =>
             {
-                Assert.AreEqual(uri_base + "/callback?test123", e.Uri.AbsoluteUri);
-                callback_called = true;
+                Assert.AreEqual(uriBase + "/callback?test123", e.Uri.AbsoluteUri);
+                callbackCalled = true;
             };
 
             listener.Start();
             try
             {
-                uri_base = String.Format("http://{0}:{1}", IPAddress.Loopback, ((IPEndPoint)listener.LocalEndpoint).Port);
+                uriBase = String.Format("http://{0}:{1}", IPAddress.Loopback, ((IPEndPoint)listener.LocalEndpoint).Port);
 
                 {
-                    var request = (HttpWebRequest)WebRequest.Create(uri_base + "/callback?test123");
+                    var request = (HttpWebRequest)WebRequest.Create(uriBase + "/callback?test123");
                     request.Method = "POST";
                     request.ContentType = "text/plain";
                     var data = Encoding.ASCII.GetBytes("This is a test content.");
-                    using (var req_stream = request.GetRequestStream())
-                        req_stream.Write(data, 0, data.Length);
+                    using (var requestStream = request.GetRequestStream())
+                        requestStream.Write(data, 0, data.Length);
 
                     using (var response = (HttpWebResponse)request.GetResponse())
                     {
-                        Assert.IsTrue(callback_called);
+                        Assert.IsTrue(callbackCalled);
                         Assert.AreEqual("text/html; charset=UTF-8", response.ContentType);
 
                         using (var reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8, false))
@@ -52,25 +52,25 @@ namespace eduOAuth.Tests
                 }
 
                 {
-                    var request = (HttpWebRequest)WebRequest.Create(uri_base + "/finished");
+                    var request = (HttpWebRequest)WebRequest.Create(uriBase + "/finished");
                     using (var response = (HttpWebResponse)request.GetResponse())
                         Assert.AreEqual("text/html; charset=UTF-8", response.ContentType);
                 }
 
                 {
-                    var request = (HttpWebRequest)WebRequest.Create(uri_base + "/script.js");
+                    var request = (HttpWebRequest)WebRequest.Create(uriBase + "/script.js");
                     using (var response = (HttpWebResponse)request.GetResponse())
                         Assert.AreEqual("text/javascript", response.ContentType);
                 }
 
                 {
-                    var request = (HttpWebRequest)WebRequest.Create(uri_base + "/style.css");
+                    var request = (HttpWebRequest)WebRequest.Create(uriBase + "/style.css");
                     using (var response = (HttpWebResponse)request.GetResponse())
                         Assert.AreEqual("text/css", response.ContentType);
                 }
 
                 {
-                    var request = (HttpWebRequest)WebRequest.Create(uri_base + "/nonexisting");
+                    var request = (HttpWebRequest)WebRequest.Create(uriBase + "/nonexisting");
                     try
                     {
                         using (request.GetResponse())
