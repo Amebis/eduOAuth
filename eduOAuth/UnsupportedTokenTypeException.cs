@@ -20,7 +20,7 @@ namespace eduOAuth
         #region Properties
 
         /// <inheritdoc/>
-        public override string Message => String.Format(Resources.Strings.ErrorTokenType, base.Message, Type);
+        public override string Message => string.Format(Resources.Strings.ErrorTokenType, base.Message, Type);
 
         /// <summary>
         /// Token type received

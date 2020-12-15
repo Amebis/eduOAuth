@@ -243,7 +243,7 @@ namespace eduOAuth
                 "grant_type=refresh_token" +
                 "&refresh_token=" + Uri.EscapeDataString(new NetworkCredential("", Refresh).Password);
             if (Scope != null)
-                body += "&scope=" + Uri.EscapeDataString(String.Join(" ", Scope));
+                body += "&scope=" + Uri.EscapeDataString(string.Join(" ", Scope));
 
             // Send the request.
             request.Method = "POST";

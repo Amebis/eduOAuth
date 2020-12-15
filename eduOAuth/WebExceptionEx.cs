@@ -47,7 +47,7 @@ namespace eduOAuth
                 {
                     // Determine response encoding.
                     var charset = httpResponse.CharacterSet;
-                    var encoding = !String.IsNullOrEmpty(charset) ?
+                    var encoding = !string.IsNullOrEmpty(charset) ?
                         Encoding.GetEncoding(charset) :
                         Encoding.UTF8;
 
@@ -66,7 +66,7 @@ namespace eduOAuth
         /// <inheritdoc/>
         public override string ToString()
         {
-            return String.IsNullOrEmpty(ResponseText) ?
+            return string.IsNullOrEmpty(ResponseText) ?
                 base.ToString() :
                 base.ToString() + "\r\n-----BEGIN RESPONSE-----\r\n" + ResponseText + "\r\n-----END RESPONSE-----\r\n";
         }

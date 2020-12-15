@@ -125,7 +125,7 @@ namespace eduOAuth
                 if (Scope != null)
                 {
                     // Add the client requested scope.
-                    query["scope"] = String.Join(" ", Scope.ToArray());
+                    query["scope"] = string.Join(" ", Scope.ToArray());
                 }
 
                 // Add the random state.

@@ -125,10 +125,10 @@ namespace eduOAuth
                 }
 
                 if (base.Message != null)
-                    msg = msg != null ? String.Format("{0}\n{1}", msg, base.Message) : base.Message;
+                    msg = msg != null ? string.Format("{0}\n{1}", msg, base.Message) : base.Message;
 
                 if (ErrorUri != null)
-                    msg = msg != null ? String.Format("{0}\n{1}", msg, ErrorUri.ToString()) : ErrorUri.ToString();
+                    msg = msg != null ? string.Format("{0}\n{1}", msg, ErrorUri.ToString()) : ErrorUri.ToString();
 
                 return msg;
             }
