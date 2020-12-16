@@ -43,7 +43,7 @@ namespace eduOAuth
         /// <summary>
         /// Constructs an exception
         /// </summary>
-        /// <param name="message">Exception message</param>
+        /// <param name="message">The error message that explains the reason for the exception.</param>
         /// <param name="type">Token type</param>
         public UnsupportedTokenTypeException(string message, string type) :
             base(message)

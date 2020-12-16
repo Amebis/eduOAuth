@@ -29,7 +29,7 @@ namespace eduOAuth
         /// <summary>
         /// Constructs an exception
         /// </summary>
-        /// <param name="message">Exception message</param>
+        /// <param name="message">The error message that explains the reason for the exception.</param>
         public InvalidStateException(string message) :
             base(message, null)
         {
