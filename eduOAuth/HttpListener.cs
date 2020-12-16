@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -87,7 +86,6 @@ namespace eduOAuth
         /// Process a single HTTP request
         /// </summary>
         /// <param name="param">HTTP peer/client of type <see cref="System.Net.Sockets.TcpClient"/></param>
-        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "Stream tolerates multiple disposes.")]
         private void ProcessRequest(object param)
         {
             try
@@ -253,7 +251,6 @@ namespace eduOAuth
         /// </summary>
         /// <param name="sender">Event sender - a <see cref="TcpClient"/> object representing agent client</param>
         /// <param name="e">Event parameters</param>
-        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "Stream tolerates multiple disposes.")]
         protected virtual void OnHttpRequest(object sender, HttpRequestEventArgs e)
         {
             HttpRequest?.Invoke(sender, e);

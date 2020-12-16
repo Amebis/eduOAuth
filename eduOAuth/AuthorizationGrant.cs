@@ -59,7 +59,7 @@ namespace eduOAuth
         /// <summary>
         /// PKCE code verifier
         /// </summary>
-        private SecureString CodeVerifier;
+        private readonly SecureString CodeVerifier;
 
         #endregion
 

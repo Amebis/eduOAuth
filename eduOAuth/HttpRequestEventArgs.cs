@@ -15,22 +15,22 @@ namespace eduOAuth
     /// </summary>
     public class HttpRequestEventArgs : EventArgs
     {
-        #region Properties
+        #region Fields
 
         /// <summary>
         /// URI
         /// </summary>
-        public Uri Uri { get; }
+        public readonly Uri Uri;
 
         /// <summary>
         /// Response content MIME type
         /// </summary>
-        public string Type { get; set; }
+        public string Type;
 
         /// <summary>
         /// Response content data
         /// </summary>
-        public Stream Content { get; set; }
+        public Stream Content;
 
         #endregion
 

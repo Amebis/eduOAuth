@@ -14,12 +14,12 @@ namespace eduOAuth
     /// </summary>
     public class HttpCallbackEventArgs : EventArgs
     {
-        #region Properties
+        #region Fields
 
         /// <summary>
         /// URI
         /// </summary>
-        public Uri Uri { get; }
+        public readonly Uri Uri;
 
         #endregion
 
