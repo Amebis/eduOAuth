@@ -68,9 +68,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="eduOAuth.wxs" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Resources\Html\error.html" />
   </ItemGroup>
   <ItemGroup>
