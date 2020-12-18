@@ -74,7 +74,7 @@ namespace eduOAuth
         /// Redirection endpoint base URI
         /// </summary>
         /// <remarks>Client should setup a listener on this URI prior this method is called.</remarks>
-        public Uri RedirectEndpoint { get; private set; }
+        public Uri RedirectEndpoint { get; set; }
 
         /// <summary>
         /// Client identifier
