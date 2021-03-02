@@ -30,9 +30,19 @@
                 <File Id="eduOAuth.resources.dll.fr" Source="fr\eduOAuth.resources.dll"/>
             </Component>
         </DirectoryRef>
+        <DirectoryRef Id="RESDIRNB">
+            <Component Id="eduOAuth.resources.dll.nb" Guid="{2843C4DB-FD4E-466A-94C2-70518332E173}">
+                <File Id="eduOAuth.resources.dll.nb" Source="nb\eduOAuth.resources.dll"/>
+            </Component>
+        </DirectoryRef>
         <DirectoryRef Id="RESDIRNL">
             <Component Id="eduOAuth.resources.dll.nl" Guid="{ED2AF7CA-BDA0-40B0-AE7E-55302E22D878}">
                 <File Id="eduOAuth.resources.dll.nl" Source="nl\eduOAuth.resources.dll"/>
+            </Component>
+        </DirectoryRef>
+        <DirectoryRef Id="RESDIRPTPT">
+            <Component Id="eduOAuth.resources.dll.pt_PT" Guid="{5FB82626-3B95-4E9B-B481-6FCCF55563A0}">
+                <File Id="eduOAuth.resources.dll.pt_PT" Source="pt-PT\eduOAuth.resources.dll"/>
             </Component>
         </DirectoryRef>
         <DirectoryRef Id="RESDIRSL">
@@ -63,7 +73,9 @@
             <ComponentRef Id="eduOAuth.resources.dll.ar"/>
             <ComponentRef Id="eduOAuth.resources.dll.de"/>
             <ComponentRef Id="eduOAuth.resources.dll.fr"/>
+            <ComponentRef Id="eduOAuth.resources.dll.nb"/>
             <ComponentRef Id="eduOAuth.resources.dll.nl"/>
+            <ComponentRef Id="eduOAuth.resources.dll.pt_PT"/>
             <ComponentRef Id="eduOAuth.resources.dll.sl"/>
             <ComponentRef Id="eduOAuth.resources.dll.tr"/>
             <ComponentRef Id="eduOAuth.resources.dll.uk"/>
