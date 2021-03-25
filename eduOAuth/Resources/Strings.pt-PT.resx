@@ -118,77 +118,77 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ErrorAccessTokenInvalidClient" xml:space="preserve">
-    <value>Client authentication failed (e.g., unknown client, no client authentication included, or unsupported authentication method).</value>
+    <value>Autenticação de Cliente falhou (i.e.., cliente desconhecido, sem autenticação de cliente incluída, ou método de autenticação não suportado).</value>
   </data>
   <data name="ErrorAccessTokenInvalidGrant" xml:space="preserve">
-    <value>The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.</value>
+    <value>As credenciais de autorização fornecidas (i.e., código de autorização, credenciais do dono do recurso) ou token inválido, expirado, revogado, não coincide com o URI de redireccionamento usado no pedido de autorização, ou foi emitido por outro cliente.</value>
   </data>
   <data name="ErrorAccessTokenInvalidRequest" xml:space="preserve">
-    <value>The request is missing a required parameter, includes an unsupported parameter value (other than grant type), repeats a parameter, includes multiple credentials, utilizes more than one mechanism for authenticating the client, or is otherwise malformed.</value>
+    <value>O pedido tem um parâmetro necessário em falta, inclui um parâmetro com um valor não suportado (diferente do tipo de credencial), repete um parâmetro, inclui múltiplas credenciais, utiliza mais de um mecanismo para autenticar o cliente, ou está de outra forma mal construído.</value>
   </data>
   <data name="ErrorAccessTokenInvalidScope" xml:space="preserve">
-    <value>The requested scope is invalid, unknown, malformed, or exceeds the scope granted by the resource owner.</value>
+    <value>O âmbito pedido é inválido, desconhecido, mal construído, ou excede o âmbito oferecido pelo dono do recurso.</value>
   </data>
   <data name="ErrorAccessTokenUnauthorizedClient" xml:space="preserve">
-    <value>The authenticated client is not authorized to use this authorization grant type.</value>
+    <value>O cliente autenticado não está autorizado a usar este tipo de credenciais de autenticação.</value>
   </data>
   <data name="ErrorAccessTokenUnsupportedGrantType" xml:space="preserve">
-    <value>The authorization grant type is not supported by the authorization server.</value>
+    <value>O tipo das credenciais de autorização não é suportado pelo servidor de autorização.</value>
   </data>
   <data name="ErrorAuthorizationGrantAccessDenied" xml:space="preserve">
-    <value>The resource owner or authorization server denied the request.</value>
+    <value>O dono do recurso ou servidor de autorização negaram o pedido.</value>
   </data>
   <data name="ErrorAuthorizationGrantInvalidRequest" xml:space="preserve">
-    <value>The request is missing a required parameter, includes an invalid parameter value, includes a parameter more than once, or is otherwise malformed.</value>
+    <value>O pedido tem em falta um parâmetro necessário, inclui um valor de parâmetro inválido, inclui um parâmetro mais que uma vez, ou de outra forma está mal construído.</value>
   </data>
   <data name="ErrorAuthorizationGrantInvalidScope" xml:space="preserve">
-    <value>The requested scope is invalid, unknown, or malformed.</value>
+    <value>O âmbito pedido é inválido, desconhecido, ou mal construído.</value>
   </data>
   <data name="ErrorAuthorizationGrantServerError" xml:space="preserve">
-    <value>The authorization server encountered an unexpected condition that prevented it from fulfilling the request.</value>
+    <value>O servidor de autorização encontrou uma condição inesperada que o impediu de satisfazer o pedido.</value>
   </data>
   <data name="ErrorAuthorizationGrantTemporarilyUnavailable" xml:space="preserve">
-    <value>The authorization server is currently unable to handle the request due to a temporary overloading or maintenance of the server.</value>
+    <value>O servidor de autorização está actualmente incapaz de lidar com o pedido devido a uma sobrecarga temporária ou manutenção no servidor.</value>
   </data>
   <data name="ErrorAuthorizationGrantUnauthorizedClient" xml:space="preserve">
-    <value>The client is not authorized to request an authorization code using this method.</value>
+    <value>O cliente não está autorizado a pedir um código de autorização usando este método.</value>
   </data>
   <data name="ErrorAuthorizationGrantUnsupportedResponseType" xml:space="preserve">
-    <value>The authorization server does not support obtaining an authorization code using this method.</value>
+    <value>O servidor de autorização não suporta a obtenção de um código de autorização através do uso deste método.</value>
   </data>
   <data name="ErrorHttp400" xml:space="preserve">
-    <value>Invalid HTTP request: {0}</value>
+    <value>Pedido HTTP inválido: {0}</value>
     <comment>{0}=line containing error</comment>
   </data>
   <data name="ErrorHttp404" xml:space="preserve">
-    <value>Path {0} not found.</value>
+    <value>Caminho {0} não encontrado.</value>
   </data>
   <data name="ErrorHttp405" xml:space="preserve">
-    <value>Method {0} not supported.</value>
+    <value>Método {0} não suportado.</value>
   </data>
   <data name="ErrorInvalidState" xml:space="preserve">
-    <value>Response and request states are different.</value>
+    <value>Estados de resposta e pedido são diferentes.</value>
   </data>
   <data name="ErrorTokenType" xml:space="preserve">
-    <value>{0} (token type: {1})</value>
+    <value>{0} (tipo de token: {1})</value>
     <comment>{0}=A sentence explaining an error, {1}=token type</comment>
   </data>
   <data name="ErrorUnsupportedTokenType" xml:space="preserve">
-    <value>The received token type is not supported.</value>
+    <value>O tipo de token recebido não é suportado.</value>
   </data>
   <data name="HtmlErrorDescription" xml:space="preserve">
-    <value>Please try again later or contact your helpdesk for support.</value>
+    <value>Por favor tente de novo mais tarde ou contacte o seu helpdesk para obter suporte.</value>
   </data>
   <data name="HtmlErrorDetails" xml:space="preserve">
-    <value>Details...</value>
+    <value>Detalhes...</value>
   </data>
   <data name="HtmlErrorTitle" xml:space="preserve">
-    <value>Error</value>
+    <value>Erro</value>
   </data>
   <data name="HtmlFinishedDescription" xml:space="preserve">
-    <value>You can now close this tab.</value>
+    <value>Pode agora fechar esta aba.</value>
   </data>
   <data name="HtmlFinishedTitle" xml:space="preserve">
-    <value>The client succesfully authorized.</value>
+    <value>O cliente autorizou com sucesso.</value>
   </data>
 </root>
