@@ -18,4 +18,3 @@ Creator: Organization: Amebis
 Relationship: Moq - BSD License
 Relationship: Castle.Core - Apache License 2.0
 Relationship: System.Threading.Tasks.Extensions - MIT License
-Relationship: System.ValueTuple - MIT License
