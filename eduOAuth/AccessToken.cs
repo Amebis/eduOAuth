@@ -87,7 +87,7 @@ namespace eduOAuth
             Token.MakeReadOnly();
 
             // Get expiration date.
-            Expires = eduJSON.Parser.GetValue(obj, "expires_in", out int expiresIn) ? DateTime.Now.AddSeconds(expiresIn) : DateTime.MaxValue;
+            Expires = eduJSON.Parser.GetValue(obj, "expires_in", out long expiresIn) ? DateTime.Now.AddSeconds(expiresIn) : DateTime.MaxValue;
 
             // Get refresh token.
             if (eduJSON.Parser.GetValue(obj, "refresh_token", out string refreshToken))
