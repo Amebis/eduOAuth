@@ -55,9 +55,9 @@ namespace eduOAuth
         #region Properties
 
         /// <summary>
-        /// Access token expiration date; or <see cref="DateTime.MaxValue"/> if token does not expire
+        /// Access token expiration date; or <see cref="DateTimeOffset.MaxValue"/> if token does not expire
         /// </summary>
-        public DateTime Expires { get; }
+        public DateTimeOffset Expires { get; }
 
         /// <summary>
         /// <see cref="true"/> if token is refreshable; or <see cref="false"/> otherwise
@@ -87,7 +87,7 @@ namespace eduOAuth
             Token.MakeReadOnly();
 
             // Get expiration date.
-            Expires = eduJSON.Parser.GetValue(obj, "expires_in", out long expiresIn) ? DateTime.Now.AddSeconds(expiresIn) : DateTime.MaxValue;
+            Expires = eduJSON.Parser.GetValue(obj, "expires_in", out long expiresIn) ? DateTimeOffset.Now.AddSeconds(expiresIn) : DateTimeOffset.MaxValue;
 
             // Get refresh token.
             if (eduJSON.Parser.GetValue(obj, "refresh_token", out string refreshToken))
@@ -386,7 +386,7 @@ namespace eduOAuth
                 info.AddValue("Refresh", Protect(Refresh));
 
             // Save other fields and properties.
-            info.AddValue("Expires", Expires);
+            info.AddValue("Expires", Expires.UtcDateTime);
             if (Scope != null)
                 info.AddValue("Scope", Scope.ToArray());
         }
