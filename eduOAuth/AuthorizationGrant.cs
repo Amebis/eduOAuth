@@ -296,7 +296,7 @@ namespace eduOAuth
                 requestStream.Write(binBody, 0, binBody.Length, ct);
 
             // Parse the response.
-            return AccessToken.FromAuthorizationServerResponse(request, Scope, ct);
+            return AccessToken.FromAuthorizationServerResponse(request, DateTimeOffset.Now, Scope, ct);
         }
 
         /// <summary>

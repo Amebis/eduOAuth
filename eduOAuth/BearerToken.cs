@@ -24,11 +24,12 @@ namespace eduOAuth
         /// Bearer access token (RFC 6750)
         /// </summary>
         /// <param name="obj">An object representing access token as returned by the authentication server</param>
+        /// <param name="authorized">Timestamp of the initial authorization</param>
         /// <remarks>
         /// <a href="https://tools.ietf.org/html/rfc6750">RFC6750</a>
         /// </remarks>
-        public BearerToken(Dictionary<string, object> obj) :
-            base(obj)
+        public BearerToken(Dictionary<string, object> obj, DateTimeOffset authorized) :
+            base(obj, authorized)
         {
         }
 

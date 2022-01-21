@@ -27,7 +27,8 @@ namespace eduOAuth
             {
                 { "access_token", "" },
                 { "expires_in", 10 },
-            })
+            },
+            DateTimeOffset.MinValue)
         {
         }
 

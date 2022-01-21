@@ -23,9 +23,10 @@ namespace eduOAuth.Tests
         public void AccessTokenSerializationTest()
         {
             AccessToken
-                token1 = new BearerToken(Global.AccessTokenObj),
+                token1 = new BearerToken(Global.AccessTokenObj, DateTimeOffset.Now),
                 token2 = AccessToken.FromBase64String(token1.ToBase64String());
             Assert.AreEqual(token1, token2);
+            Assert.IsTrue(token1.Authorized == token2.Authorized);
             Assert.IsTrue(token1.Expires == token2.Expires);
             Assert.IsTrue((token1.Scope == null) == (token2.Scope == null));
             Assert.IsTrue(token1.Scope == null || token1.Scope.SetEquals(token2.Scope));
@@ -39,10 +40,12 @@ namespace eduOAuth.Tests
             var request = new Mock<HttpWebRequest>();
             request.Setup(obj => obj.GetResponse()).Returns(response.Object);
 
+            var now = DateTimeOffset.Now;
             AccessToken
-                token1 = new BearerToken(Global.AccessTokenObj),
-                token2 = AccessToken.FromAuthorizationServerResponse(request.Object);
+                token1 = new BearerToken(Global.AccessTokenObj, now),
+                token2 = AccessToken.FromAuthorizationServerResponse(request.Object, now);
             Assert.AreEqual(token1, token2);
+            Assert.IsTrue(token1.Authorized == token2.Authorized);
             Assert.IsTrue((token1.Expires - token2.Expires).TotalSeconds < 60);
             Assert.IsTrue((token1.Scope == null) == (token2.Scope == null));
             Assert.IsTrue(token1.Scope == null || token1.Scope.SetEquals(token2.Scope));
@@ -78,7 +81,7 @@ namespace eduOAuth.Tests
             request.Setup(obj => obj.GetResponse()).Returns(response.Object);
 
             AccessToken
-                token1 = new BearerToken(Global.AccessTokenObj),
+                token1 = new BearerToken(Global.AccessTokenObj, DateTimeOffset.Now),
                 token2 = token1.RefreshToken(request.Object, new NetworkCredential("username", "password"));
             var request_param = HttpUtility.ParseQueryString(Encoding.ASCII.GetString(request_buffer, 0, (int)request.Object.ContentLength));
             Assert.AreEqual("refresh_token", request_param["grant_type"]);
@@ -86,6 +89,7 @@ namespace eduOAuth.Tests
             Assert.IsTrue((token1.Scope == null) == (request_param["scope"] == null));
             Assert.IsTrue(token1.Scope == null || token1.Scope.SetEquals(new HashSet<string>(request_param["scope"].Split(null))));
             Assert.AreEqual(token1, token2);
+            Assert.IsTrue(token1.Authorized == token2.Authorized);
             Assert.IsTrue((token1.Expires - token2.Expires).TotalSeconds < 60);
             Assert.IsTrue((token1.Scope == null) == (token2.Scope == null));
             Assert.IsTrue(token1.Scope == null || token1.Scope.SetEquals(token2.Scope));

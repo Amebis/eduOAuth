@@ -58,7 +58,7 @@ namespace eduOAuth.Tests
             request.Setup(obj => obj.GetResponse()).Returns(response.Object);
 
             AccessToken
-                token1 = new BearerToken(Global.AccessTokenObj),
+                token1 = new BearerToken(Global.AccessTokenObj, DateTimeOffset.Now),
                 token2 = ag.ProcessResponse(new NameValueCollection() { { "state", query["state"] }, { "code", "1234567890" } }, request.Object, new NetworkCredential("", "password").SecurePassword);
             var request_param = HttpUtility.ParseQueryString(Encoding.ASCII.GetString(request_buffer, 0, (int)request.Object.ContentLength));
             Assert.AreEqual("authorization_code", request_param["grant_type"]);
@@ -67,6 +67,7 @@ namespace eduOAuth.Tests
             Assert.AreEqual(ag.ClientId, request_param["client_id"]);
             Assert.IsNotNull(request_param["code_verifier"]);
             Assert.AreEqual(token1, token2);
+            Assert.IsTrue((token1.Authorized - token2.Authorized).TotalSeconds < 60);
             Assert.IsTrue((token1.Expires - token2.Expires).TotalSeconds < 60);
             Assert.IsTrue(token2.Scope != null);
             Assert.IsTrue(token1.Scope.SetEquals(token2.Scope));

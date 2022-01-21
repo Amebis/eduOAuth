@@ -55,6 +55,11 @@ namespace eduOAuth
         #region Properties
 
         /// <summary>
+        /// Timestamp of the initial authorization - advisory only; or <see cref="DateTimeOffset.MinValue"/> if unknown
+        /// </summary>
+        public DateTimeOffset Authorized { get; }
+
+        /// <summary>
         /// Access token expiration date; or <see cref="DateTimeOffset.MaxValue"/> if token does not expire
         /// </summary>
         public DateTimeOffset Expires { get; }
@@ -77,14 +82,17 @@ namespace eduOAuth
         /// Initializes generic access token from data returned by authentication server.
         /// </summary>
         /// <param name="obj">An object representing access token as returned by the authentication server</param>
+        /// <param name="authorized">Timestamp of the initial authorization</param>
         /// <remarks>
         /// <a href="https://tools.ietf.org/html/rfc6749#section-5.1">RFC6749 Section 5.1</a>
         /// </remarks>
-        protected AccessToken(Dictionary<string, object> obj)
+        protected AccessToken(Dictionary<string, object> obj, DateTimeOffset authorized)
         {
             // Get access token.
             Token = (new NetworkCredential("", eduJSON.Parser.GetValue<string>(obj, "access_token"))).SecurePassword;
             Token.MakeReadOnly();
+
+            Authorized = authorized;
 
             // Get expiration date.
             Expires = eduJSON.Parser.GetValue(obj, "expires_in", out long expiresIn) ? DateTimeOffset.Now.AddSeconds(expiresIn) : DateTimeOffset.MaxValue;
@@ -168,10 +176,11 @@ namespace eduOAuth
         /// Parses authorization server response and creates an access token from it.
         /// </summary>
         /// <param name="request">Authorization server request</param>
+        /// <param name="authorized">Timestamp of the initial authorization</param>
         /// <param name="scope">Expected scope</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Access token</returns>
-        public static AccessToken FromAuthorizationServerResponse(WebRequest request, HashSet<string> scope = null, CancellationToken ct = default)
+        public static AccessToken FromAuthorizationServerResponse(WebRequest request, DateTimeOffset authorized, HashSet<string> scope = null, CancellationToken ct = default)
         {
             try
             {
@@ -187,7 +196,7 @@ namespace eduOAuth
                     AccessToken token = null;
                     switch (tokenType.ToLowerInvariant())
                     {
-                        case "bearer": token = new BearerToken(obj); break;
+                        case "bearer": token = new BearerToken(obj, authorized); break;
                         default: throw new UnsupportedTokenTypeException(tokenType);
                     }
 
@@ -263,7 +272,7 @@ namespace eduOAuth
                 requestStream.Write(binBody, 0, binBody.Length, ct);
 
             // Parse the response.
-            var token = FromAuthorizationServerResponse(request, Scope, ct);
+            var token = FromAuthorizationServerResponse(request, Authorized, Scope, ct);
             if (token.Refresh == null)
             {
                 // The authorization server does not cycle the refresh tokens.
@@ -362,6 +371,9 @@ namespace eduOAuth
             Refresh = refresh != null ? Unprotect(refresh) : null;
 
             // Load other fields and properties.
+            Authorized = DateTimeOffset.MinValue;
+            try { Authorized = (DateTime)info.GetValue("Authorized", typeof(DateTime)); }
+            catch (SerializationException) { }
             Expires = DateTimeOffset.MaxValue;
             try { Expires = (DateTime)info.GetValue("Expires", typeof(DateTime)); }
             catch (SerializationException) { }
@@ -388,6 +400,8 @@ namespace eduOAuth
                 info.AddValue("Refresh", Protect(Refresh));
 
             // Save other fields and properties.
+            if (Authorized != DateTimeOffset.MinValue)
+                info.AddValue("Authorized", Authorized.UtcDateTime);
             if (Expires != DateTimeOffset.MaxValue)
                 info.AddValue("Expires", Expires.UtcDateTime);
             if (Scope != null)
