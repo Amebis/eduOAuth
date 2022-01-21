@@ -362,7 +362,9 @@ namespace eduOAuth
             Refresh = refresh != null ? Unprotect(refresh) : null;
 
             // Load other fields and properties.
-            Expires = (DateTime)info.GetValue("Expires", typeof(DateTime));
+            Expires = DateTimeOffset.MaxValue;
+            try { Expires = (DateTime)info.GetValue("Expires", typeof(DateTime)); }
+            catch (SerializationException) { }
 
             string[] scope = null;
             try { scope = (string[])info.GetValue("Scope", typeof(string[])); }
@@ -386,7 +388,8 @@ namespace eduOAuth
                 info.AddValue("Refresh", Protect(Refresh));
 
             // Save other fields and properties.
-            info.AddValue("Expires", Expires.UtcDateTime);
+            if (Expires != DateTimeOffset.MaxValue)
+                info.AddValue("Expires", Expires.UtcDateTime);
             if (Scope != null)
                 info.AddValue("Scope", Scope.ToArray());
         }
