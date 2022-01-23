@@ -205,7 +205,7 @@ namespace eduOAuth
             {
                 if (ex.Response is HttpWebResponse httpResponse)
                 {
-                    if (httpResponse.StatusCode == HttpStatusCode.BadRequest)
+                    if (httpResponse.StatusCode == HttpStatusCode.BadRequest && httpResponse.ContentType == "application/json")
                     {
                         // Parse server error.
                         using (var responseStream = httpResponse.GetResponseStream())

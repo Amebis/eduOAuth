@@ -49,6 +49,19 @@ namespace eduOAuth.Tests
         }
 
         [TestMethod()]
+        public void AccessTokenFromAuthorizationServerExceptionTest()
+        {
+            var response = new Mock<HttpWebResponse>();
+            response.Setup(obj => obj.GetResponseStream()).Returns(new MemoryStream(Encoding.UTF8.GetBytes("{\"error\":\"test_error\",\"error_description\":\"Test Error\",\"error_uri\":\"http://www.foobar.org/\"}")));
+            response.SetupGet(obj => obj.ContentType).Returns("application/json");
+            response.SetupGet(obj => obj.StatusCode).Returns(HttpStatusCode.BadRequest);
+            var request = new Mock<HttpWebRequest>();
+            request.Setup(obj => obj.GetResponse()).Throws(new WebException("Test Exception", null, WebExceptionStatus.Success, response.Object));
+
+            Assert.ThrowsException<AccessTokenException>(() => AccessToken.FromAuthorizationServerResponse(request.Object, DateTimeOffset.Now));
+        }
+
+        [TestMethod()]
         public void AccessTokenRefreshTest()
         {
             var request = new Mock<HttpWebRequest>();
