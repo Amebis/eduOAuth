@@ -165,7 +165,7 @@ namespace eduOAuth
         /// Initializes an authorization grant.
         /// </summary>
         public AuthorizationGrant() :
-            this(new byte[0])
+            this(Array.Empty<byte>())
         {
         }
 
@@ -178,7 +178,7 @@ namespace eduOAuth
         /// <param name="scope">Should be populated before requesting authorization. When empty, <c>scope</c> parameter is not included in authorization request URI.</param>
         /// <param name="codeChallengeAlgorithm">Code challenge algorithm method</param>
         public AuthorizationGrant(Uri authorizationEndpoint, Uri redirectEndpoint, string clientId, HashSet<string> scope, CodeChallengeAlgorithmType codeChallengeAlgorithm = CodeChallengeAlgorithmType.S256) :
-            this(new byte[0], codeChallengeAlgorithm)
+            this(Array.Empty<byte>(), codeChallengeAlgorithm)
         {
             AuthorizationEndpoint = authorizationEndpoint;
             RedirectEndpoint = redirectEndpoint;
@@ -195,7 +195,7 @@ namespace eduOAuth
         {
             CodeChallengeAlgorithm = codeChallengeAlgorithm;
 
-            RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+            var rng = new RNGCryptoServiceProvider();
             var random = new byte[32];
             try
             {
@@ -270,7 +270,7 @@ namespace eduOAuth
                 throw new eduJSON.MissingParameterException("code");
 
             // Prepare token request body.
-            string body =
+            var body =
                 "grant_type=authorization_code" +
                 "&code=" + Uri.EscapeDataString(authorizationCode) +
                 "&redirect_uri=" + Uri.EscapeDataString(RedirectEndpoint.ToString()) +

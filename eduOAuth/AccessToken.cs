@@ -67,7 +67,7 @@ namespace eduOAuth
         /// <summary>
         /// <see cref="true"/> if token is refreshable; or <see cref="false"/> otherwise
         /// </summary>
-        public bool IsRefreshable { get => Refresh != null; }
+        public bool IsRefreshable => Refresh != null;
 
         /// <summary>
         /// List of access token scope identifiers
@@ -89,7 +89,7 @@ namespace eduOAuth
         protected AccessToken(Dictionary<string, object> obj, DateTimeOffset authorized)
         {
             // Get access token.
-            Token = (new NetworkCredential("", eduJSON.Parser.GetValue<string>(obj, "access_token"))).SecurePassword;
+            Token = new NetworkCredential("", eduJSON.Parser.GetValue<string>(obj, "access_token")).SecurePassword;
             Token.MakeReadOnly();
 
             Authorized = authorized;
@@ -100,7 +100,7 @@ namespace eduOAuth
             // Get refresh token.
             if (eduJSON.Parser.GetValue(obj, "refresh_token", out string refreshToken))
             {
-                Refresh = (new NetworkCredential("", refreshToken)).SecurePassword;
+                Refresh = new NetworkCredential("", refreshToken).SecurePassword;
                 Refresh.MakeReadOnly();
             }
 
@@ -248,7 +248,7 @@ namespace eduOAuth
         public AccessToken RefreshToken(WebRequest request, NetworkCredential clientCred = null, CancellationToken ct = default)
         {
             // Prepare token request body.
-            string body =
+            var body =
                 "grant_type=refresh_token" +
                 "&refresh_token=" + Uri.EscapeDataString(new NetworkCredential("", Refresh).Password);
             if (Scope != null)
@@ -294,7 +294,7 @@ namespace eduOAuth
                 throw new ArgumentNullException(nameof(userData));
 
             // Copy input to unmanaged string.
-            IntPtr exposedInput = Marshal.SecureStringToGlobalAllocUnicode(userData);
+            var exposedInput = Marshal.SecureStringToGlobalAllocUnicode(userData);
             try
             {
                 var data = new byte[userData.Length * sizeof(char)];

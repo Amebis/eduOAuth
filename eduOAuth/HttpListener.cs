@@ -85,7 +85,7 @@ namespace eduOAuth
         /// <summary>
         /// Process a single HTTP request
         /// </summary>
-        /// <param name="param">HTTP peer/client of type <see cref="System.Net.Sockets.TcpClient"/></param>
+        /// <param name="param">HTTP peer/client of type <see cref="TcpClient"/></param>
         private void ProcessRequest(object param)
         {
             try
@@ -99,7 +99,7 @@ namespace eduOAuth
                         var headerStream = new MemoryStream(8192);
                         var terminator = new byte[4];
                         var modulus = terminator.Length;
-                        for (int i = 0; ; i = (i + 1) % modulus)
+                        for (var i = 0; ; i = (i + 1) % modulus)
                         {
                             var data = stream.ReadByte();
                             if (data == -1)
