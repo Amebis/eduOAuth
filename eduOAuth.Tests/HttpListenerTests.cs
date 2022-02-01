@@ -19,7 +19,7 @@ namespace eduOAuth.Tests
         public void HttpListenerTest()
         {
             string uriBase = null;
-            bool callbackCalled = false;
+            var callbackCalled = false;
             var listener = new HttpListener(IPAddress.Loopback, 0);
             listener.HttpCallback += (object sender, HttpCallbackEventArgs e) =>
             {
