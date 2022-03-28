@@ -268,7 +268,7 @@ namespace eduOAuth.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The client succesfully authorized..
+        ///   Looks up a localized string similar to The client successfully authorized..
         /// </summary>
         internal static string HtmlFinishedTitle {
             get {
