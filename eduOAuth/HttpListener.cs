@@ -63,13 +63,16 @@ namespace eduOAuth
         /// <summary>
         /// Starts listening and accepting clients in the background
         /// </summary>
-        public new void Start()
+        /// <param name="ct">The token to monitor for cancellation requests</param>
+        public void Start(CancellationToken ct = default)
         {
             // Launch TCP listener.
-            base.Start();
+            Start(10);
+            var gettingReady = new CancellationTokenSource();
             new Thread(new ThreadStart(
                 () =>
                 {
+                    gettingReady.Cancel();
                     for (; ; )
                     {
                         // Wait for the agent request and accept it.
@@ -80,6 +83,7 @@ namespace eduOAuth
                         new Thread(ProcessRequest).Start(client);
                     }
                 })).Start();
+            CancellationTokenSource.CreateLinkedTokenSource(gettingReady.Token, ct).Token.WaitHandle.WaitOne();
         }
 
         /// <summary>
