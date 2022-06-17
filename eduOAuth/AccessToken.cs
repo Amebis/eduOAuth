@@ -186,28 +186,33 @@ namespace eduOAuth
             {
                 // Read and parse the response.
                 using (var response = request.GetResponse())
-                using (var responseStream = response.GetResponseStream())
-                using (var reader = new StreamReader(responseStream))
                 {
-                    var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(reader.ReadToEnd(ct), ct);
-
-                    // Get token type and create the token based on the type.
-                    var tokenType = eduJSON.Parser.GetValue<string>(obj, "token_type");
-                    AccessToken token = null;
-                    switch (tokenType.ToLowerInvariant())
+                    // When request redirects are disabled, GetResponse() doesn't throw on 3xx status.
+                    if (response is HttpWebResponse httpResponse && httpResponse.StatusCode != HttpStatusCode.OK)
+                        throw new WebException("Response status code not 200", null, WebExceptionStatus.UnknownError, response);
+                    using (var responseStream = response.GetResponseStream())
+                    using (var reader = new StreamReader(responseStream))
                     {
-                        case "bearer": token = new BearerToken(obj, authorized); break;
-                        default: throw new UnsupportedTokenTypeException(tokenType);
-                    }
+                        var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(reader.ReadToEnd(ct), ct);
 
-                    if (token.Scope == null && scope != null)
-                    {
-                        // The authorization server did not specify a token scope in response.
-                        // The scope is assumed the same as have been requested.
-                        token.Scope = scope;
-                    }
+                        // Get token type and create the token based on the type.
+                        var tokenType = eduJSON.Parser.GetValue<string>(obj, "token_type");
+                        AccessToken token = null;
+                        switch (tokenType.ToLowerInvariant())
+                        {
+                            case "bearer": token = new BearerToken(obj, authorized); break;
+                            default: throw new UnsupportedTokenTypeException(tokenType);
+                        }
 
-                    return token;
+                        if (token.Scope == null && scope != null)
+                        {
+                            // The authorization server did not specify a token scope in response.
+                            // The scope is assumed the same as have been requested.
+                            token.Scope = scope;
+                        }
+
+                        return token;
+                    }
                 }
             }
             catch (WebException ex)

@@ -55,6 +55,7 @@ namespace eduOAuth.Tests
             request.Setup(obj => obj.GetRequestStream()).Returns(new MemoryStream(request_buffer, true));
             var response = new Mock<HttpWebResponse>();
             response.Setup(obj => obj.GetResponseStream()).Returns(new MemoryStream(Encoding.UTF8.GetBytes(Global.AccessTokenJSON)));
+            response.SetupGet(obj => obj.StatusCode).Returns(HttpStatusCode.OK);
             request.Setup(obj => obj.GetResponse()).Returns(response.Object);
 
             AccessToken
