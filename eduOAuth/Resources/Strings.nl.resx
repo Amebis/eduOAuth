@@ -161,7 +161,7 @@
     <comment>{0}=line containing error</comment>
   </data>
   <data name="ErrorHttp404" xml:space="preserve">
-    <value>Pad{0} niet gevonden.</value>
+    <value>Pad {0} niet gevonden.</value>
   </data>
   <data name="ErrorHttp405" xml:space="preserve">
     <value>Methode {0} niet ondersteund.</value>
