@@ -6,6 +6,7 @@
 */
 
 using eduEx.Async;
+using eduEx.System.Net;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
