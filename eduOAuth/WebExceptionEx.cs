@@ -66,9 +66,16 @@ namespace eduOAuth
         /// <inheritdoc/>
         public override string ToString()
         {
-            return string.IsNullOrEmpty(ResponseText) ?
-                base.ToString() :
-                base.ToString() + "\r\n-----BEGIN RESPONSE-----\r\n" + ResponseText + "\r\n-----END RESPONSE-----\r\n";
+            var sb = new StringBuilder();
+            sb.Append(base.ToString());
+            sb.AppendFormat("\r\nResponse URL: {0}", Response.ResponseUri);
+            if (string.IsNullOrEmpty(ResponseText))
+            {
+                sb.Append("\r\n-----BEGIN RESPONSE-----\r\n");
+                sb.Append(ResponseText);
+                sb.Append("\r\n-----END RESPONSE-----\r\n");
+            }
+            return sb.ToString();
         }
 
         #endregion
