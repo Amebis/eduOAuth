@@ -244,6 +244,7 @@ namespace eduOAuth
         /// Uses the refresh token to obtain a new access token. The new access token is requested using the same scope as initially granted to the access token.
         /// </summary>
         /// <param name="request">Web request of the token endpoint used to obtain access token from authorization grant</param>
+        /// <param name="clientId">Registered OAuth client ID (e.g. "org.eduvpn.app.windows")</param>
         /// <param name="clientCred">Client credentials (optional)</param>
         /// <param name="ct">The token to monitor for cancellation requests</param>
         /// <returns>Access token</returns>
@@ -251,12 +252,13 @@ namespace eduOAuth
         /// <a href="https://tools.ietf.org/html/rfc6749#section-5.1">RFC6749 Section 5.1</a>,
         /// <a href="https://tools.ietf.org/html/rfc6749#section-6">RFC6749 Section 6</a>
         /// </remarks>
-        public AccessToken RefreshToken(WebRequest request, NetworkCredential clientCred = null, CancellationToken ct = default)
+        public AccessToken RefreshToken(WebRequest request, string clientId, NetworkCredential clientCred = null, CancellationToken ct = default)
         {
             // Prepare token request body.
             var body =
                 "grant_type=refresh_token" +
-                "&refresh_token=" + Uri.EscapeDataString(new NetworkCredential("", Refresh).Password);
+                "&refresh_token=" + Uri.EscapeDataString(new NetworkCredential("", Refresh).Password) +
+                "&client_id=" + Uri.EscapeDataString(clientId);
             if (Scope != null)
                 body += "&scope=" + Uri.EscapeDataString(string.Join(" ", Scope));
 

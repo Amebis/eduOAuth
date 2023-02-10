@@ -84,7 +84,7 @@ namespace eduOAuth.Tests
 
             AccessToken
                 token1 = new BearerToken(Global.AccessTokenObj, DateTimeOffset.Now),
-                token2 = token1.RefreshToken(request.Object, new NetworkCredential("username", "password"));
+                token2 = token1.RefreshToken(request.Object, "org.eduvpn.app.windows", new NetworkCredential("username", "password"));
             var request_param = HttpUtility.ParseQueryString(Encoding.ASCII.GetString(request_buffer, 0, (int)request.Object.ContentLength));
             Assert.AreEqual("refresh_token", request_param["grant_type"]);
             Assert.IsNotNull(request_param["refresh_token"]);

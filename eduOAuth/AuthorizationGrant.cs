@@ -174,7 +174,7 @@ namespace eduOAuth
         /// </summary>
         /// <param name="authorizationEndpoint">Authorization endpoint base URI</param>
         /// <param name="redirectEndpoint">Redirection endpoint base URI</param>
-        /// <param name="clientId">Should be populated before requesting authorization.</param>
+        /// <param name="clientId">Registered OAuth client ID (e.g. "org.eduvpn.app.windows")</param>
         /// <param name="scope">Should be populated before requesting authorization. When empty, <c>scope</c> parameter is not included in authorization request URI.</param>
         /// <param name="codeChallengeAlgorithm">Code challenge algorithm method</param>
         public AuthorizationGrant(Uri authorizationEndpoint, Uri redirectEndpoint, string clientId, HashSet<string> scope, CodeChallengeAlgorithmType codeChallengeAlgorithm = CodeChallengeAlgorithmType.S256) :
