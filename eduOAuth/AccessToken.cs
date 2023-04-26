@@ -21,6 +21,7 @@ using System.Security.Cryptography;
 using System.Security.Permissions;
 using System.Text;
 using System.Threading;
+using System.Web;
 
 namespace eduOAuth
 {
@@ -238,6 +239,18 @@ namespace eduOAuth
 
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Serializes access token to JSON encoded string for eduvpn-common
+        /// </summary>
+        /// <returns>JSON string</returns>
+        public string ToJSON()
+        {
+            return string.Format("{{\"access_token\":\"{0}\",\"refresh_token\":\"{1}\",\"expires_in\":{2}}}",
+                HttpUtility.JavaScriptStringEncode(new NetworkCredential("", Token).Password),
+                HttpUtility.JavaScriptStringEncode(new NetworkCredential("", Refresh).Password),
+                Expires.ToUnixTimeSeconds());
         }
 
         /// <summary>
