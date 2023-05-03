@@ -100,14 +100,14 @@ namespace eduOAuth
             Expires = eduJSON.Parser.GetValue(obj, "expires_in", out long expiresIn) ? DateTimeOffset.Now.AddSeconds(expiresIn) : DateTimeOffset.MaxValue;
 
             // Get refresh token.
-            if (eduJSON.Parser.GetValue(obj, "refresh_token", out string refreshToken))
+            if (eduJSON.Parser.GetValue(obj, "refresh_token", out string refreshToken) && refreshToken != null)
             {
                 Refresh = new NetworkCredential("", refreshToken).SecurePassword;
                 Refresh.MakeReadOnly();
             }
 
             // Get scope.
-            if (eduJSON.Parser.GetValue(obj, "scope", out string scope))
+            if (eduJSON.Parser.GetValue(obj, "scope", out string scope) && scope != null)
                 Scope = new HashSet<string>(scope.Split(null));
         }
 
