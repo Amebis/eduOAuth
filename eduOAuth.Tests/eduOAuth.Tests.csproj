@@ -66,9 +66,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AccessTokenTests.cs" />
-    <Compile Include="AuthorizationGrantTests.cs" />
     <Compile Include="Global.cs" />
-    <Compile Include="HttpListenerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

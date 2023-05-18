@@ -7,7 +7,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Runtime.Serialization;
 
 namespace eduOAuth
@@ -31,16 +30,6 @@ namespace eduOAuth
         public BearerToken(Dictionary<string, object> obj, DateTimeOffset authorized) :
             base(obj, authorized)
         {
-        }
-
-        #endregion
-
-        #region Methods
-
-        /// <inheritdoc/>
-        public override void AddToRequest(WebRequest request)
-        {
-            request.Headers.Add(string.Format("Authorization: Bearer {0}", new NetworkCredential("", Token).Password));
         }
 
         #endregion

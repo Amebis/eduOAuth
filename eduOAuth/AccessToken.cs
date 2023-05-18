@@ -5,8 +5,6 @@
     SPDX-License-Identifier: GPL-3.0+
 */
 
-using eduEx.Async;
-using eduEx.System.Net;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,8 +17,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Security;
 using System.Security.Cryptography;
 using System.Security.Permissions;
-using System.Text;
-using System.Threading;
 using System.Web;
 
 namespace eduOAuth
@@ -34,7 +30,7 @@ namespace eduOAuth
         #region Fields
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private static readonly byte[] Entropy =
+        static readonly byte[] Entropy =
         {
             0x83, 0xb3, 0x15, 0xa2, 0x81, 0x57, 0x01, 0x0d, 0x8c, 0x21, 0x04, 0xd9, 0x11, 0xb3, 0xa7, 0x32,
             0xba, 0xb9, 0x8c, 0x15, 0x7b, 0x64, 0x32, 0x2b, 0x2f, 0x5f, 0x0e, 0x0d, 0xe5, 0x0a, 0x91, 0xc4,
@@ -45,12 +41,12 @@ namespace eduOAuth
         /// <summary>
         /// Access token
         /// </summary>
-        protected SecureString Token;
+        readonly SecureString Token;
 
         /// <summary>
         /// Refresh token
         /// </summary>
-        private SecureString Refresh;
+        readonly SecureString Refresh;
 
         #endregion
 
@@ -138,15 +134,6 @@ namespace eduOAuth
         }
 
         /// <summary>
-        /// Adds token to request
-        /// </summary>
-        /// <param name="request">Web request</param>
-        public virtual void AddToRequest(WebRequest request)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Serializes access token to Base64 encoded string
         /// </summary>
         /// <returns>Serialized and Base64 encoded representation of access token</returns>
@@ -175,73 +162,6 @@ namespace eduOAuth
         }
 
         /// <summary>
-        /// Parses authorization server response and creates an access token from it.
-        /// </summary>
-        /// <param name="request">Authorization server request</param>
-        /// <param name="authorized">Timestamp of the initial authorization</param>
-        /// <param name="scope">Expected scope</param>
-        /// <param name="ct">The token to monitor for cancellation requests</param>
-        /// <returns>Access token</returns>
-        public static AccessToken FromAuthorizationServerResponse(WebRequest request, DateTimeOffset authorized, HashSet<string> scope = null, CancellationToken ct = default)
-        {
-            try
-            {
-                // Read and parse the response.
-                using (var response = request.GetResponse())
-                {
-                    // When request redirects are disabled, GetResponse() doesn't throw on 3xx status.
-                    if (response is HttpWebResponse httpResponse && httpResponse.StatusCode != HttpStatusCode.OK)
-                        throw new WebException("Response status code not 200", null, WebExceptionStatus.UnknownError, response);
-                    using (var responseStream = response.GetResponseStream())
-                    using (var reader = new StreamReader(responseStream))
-                    {
-                        var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(reader.ReadToEnd(ct), ct);
-
-                        // Get token type and create the token based on the type.
-                        var tokenType = eduJSON.Parser.GetValue<string>(obj, "token_type");
-                        AccessToken token = null;
-                        switch (tokenType.ToLowerInvariant())
-                        {
-                            case "bearer": token = new BearerToken(obj, authorized); break;
-                            default: throw new UnsupportedTokenTypeException(tokenType);
-                        }
-
-                        if (token.Scope == null && scope != null)
-                        {
-                            // The authorization server did not specify a token scope in response.
-                            // The scope is assumed the same as have been requested.
-                            token.Scope = scope;
-                        }
-
-                        return token;
-                    }
-                }
-            }
-            catch (WebException ex)
-            {
-                if (ex.Response is HttpWebResponse httpResponse)
-                {
-                    if (httpResponse.StatusCode == HttpStatusCode.BadRequest && httpResponse.ContentType == "application/json")
-                    {
-                        // Parse server error.
-                        using (var responseStream = httpResponse.GetResponseStream())
-                        using (var reader = new StreamReader(responseStream))
-                        {
-                            var obj = (Dictionary<string, object>)eduJSON.Parser.Parse(reader.ReadToEnd(ct), ct);
-                            eduJSON.Parser.GetValue(obj, "error_description", out string errorDescription);
-                            eduJSON.Parser.GetValue(obj, "error_uri", out string errorUri);
-                            throw new AccessTokenException(eduJSON.Parser.GetValue<string>(obj, "error"), errorDescription, errorUri);
-                        }
-                    }
-
-                    throw new WebExceptionEx(ex, ct);
-                }
-
-                throw;
-            }
-        }
-
-        /// <summary>
         /// Serializes access token to JSON encoded string for eduvpn-common
         /// </summary>
         /// <returns>JSON string</returns>
@@ -254,62 +174,11 @@ namespace eduOAuth
         }
 
         /// <summary>
-        /// Uses the refresh token to obtain a new access token. The new access token is requested using the same scope as initially granted to the access token.
-        /// </summary>
-        /// <param name="request">Web request of the token endpoint used to obtain access token from authorization grant</param>
-        /// <param name="clientId">Registered OAuth client ID (e.g. "org.eduvpn.app.windows")</param>
-        /// <param name="clientCred">Client credentials (optional)</param>
-        /// <param name="ct">The token to monitor for cancellation requests</param>
-        /// <returns>Access token</returns>
-        /// <remarks>
-        /// <a href="https://tools.ietf.org/html/rfc6749#section-5.1">RFC6749 Section 5.1</a>,
-        /// <a href="https://tools.ietf.org/html/rfc6749#section-6">RFC6749 Section 6</a>
-        /// </remarks>
-        public AccessToken RefreshToken(WebRequest request, string clientId, NetworkCredential clientCred = null, CancellationToken ct = default)
-        {
-            // Prepare token request body.
-            var body =
-                "grant_type=refresh_token" +
-                "&refresh_token=" + Uri.EscapeDataString(new NetworkCredential("", Refresh).Password) +
-                "&client_id=" + Uri.EscapeDataString(clientId);
-            if (Scope != null)
-                body += "&scope=" + Uri.EscapeDataString(string.Join(" ", Scope));
-
-            // Send the request.
-            request.Method = "POST";
-            if (clientCred != null)
-            {
-                // Our client has credentials: requires authentication.
-                request.Credentials = new CredentialCache
-                {
-                    { request.RequestUri, "Basic", clientCred }
-                };
-                request.PreAuthenticate = true;
-            }
-            var binBody = Encoding.ASCII.GetBytes(body);
-            request.ContentType = "application/x-www-form-urlencoded";
-            request.ContentLength = binBody.Length;
-            using (var requestStream = request.GetRequestStream())
-                requestStream.Write(binBody, 0, binBody.Length, ct);
-
-            // Parse the response.
-            var token = FromAuthorizationServerResponse(request, Authorized, Scope, ct);
-            if (token.Refresh == null)
-            {
-                // The authorization server does not cycle the refresh tokens.
-                // The refresh token remains the same.
-                token.Refresh = Refresh;
-            }
-
-            return token;
-        }
-
-        /// <summary>
         /// Encrypts the data in a specified secure string and returns a byte array that contains the encrypted data
         /// </summary>
         /// <param name="userData">A secure string that contains data to encrypt</param>
         /// <returns>A byte array representing the encrypted data</returns>
-        private static byte[] Protect(SecureString userData)
+        static byte[] Protect(SecureString userData)
         {
             if (userData == null)
                 throw new ArgumentNullException(nameof(userData));
@@ -350,7 +219,7 @@ namespace eduOAuth
         /// </summary>
         /// <param name="encryptedData">A byte array containing data encrypted using the <c>System.Security.Cryptography.ProtectedData.Protect(System.Byte[],System.Byte[],System.Security.Cryptography.DataProtectionScope)</c> method.</param>
         /// <returns>A <see cref="SecureString"/> representing the decrypted data</returns>
-        private static SecureString Unprotect(byte[] encryptedData)
+        static SecureString Unprotect(byte[] encryptedData)
         {
             // Decrypt data.
             var data = ProtectedData.Unprotect(encryptedData, Entropy, DataProtectionScope.CurrentUser);
@@ -436,7 +305,7 @@ namespace eduOAuth
         /// Flag to detect redundant <see cref="Dispose(bool)"/> calls.
         /// </summary>
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private bool disposedValue = false;
+        bool disposedValue = false;
 
         /// <summary>
         /// Called to dispose the object.
@@ -453,11 +322,8 @@ namespace eduOAuth
             {
                 if (disposing)
                 {
-                    if (Token != null)
-                        Token.Dispose();
-
-                    if (Refresh != null)
-                        Refresh.Dispose();
+                    Token?.Dispose();
+                    Refresh?.Dispose();
                 }
 
                 disposedValue = true;
