@@ -1,8 +1,8 @@
 version: 1.13.{build}
 image: Visual Studio 2022
 before_build:
-  - git clone -q --branch=master https://github.com/Amebis/eduEx.git ..\eduEx
-  - git clone -q --branch=master https://github.com/Amebis/eduJSON.git ..\eduJSON
+  - git clone -q --branch=eduVPN/3.x https://github.com/Amebis/eduEx.git ..\eduEx
+  - git clone -q --branch=eduVPN/3.x https://github.com/Amebis/eduJSON.git ..\eduJSON
   - nuget restore -Verbosity quiet
 configuration:
   - Debug
